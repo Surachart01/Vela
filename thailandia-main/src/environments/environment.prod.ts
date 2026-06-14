@@ -8,5 +8,5 @@ export const environment = {
   PROGRAM_ID: 1,
   // apiUrl: 'http://localhost:4300/api/v1'
 
-  apiUrl: 'https://api-thailandia-production.up.railway.app/api/v1'
+  apiUrl: 'https://vela-production-fdd4.up.railway.app/api/v1'
 };
