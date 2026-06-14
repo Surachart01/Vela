@@ -1,0 +1,323 @@
+<div class="add-hotel-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ viewOnly() ? (t()['hotel.viewTitle'] || 'View Hotel') : (t()['hotel.createTitle'] || 'Add Hotel') }}</h1>
+    </div>
+
+    <form class="hotel-form" [formGroup]="hotelForm" (ngSubmit)="saveHotel()">
+
+      <!-- General Info -->
+      <section class="form-section">
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['hotel.country'] || 'Country' }} <span class="required">*</span></label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['hotel.city'] || 'City' }} <span class="required">*</span></label>
+            <div class="input-with-btn">
+              <select formControlName="city">
+                <option value="">Select city</option>
+                @for (cityName of masterData.cities(); track cityName) {
+                  <option [value]="cityName">{{cityName}}</option>
+                }
+              </select>
+              <button *ngIf="!viewOnly()" type="button" class="btn-add-inline" (click)="isCityModalOpen.set(true)"><i
+                  class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['hotel.name'] || 'Hotel Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="hotelName" placeholder="Enter hotel name">
+          </div>
+          <div class="form-group half-width" *ngIf="!authService.isAgent()">
+            <label>{{ t()['common.order'] || 'Display Order' }}</label>
+            <input type="number" formControlName="display_order" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['hotel.address'] || 'Hotel Address' }} <span class="required">*</span></label>
+            <input type="text" formControlName="hotelAddress" placeholder="Enter hotel address">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group third-width">
+            <label>{{ t()['hotel.earlyCheckIn'] || 'Early Check-in Add (%)' }}</label>
+            <input type="number" min="0" formControlName="earlyCheckIn">
+          </div>
+          <div class="form-group third-width">
+            <label>Late Check-out until 18:00 Add (%)</label>
+            <input type="number" min="0" formControlName="lateCheckOut18">
+          </div>
+          <div class="form-group third-width">
+            <label>Late Check-out until 21:00 Add (%)</label>
+            <input type="number" min="0" formControlName="lateCheckOut21">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['hotel.christmasDinner'] || 'Christmas Dinner' }}</label>
+            <input type="text" formControlName="christmasDinner" placeholder="Enter Christmas dinner details">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['hotel.newYearDinner'] || 'New Year Dinner' }}</label>
+            <input type="text" formControlName="newYearDinner" placeholder="Enter New Year dinner details">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['hotel.notes'] || 'Hotel Notes for Agent' }}</label>
+            <textarea formControlName="notes" rows="3" placeholder="Enter notes for agent"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Table -->
+      <section class="form-section table-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-address-book"></i> {{ t()['hotel.contactTitle'] ||
+            'Contact' }}</h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-item" (click)="openContactModal()"><i class="fa-solid fa-plus"></i> {{
+            t()['hotel.addContact'] || 'Add Contact' }}</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="nested-tbl">
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-user"></i> {{ t()['hotel.col.name'] || 'Name' }}</th>
+                <th><i class="fa-solid fa-envelope"></i> {{ t()['hotel.col.email'] || 'Email' }}</th>
+                <th><i class="fa-solid fa-phone"></i> {{ t()['hotel.col.telephone'] || 'Telephone' }}</th>
+                <th><i class="fa-solid fa-gear"></i> {{ t()['hotel.col.actions'] || 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (contactsList().length === 0) {
+              <tr>
+                <td colspan="4" class="empty-state">No contacts added yet.</td>
+              </tr>
+              } @else {
+              @for (c of contactsList(); track $index; let i = $index) {
+              <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.email }}</td>
+                <td>{{ c.telephone }}</td>
+                <td style="width: 100px;">
+                  <div class="action-cell">
+                    <button type="button" class="btn-action blue" (click)="openContactModal(c, i)" [title]="viewOnly() ? 'View' : 'Edit'"><i
+                        class="fa-solid" [class.fa-eye]="viewOnly()" [class.fa-pen-to-square]="!viewOnly()"></i></button>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-action red" (click)="removeContact(i)" title="Delete"><i
+                        class="fa-solid fa-trash-can"></i></button>
+                  </div>
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Room Types Table -->
+      <section class="form-section table-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-bed"></i> {{ t()['hotel.roomTypesTitle'] || 'Room Types'
+            }}</h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-item" (click)="openRoomModal()"><i class="fa-solid fa-plus"></i> {{
+            t()['hotel.addRoomType'] || 'Add Room Type' }}</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="nested-tbl">
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-calendar"></i> {{ t()['hotel.col.from'] || 'From' }}</th>
+                <th><i class="fa-solid fa-calendar"></i> {{ t()['hotel.col.to'] || 'To' }}</th>
+                <th><i class="fa-solid fa-bed"></i> {{ t()['hotel.col.roomType'] || 'Room Type' }}</th>
+                <th><i class="fa-solid fa-dollar-sign"></i> {{ t()['hotel.col.roomPrice'] || 'Room Price' }}</th>
+                <th><i class="fa-solid fa-plus"></i> {{ t()['hotel.col.extraBed'] || 'Extra Bed' }}</th>
+                <th><i class="fa-solid fa-utensils"></i> {{ t()['hotel.col.foodCostAdult'] || 'Food Cost [Adult]' }}
+                </th>
+                <th><i class="fa-solid fa-child-reaching"></i> {{ t()['hotel.col.foodCostChild'] || 'Food Cost [Child]'
+                  }}</th>
+                <th><i class="fa-solid fa-gear"></i> {{ t()['hotel.col.actions'] || 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (roomTypesList().length === 0) {
+              <tr>
+                <td colspan="8" class="empty-state">No room types added yet.</td>
+              </tr>
+              } @else {
+              @for (r of roomTypesList(); track $index; let i = $index) {
+              <tr>
+                <td>{{ r.dateFrom | date:'dd/MM/yyyy' }}</td>
+                <td>{{ r.dateTo | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  @if (r.roomEntries && r.roomEntries.length > 0) {
+                    @for (entry of r.roomEntries; track $index) {
+                      <div>{{ entry.name }}<br>
+                        <small>Allotment: {{ entry.allotment }}<br>
+                        CutOff Days: {{ entry.cutOff }}<br>
+                        Max Capacity: {{ entry.maxCapacity }}</small>
+                      </div>
+                    }
+                  } @else {
+                    {{ r.roomType }}
+                  }
+                </td>
+                <td>
+                  @if (r.roomEntries && r.roomEntries.length > 0) {
+                    @for (entry of r.roomEntries; track $index) {
+                      <div><small>Single: {{ entry.singlePrice }}<br>Double: {{ entry.doublePrice }}</small></div>
+                    }
+                  } @else {
+                    {{ r.roomPrice | number:'1.2-2' }}
+                  }
+                </td>
+                <td>
+                  <small>
+                    Adult: {{ r.extraBedAdult ?? 0 }}<br>
+                    Child: {{ r.extraBedChild ?? 0 }}<br>
+                    Shared: {{ r.extraBedShared ?? 0 }}
+                  </small>
+                </td>
+                <td>
+                  <small>
+                    ABF: {{ r.foodCostAdultAbf ?? 0 }}<br>
+                    Lunch: {{ r.foodCostAdultLunch ?? 0 }}<br>
+                    Dinner: {{ r.foodCostAdultDinner ?? 0 }}<br>
+                    All Inclusive: {{ r.foodCostAdultAllInclusive ?? 0 }}
+                  </small>
+                </td>
+                <td>
+                  <small>
+                    ABF: {{ r.foodCostChildAbf ?? 0 }}<br>
+                    Lunch: {{ r.foodCostChildLunch ?? 0 }}<br>
+                    Dinner: {{ r.foodCostChildDinner ?? 0 }}<br>
+                    All Inclusive: {{ r.foodCostChildAllInclusive ?? 0 }}
+                  </small>
+                </td>
+                <td style="width: 120px;">
+                  <div class="action-cell">
+                    <button type="button" class="btn-action blue" (click)="openRoomModal(r, i)" [title]="viewOnly() ? 'View' : 'Edit'"><i
+                        class="fa-solid" [class.fa-eye]="viewOnly()" [class.fa-pen-to-square]="!viewOnly()"></i></button>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-action red" (click)="removeRoom(i)" title="Delete"><i
+                        class="fa-solid fa-trash-can"></i></button>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-action yellow" (click)="duplicateRoom(i)" title="Duplicate"><i
+                        class="fa-solid fa-copy"></i></button>
+                  </div>
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Promotion Table -->
+      <section class="form-section table-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-tag"></i> {{ t()['hotel.promoTitle'] || 'Promotion' }}
+          </h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-item" (click)="openPromoModal()"><i class="fa-solid fa-plus"></i> {{
+            t()['hotel.addPromo'] || 'Add Promotion' }}</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="nested-tbl">
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-code"></i> {{ t()['hotel.col.code'] || 'Code' }}</th>
+                <th><i class="fa-solid fa-tag"></i> {{ t()['hotel.col.promoName'] || 'Name' }}</th>
+                <th><i class="fa-solid fa-calendar"></i> {{ t()['hotel.col.bookingFrom'] || 'Booking Date From' }}</th>
+                <th><i class="fa-solid fa-calendar"></i> {{ t()['hotel.col.bookingTo'] || 'Booking Date To' }}</th>
+                <th><i class="fa-solid fa-sun"></i> {{ t()['hotel.col.earlyBird'] || 'Early Bird' }}</th>
+                <th><i class="fa-solid fa-moon"></i> {{ t()['hotel.col.minNights'] || 'Min-Nights' }}</th>
+                <th><i class="fa-solid fa-utensils"></i> {{ t()['hotel.col.freeMeals'] || 'Free Meals' }}</th>
+                <th><i class="fa-solid fa-percent"></i> {{ t()['hotel.col.discount'] || '% Discount' }}</th>
+                <th><i class="fa-solid fa-toggle-on"></i> {{ t()['hotel.col.enabled'] || 'Enabled' }}</th>
+                <th><i class="fa-solid fa-gear"></i> {{ t()['hotel.col.actions'] || 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (promotionsList().length === 0) {
+              <tr>
+                <td colspan="10" class="empty-state">No promotions added yet.</td>
+              </tr>
+              } @else {
+              @for (p of promotionsList(); track $index; let i = $index) {
+              <tr>
+                <td>{{ p.code }}</td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.bookingDateFrom | date:'dd/MM/yyyy' }}</td>
+                <td>{{ p.bookingDateTo | date:'dd/MM/yyyy' }}</td>
+                <td>{{ p.earlyBird }}</td>
+                <td>{{ p.minNights }}</td>
+                <td>
+                  <small>
+                    ABF: {{ p.freeMealsAbf ?? 0 }}, Lunch: {{ p.freeMealsLunch ?? 0 }}, Dinner: {{ p.freeMealsDinner ?? 0 }}
+                  </small>
+                </td>
+                <td>{{ p.discountAmount }} {{ p.discountType }}</td>
+                <td>{{ p.enabled ? 'Yes' : 'No' }}</td>
+                <td style="width: 100px;">
+                  <div class="action-cell">
+                    <button type="button" class="btn-action blue" (click)="openPromoModal(p, i)" [title]="viewOnly() ? 'View' : 'Edit'"><i
+                        class="fa-solid" [class.fa-eye]="viewOnly()" [class.fa-pen-to-square]="!viewOnly()"></i></button>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-action red" (click)="removePromo(i)" title="Delete"><i
+                        class="fa-solid fa-trash-can"></i></button>
+                  </div>
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()"><i class="fa-solid fa-xmark"></i> {{
+          viewOnly() ? (t()['form.close'] || 'Close') : (t()['hotel.btnCancel'] || 'Cancel') }}</button>
+        <button *ngIf="!viewOnly()" type="submit" class="btn-save" [disabled]="viewOnly()"><i class="fa-solid fa-floppy-disk"></i> {{ t()['hotel.btnSaveHotel'] ||
+          'Save Hotel' }}</button>
+      </div>
+
+    </form>
+  </main>
+</div>
+
+<!-- City Modal -->
+<app-add-city-modal [isOpen]="isCityModalOpen()" [country]="hotelForm.get('country')?.value || ''"
+  (close)="isCityModalOpen.set(false)" (save)="handleSaveCity($event)">
+</app-add-city-modal>
+
+<!-- Nested Modals -->
+<app-add-hotel-contact-modal [isOpen]="isContactModalOpen()" [contactData]="selectedContact()"
+  (close)="isContactModalOpen.set(false)" (save)="handleSaveContact($event)">
+</app-add-hotel-contact-modal>
+
+<app-add-hotel-room-modal [isOpen]="isRoomModalOpen()" [roomData]="selectedRoom()" (close)="isRoomModalOpen.set(false)"
+  (save)="handleSaveRoom($event)">
+</app-add-hotel-room-modal>
+
+<app-add-hotel-promo-modal [isOpen]="isPromoModalOpen()" [promoData]="selectedPromo()"
+  (close)="isPromoModalOpen.set(false)" (save)="handleSavePromo($event)">
+</app-add-hotel-promo-modal>

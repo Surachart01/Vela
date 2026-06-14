@@ -1,0 +1,176 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1 class="page-title">{{ t()['transfer.pageTitle'] || 'Transfers' }}</h1>
+      <p class="page-subtitle">Manage and monitor all vehicle transfer services across cities.</p>
+    </div>
+    <div class="header-actions">
+      <button *ngIf="authService.canAdd('cp_transfers')" class="btn btn-add" routerLink="/control-panel/add-transfer">
+        <i class="fa-solid fa-plus"></i> {{ t()['transfer.btnAdd'] || 'Add Transfer' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Search / Filter Section (matches home page style) -->
+  <div class="search-section">
+    <form class="search-form" (ngSubmit)="onSearch()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ t()['home.country'] || 'COUNTRY' }}</label>
+          <select [ngModel]="countryFilter()" (ngModelChange)="countryFilter.set($event)" name="country">
+            <option value="">Select Country</option>
+            <option value="Thailand">Thailand</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['home.city'] || 'CITY' }}</label>
+          <select [ngModel]="cityFilter()" (ngModelChange)="cityFilter.set($event)" name="city">
+            <option value="">Select a city</option>
+            @for (city of cities(); track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['transfer.colType'] || 'TYPE' }}</label>
+          <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); currentPage.set(1)" name="type">
+            <option value="">All Types</option>
+            <option value="TIN">TIN (Transfer In)</option>
+            <option value="TOUT">TOUT (Transfer Out)</option>
+            <option value="TIT">TIT (Transfer In Transit)</option>
+            <option value="SIC">SIC (Seat-in-Coach)</option>
+            <option value="PVT">PVT (Private)</option>
+          </select>
+        </div>
+
+        <div class="form-group grow-2">
+          <label>{{ t()['home.keyword'] || 'KEYWORD' }}</label>
+          <input type="text" name="keyword"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Search...">
+        </div>
+
+        <div class="form-group action-group">
+          <label>&nbsp;</label>
+          <button type="submit" class="btn-search-submit" [disabled]="isLoading()">
+            @if (isLoading()) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            } @else {
+              Search <i class="fa-solid fa-magnifying-glass"></i>
+            }
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Section -->
+  <div class="data-card">
+    <div class="result-header">
+      <h2 class="result-count">
+        <span class="dot"></span>
+        {{ t()['common.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['common.to'] || 'to' }} {{ endIndex() }} {{ t()['common.of'] || 'of' }} {{ totalItems() }} {{ t()['common.entries'] || 'entries' }}
+      </h2>
+      <div class="result-actions">
+        <select class="entries-select" [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event); currentPage.set(1)">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ t()['transfer.colCity'] || 'CITY' }}</th>
+            <th>{{ t()['transfer.colType'] || 'TYPE' }}</th>
+            <th>{{ t()['transfer.colDeparture'] || 'DEPARTURE' }}</th>
+            <th>{{ t()['transfer.colArrival'] || 'ARRIVAL' }}</th>
+            <th>{{ t()['transfer.colDescription'] || 'DESCRIPTION' }}</th>
+            <th>VIEW</th>
+            @if (authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
+              <th>MANAGE</th>
+            }
+          </tr>
+        </thead>
+        <tbody [class.loading]="isLoading()">
+          @for (tr of transfersList(); track tr.id) {
+            <tr>
+              <td>{{ tr.city }}</td>
+              <td class="font-bold type-badge">{{ tr.transfer_type }}</td>
+              <td>{{ tr.departure }}</td>
+              <td>{{ tr.arrival }}</td>
+              <td class="td-desc">
+                <div class="desc-container">{{ tr.description }}</div>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-view" (click)="viewItem(tr)">
+                    <i class="fa-solid fa-eye"></i> View
+                  </button>
+                  <button class="btn-pdf" (click)="printItemPdf(tr)">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
+                  </button>
+                </div>
+              </td>
+              @if (authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
+                <td>
+                  <div class="action-btns">
+                    <button *ngIf="authService.canEdit('cp_transfers')" class="btn-action btn-edit"
+                            [routerLink]="['/control-panel/add-transfer', tr.id]"
+                            title="Edit">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button *ngIf="authService.canDelete('cp_transfers')" class="btn-action btn-delete"
+                            (click)="deleteTransfer(tr.id)" title="Delete">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="(authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) ? 7 : 6" class="empty-state">
+                <ng-container *ngIf="!isLoading()">{{ t()['transfer.noData'] || 'No transfers found.' }}</ng-container>
+                <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="pagination-container" *ngIf="totalPages() > 0">
+      <div class="pagination-info">
+        {{ t()['common.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['common.to'] || 'to' }} {{ endIndex() }} {{ t()['common.of'] || 'of' }} {{ totalItems() }} {{ t()['common.entries'] || 'entries' }}
+      </div>
+      <div class="pagination-buttons">
+        <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+          &larr; Prev
+        </button>
+
+        <ng-container *ngFor="let page of getPageNumbers()">
+          <button class="pagination-btn"
+                  *ngIf="page !== -1"
+                  [class.active]="page === currentPage()"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+          <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+        </ng-container>
+
+        <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages() || totalPages() === 0" (click)="nextPage()">
+          Next &rarr;
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

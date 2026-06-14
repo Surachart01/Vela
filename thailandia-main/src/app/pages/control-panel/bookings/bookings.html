@@ -1,0 +1,182 @@
+<div class="bookings-container">
+  <main class="main-content">
+
+    <!-- Page Header & Filter Row -->
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['booking.title'] }}</h1>
+    </div>
+
+    <section class="filter-section" [formGroup]="filterForm">
+      <div class="form-row">
+        <div class="form-group grow-2">
+          <label>{{ t()['booking.search'] }}</label>
+          <input type="text" formControlName="search" [placeholder]="t()['booking.searchPlaceholder']">
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['booking.dateFrom'] }}</label>
+          <app-date-input formControlName="dateFrom" />
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['booking.dateTo'] }}</label>
+          <app-date-input formControlName="dateTo" />
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['booking.status'] }}</label>
+          <select formControlName="status">
+            <option value="All Status">{{ t()['quote.allStatus'] || 'All Status' }}</option>
+            <option value="InProgress">{{ t()['quote.inProgress'] || 'InProgress' }}</option>
+            <option value="OnProcess">{{ t()['booking.onProcess'] || 'On Process' }}</option>
+            <option value="Confirm Booking">{{ t()['booking.confirmBooking'] || 'Confirm Booking' }}</option>
+            <option value="Declined">{{ t()['quote.declined'] || 'Declined' }}</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-search" (click)="resetPagination()">
+            {{ t()['booking.searchBtn'] }} <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <button type="button" class="btn-reset" [disabled]="!hasFilters" [class.disabled]="!hasFilters"
+            (click)="resetFilters()">
+            {{ t()['quote.resetBtn'] }} <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Info Alert -->
+    <div class="info-alert" *ngIf="filteredBookings().length > 0">
+      <i class="fa-solid fa-circle-info"></i> {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} of {{ filteredBookings().length }} bookings
+    </div>
+
+    <!-- Table Section -->
+    <section class="table-section">
+      <div class="table-header">
+        <h2 class="section-title">{{ t()['booking.listTitle'] }}</h2>
+        <div class="header-actions">
+          <div class="showing-dropdown">
+            <select class="entries-select" [ngModel]="pageSize()" (ngModelChange)="pageSize.set($event); currentPage.set(1)">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+          </div>
+          @if (selectedBookingIds().size > 0 && isAdmin()) {
+            <button class="btn-confirm" (click)="confirmSelected()">
+              <i class="fa-solid fa-check-double"></i> {{ t()['booking.btnConfirm'] }} ({{ selectedBookingIds().size }})
+            </button>
+          }
+          <button *ngIf="authService.canAdd('cp_bookings')" class="btn-primary" routerLink="/control-panel/add-booking">
+            <i class="fa-solid fa-plus"></i> {{ t()['booking.addBtn'] }}
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="checkbox-col">
+                <input type="checkbox" [checked]="isAllSelectedOnPage()" (change)="togglePageSelection()">
+              </th>
+              <th>{{ t()['booking.table.staff'] || 'Staff' }}</th>
+              <th>{{ t()['quote.table.ref'] }}</th>
+              <th>{{ t()['quote.table.client'] }}</th>
+              <th>{{ t()['quote.table.bookingDate'] }}</th>
+              <th>{{ t()['quote.table.tripStart'] }}</th>
+              <th>{{ t()['quote.table.pax'] }}</th>
+              <th>{{ t()['quote.table.tel'] }}</th>
+              <th>{{ t()['quote.table.bookingRef'] }}</th>
+              <th>{{ t()['quote.table.status'] }}</th>
+              <th>{{ t()['quote.table.cost'] }}</th>
+              <th class="text-center">{{ t()['common.actions'] || 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (paginatedBookings().length === 0) {
+              <tr>
+                <td colspan="12" class="text-center py-4">No bookings found matching filters</td>
+              </tr>
+            } @else {
+              @for (booking of paginatedBookings(); track booking.id) {
+              <tr>
+                <td class="checkbox-col">
+                  <input type="checkbox" [checked]="selectedBookingIds().has(booking.id)" (change)="toggleSelection(booking.id)">
+                </td>
+                <td>{{ booking.user_name || '-' }}</td>
+                <td class="tag-ref">{{ booking.uuid?.slice(0,8) || booking.id }}</td>
+                <td class="client-name">{{ booking.client_name }}</td>
+                <td>{{ booking.created_at | date:'dd/MM/yyyy' }}</td>
+                <td>{{ booking.trip_start_date | date:'dd/MM/yyyy' }}</td>
+                <td>{{ (booking.number_of_adults || 0) + (booking.number_of_kids || 0) }}</td>
+                <td>{{ booking.client_phone }}</td>
+                <td class="tag-ref">{{ booking.booking_reference || '-' }}</td>
+                <td>
+                  <span class="status-badge" 
+                    [class.approved]="booking.approved || booking.status === 'Confirm Booking' || booking.status === 'Approved'" 
+                    [class.onprocess]="!booking.declined && (booking.status === 'OnProcess' || (booking.is_booking && booking.status !== 'Confirm Booking' && booking.status !== 'Approved'))"
+                    [class.declined]="booking.declined">
+                    • {{ booking.declined ? 'Declined' : (booking.status === 'Confirm Booking' || booking.status === 'Approved' ? (t()['booking.confirmed'] || 'Confirmed') : (booking.is_booking || booking.status === 'OnProcess' ? (t()['booking.onProcess'] || 'On Process') : 'InProgress')) }}
+                  </span>
+                </td>
+                <td>฿{{ booking.final_amount | number }}</td>
+                <td class="actions-cell">
+                  <div class="actions-wrapper">
+                    <button class="btn-action btn-view" [routerLink]="['/add-quotation', booking.uuid || booking.id]" title="View Details">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                    @if (isAdmin()) {
+                      <button class="btn-action btn-edit" [routerLink]="['/add-quotation', booking.uuid || booking.id]" title="Edit Booking">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                    }
+                    <button class="btn-action btn-email" *ngIf="isAdmin()" (click)="emailAgent(booking)" 
+                      [disabled]="isSendingEmail() === booking.id.toString()" title="Send Email to Agent">
+                      <i class="fa-solid" [class.fa-paper-plane]="isSendingEmail() !== booking.id.toString()" 
+                        [class.fa-spinner]="isSendingEmail() === booking.id.toString()" [class.fa-spin]="isSendingEmail() === booking.id.toString()"></i>
+                    </button>
+                    <button class="btn-action btn-pdf" (click)="downloadPdf(booking.uuid || booking.id)" title="Download PDF">
+                      <i class="fa-solid fa-file-pdf"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Standardized Pagination Footer -->
+      <div class="pagination-container" *ngIf="totalPages() > 1">
+        <div class="pagination-info">
+          {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} of {{ filteredBookings().length }} entries
+        </div>
+        
+        <div class="pagination-controls">
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+            &larr; Prev
+          </button>
+          
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <button class="pagination-btn" 
+                    *ngIf="page !== -1"
+                    [class.active]="page === currentPage()"
+                    (click)="setPage(page)">
+              {{ page }}
+            </button>
+            <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+          </ng-container>
+
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>

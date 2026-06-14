@@ -1,0 +1,38 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="closeModal.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-dollar-sign"></i> {{ t()['modal.afTitle'] || 'Assistance Fee Settings' }}</h2>
+      <button class="close-btn" (click)="closeModal.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body" [formGroup]="form">
+      <label class="checkbox-container">
+        <input type="checkbox" formControlName="enabled">
+        <span class="checkmark"></span>
+        {{ t()['modal.afEnable'] || 'Enable assistance fees for this agent' }}
+      </label>
+
+      @if (form.get('enabled')?.value) {
+        <div class="field-group">
+          <label>{{ t()['modal.afDefaultAmount'] || 'Default Amount (THB) *' }}</label>
+          <input type="number" min="0" class="form-control" formControlName="amount">
+          <div class="field-hint">{{ t()['modal.afApplyContext'] || 'This amount will be applied to new quotations by default.' }}</div>
+        </div>
+      }
+
+      <div class="info-alert">
+        <div class="alert-icon"><i class="fa-solid fa-circle-info"></i></div>
+        <div class="alert-text">
+          {{ t()['modal.afNote'] || 'Note: These settings apply only to NEW quotations. Existing quotations will not be affected.' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal.emit()">{{ t()['modal.btnCancel'] || 'Cancel' }}</button>
+      <button class="btn btn-primary" (click)="onSave()"><i class="fa-solid fa-floppy-disk"></i> {{ t()['modal.btnSaveSettings'] || 'Save Settings' }}</button>
+    </div>
+  </div>
+</div>
+}

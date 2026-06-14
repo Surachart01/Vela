@@ -1,0 +1,98 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ initialData() ? 'Edit Excursion' : t()['form.addExcursion'] }}</h2>
+      <button class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="excursionForm" class="excursion-form">
+        <div class="form-grid">
+          
+          <!-- Row 1 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-globe text-teal"></i> {{ t()['form.country'] }} *</label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of masterData.countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-city text-teal"></i> {{ t()['form.city'] }} *</label>
+            <select formControlName="city">
+              <option value="">Select city</option>
+              @for (city of masterData.cities(); track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar text-teal"></i> {{ t()['form.date'] }} *</label>
+            <app-date-input formControlName="date" [min]="minDate()" />
+          </div>
+
+          <!-- Row 2 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-person-hiking text-teal"></i> {{ t()['form.excursion'] }} *</label>
+            <select formControlName="excursion">
+              <option value="">Select Excursion</option>
+              @for (e of filteredExcursions(); track e.id) {
+                <option [value]="e.id">{{ e.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-hotel text-teal"></i> {{ t()['form.hotel'] }} *</label>
+            <input type="text" formControlName="hotel" placeholder="Enter hotel name">
+          </div>
+          <div class="form-group highlighted-border">
+            <label><i class="fa-regular fa-clock text-teal"></i> {{ t()['form.pickupTime'] }}</label>
+            <input type="time" formControlName="pickupTime">
+          </div>
+
+          <!-- Row 3 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-tags text-teal"></i> {{ t()['form.typeOfExcursion'] }} *</label>
+            <select formControlName="typeOfExcursion">
+              <option value="">Select Type</option>
+              <option value="SIC">SIC</option>
+              <option value="PVT">PVT</option>
+            </select>
+          </div>
+          @if (!authService.isAgent()) {
+            <div class="form-group">
+              <label><i class="fa-solid fa-list-ol text-teal"></i> Display Order</label>
+              <input type="number" min="0" formControlName="display_order" placeholder="e.g. 1, 2, 3...">
+            </div>
+          }
+          <div class="form-group price-group">
+            <label>{{ t()['form.updatedExcursionPrice'] }} *</label>
+            <div class="price-input-action">
+              <input type="number" min="0" formControlName="price" placeholder="0">
+              <button type="button" class="btn-get-price bg-teal" (click)="getPrice()">
+                <i class="fa-solid fa-money-bill"></i> {{ t()['form.getPrice'] }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="form-group full-width">
+            <label><i class="fa-solid fa-comment text-teal"></i> {{ t()['form.remarks'] }}</label>
+            <textarea formControlName="remarks" rows="3" placeholder="Additional remarks"></textarea>
+          </div>
+
+        </div>
+      </form>
+      @if (errorMessage()) {
+        <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+        </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="close.emit()">{{ t()['form.cancel'] }}</button>
+      <button class="btn-save bg-teal" (click)="onSave()">{{ initialData() ? 'Update Excursion' : t()['form.save'] }}</button>
+    </div>
+  </div>
+</div>

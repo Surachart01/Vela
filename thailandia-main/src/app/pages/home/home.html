@@ -1,0 +1,257 @@
+<div class="home-container">
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    @if (viewMode() === 'map') {
+      <section class="map-showcase-section">
+        <div class="showcase-header">
+          <h1 class="showcase-title">
+            <span style="color: #000;">Vera</span><span style="color: var(--primary-orange);">Thailandia</span><span style="color: #000;">BookingHub</span>
+          </h1>
+          <p class="showcase-subtitle">Choose a category to begin your journey</p>
+          
+          <div class="showcase-categories">
+            <button class="glass-btn btn-hotels" (click)="setCategory('hotels')">
+              <i class="fa-solid fa-hotel"></i> <span>Hotels</span>
+            </button>
+            <button class="glass-btn btn-tours" (click)="setCategory('tours')">
+              <i class="fa-solid fa-sign-hanging"></i> <span>Tours</span>
+            </button>
+            <button class="glass-btn btn-excursions" (click)="setCategory('excursions')">
+              <i class="fa-solid fa-binoculars"></i> <span>Excursions</span>
+            </button>
+            <button class="glass-btn btn-transfers" (click)="setCategory('transfers')">
+              <i class="fa-solid fa-bus"></i> <span>Transfers</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="interactive-map-container">
+          <div #mapContainer class="echarts-map"></div>
+        </div>
+      </section>
+    }
+
+    @if (viewMode() === 'search') {
+      <!-- Return to Map Button -->
+      <div class="back-to-map-container">
+        <button class="btn-back-map" (click)="goToMap()">
+          <i class="fa-solid fa-arrow-left"></i> Back to Unseen Map
+        </button>
+      </div>
+
+      <!-- Hero Section (Mini) -->
+      <section class="hero-section mini">
+        <h1 class="hero-title">{{ t()['home.discover'] }}</h1>
+      </section>
+
+      <!-- Search Section -->
+      <section class="search-section">
+        <div class="search-header">
+          <h2 class="section-title">{{ t()['home.search' + (activeCategory() | titlecase)] || t()['home.searchHotels'] }}</h2>
+          <div class="tabs">
+            <button type="button" 
+                    class="tab" 
+                    [class.active-blue]="activeCategory() === 'hotels'"
+                    (click)="setCategory('hotels')">
+              <i class="fa-solid fa-hotel"></i> {{ t()['home.tabs.hotels'] }}
+            </button>
+            <button type="button" 
+                    class="tab" 
+                    [class.tab-green]="activeCategory() === 'tours'"
+                    [class.active-green]="activeCategory() === 'tours'"
+                    (click)="setCategory('tours')">
+              <i class="fa-solid fa-sign-hanging"></i> {{ t()['home.tabs.tours'] }}
+            </button>
+            <button type="button" 
+                    class="tab" 
+                    [class.tab-yellow]="activeCategory() === 'excursions'"
+                    [class.active-yellow]="activeCategory() === 'excursions'"
+                    (click)="setCategory('excursions')">
+              <i class="fa-solid fa-binoculars"></i> {{ t()['home.tabs.excursions'] }}
+            </button>
+            <button type="button" 
+                    class="tab" 
+                    [class.tab-red]="activeCategory() === 'transfers'"
+                    [class.active-red]="activeCategory() === 'transfers'"
+                    (click)="setCategory('transfers')">
+              <i class="fa-solid fa-bus"></i> {{ t()['home.tabs.transfers'] }}
+            </button>
+          </div>
+        </div>
+
+        <form class="search-form" (ngSubmit)="onFilterSearch()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ t()['home.country'] }}</label>
+              <select name="country" [ngModel]="filters.country()" (ngModelChange)="filters.country.set($event)">
+                <option value="">Select Country</option>
+                @for (c of countries(); track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>{{ t()['home.city'] }}</label>
+              <select name="city" [ngModel]="filters.city()" (ngModelChange)="filters.city.set($event)">
+                <option value="">Select a city</option>
+                @for (city of cities(); track city) {
+                  <option [value]="city">{{ city }}</option>
+                }
+              </select>
+            </div>
+
+            @if (activeCategory() === 'hotels') {
+              <div class="form-group">
+                <label>{{ t()['home.checkIn'] }}</label>
+                <app-date-input name="checkIn" [ngModel]="filters.checkIn()" (ngModelChange)="filters.checkIn.set($event)" />
+              </div>
+
+              <div class="form-group">
+                <label>{{ t()['home.checkOut'] }}</label>
+                <app-date-input name="checkOut" [ngModel]="filters.checkOut()" (ngModelChange)="filters.checkOut.set($event)" />
+              </div>
+            }
+
+            <div class="form-group grow-2">
+              <label>{{ t()['home.keyword'] }}</label>
+              <input type="text" name="keyword" [ngModel]="filters.keyword()" (ngModelChange)="filters.keyword.set($event)" [placeholder]="t()['home.keywordPlaceholder']">
+            </div>
+
+            @if (activeCategory() === 'transfers') {
+              <div class="form-group">
+                <label>{{ t()['transfer.colType'] || 'TYPE' }}</label>
+                <select name="transferType" [ngModel]="filters.transferType()" (ngModelChange)="filters.transferType.set($event); onFilterSearch()">
+                  <option value="">All Types</option>
+                  <option value="TIN">TIN (Transfer In)</option>
+                  <option value="TOUT">TOUT (Transfer Out)</option>
+                  <option value="TIT">TIT (Transfer In Transit)</option>
+                  <option value="SIC">SIC (Seat-in-Coach)</option>
+                  <option value="PVT">PVT (Private)</option>
+                </select>
+              </div>
+            }
+
+            <div class="form-group action-group">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn-search" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                } @else {
+                  {{ t()['home.searchBtn'] }} <i class="fa-solid fa-magnifying-glass"></i>
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Results Section -->
+      <section class="results-section">
+        <div class="result-header">
+          <h2 class="result-count">
+            <span class="dot"></span>
+            {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} {{ t()['home.results.of'] || 'of' }} {{ totalItems() }} {{ t()['home.results.entries'] || 'entries' }}
+          </h2>
+          <div class="result-actions">
+            <select class="entries-select" [ngModel]="limit()" (ngModelChange)="limit.set($event); currentPage.set(1)">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+          </div>
+        </div>
+
+        <table class="results-table">
+          <thead>
+            <tr>
+              @if (activeCategory() === 'transfers') {
+                <th>{{ t()['transfer.colCity'] || 'CITY' }}</th>
+                <th>{{ t()['transfer.colType'] || 'TYPE' }}</th>
+                <th>{{ t()['transfer.colDeparture'] || 'DEPARTURE' }}</th>
+                <th>{{ t()['transfer.colArrival'] || 'ARRIVAL' }}</th>
+              } @else {
+                <th>{{ t()['home.results.name'] }}</th>
+                <th>{{ t()['home.results.city'] }}</th>
+              }
+              <th>{{ t()['home.results.description'] }}</th>
+              <th>{{ t()['home.results.view'] }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (results().length === 0 && !isLoading()) {
+              <tr class="empty-row">
+                <td [attr.colspan]="activeCategory() === 'transfers' ? 6 : 4" class="text-center py-4">No results found</td>
+              </tr>
+            } @else if (isLoading()) {
+              <tr>
+                <td [attr.colspan]="activeCategory() === 'transfers' ? 6 : 4" class="text-center py-4">
+                  <div class="loading-container">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x color-primary"></i>
+                    <p>Searching...</p>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (item of results(); track item.id) {
+                <tr>
+                  @if (activeCategory() === 'transfers') {
+                    <td>{{ item.city }}</td>
+                    <td class="font-bold">{{ item.transfer_type }}</td>
+                    <td>{{ item.departure }}</td>
+                    <td>{{ item.arrival }}</td>
+                  } @else {
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.city }}</td>
+                  }
+                  <td class="text-truncate" style="max-width: 300px;">{{ item.notes || item.description || '' }}</td>
+                  <td>
+                    <div style="display: flex; gap: 8px;">
+                      <button class="btn-view" (click)="viewItem(item)">
+                        <i class="fa-solid fa-eye"></i> View
+                      </button>
+                      <button class="btn-view" (click)="printItemPdf(item)" style="color: #17a2b8; border-color: #17a2b8;">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+
+        <!-- Pagination Footer -->
+        <div class="pagination-container" *ngIf="totalPages() > 1">
+          <div class="pagination-info">
+            {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} {{ t()['home.results.of'] || 'of' }} {{ totalItems() }} {{ t()['home.results.entries'] || 'entries' }}
+          </div>
+          
+          <div class="pagination-controls">
+            <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+              &larr; Prev
+            </button>
+            
+            <ng-container *ngFor="let page of getPageNumbers()">
+              <button class="pagination-btn" 
+                      *ngIf="page !== -1"
+                      [class.active]="page === currentPage()"
+                      (click)="goToPage(page)">
+                {{ page }}
+              </button>
+              <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+            </ng-container>
+
+            <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+              Next &rarr;
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+  </main>
+</div>

@@ -1,0 +1,215 @@
+<div class="settings-container">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-gears"></i> System Settings</h1>
+    <p class="page-subtitle">Manage user roles and system-wide permissions (SuperAdmin Only)</p>
+  </div>
+
+  <div class="settings-grid">
+    <section class="settings-section">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-users-gear"></i> User Role Management</h2>
+        <button class="btn-refresh" (click)="loadUsers()" [class.fa-spin]="isLoading()">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+        <button class="btn btn-primary add-user-btn" (click)="addUser()">
+          <i class="fa-solid fa-plus"></i> Add User
+        </button>
+      </div>
+
+      <div class="table-card">
+        @if (isLoading()) {
+          <div class="loading-state">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <span>Loading user data...</span>
+          </div>
+        } @else {
+          <table class="settings-table">
+            <thead>
+              <tr>
+                <th>USER</th>
+                <th>ROLE</th>
+                <th>ALERTS</th>
+                <th>ACCESS</th>
+                <th>QUICK ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr [class.expanded-header]="expandedUserId() === user.id">
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">{{ user.username[0].toUpperCase() }}</div>
+                      <div>
+                        <div class="username">{{ user.username }}</div>
+                        <div class="user-email text-muted">{{ user.email }}</div>
+                        @if (user.agent_name) {
+                          <div class="agent-name-tag text-muted">
+                            <i class="fa-solid fa-hotel"></i> {{ user.agent_name }}
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="role-badge" [class]="user.role">{{ user.role || 'Agent' }}</span>
+                  </td>
+                  <td>
+                    <button class="btn-toggle-mini" [class.enabled]="user.permissions?.notifications_enabled" (click)="toggleNotifications(user)">
+                      <i class="fa-solid" [class.fa-bell]="user.permissions?.notifications_enabled" [class.fa-bell-slash]="!user.permissions?.notifications_enabled"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <div class="access-pill">
+                      <i class="fa-solid fa-key"></i>
+                      <span>{{ getActivePagesCount(user) }}/19 Pages</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="action-group">
+                      <select #rolePicker (change)="updateUserRole(user.id, rolePicker.value)" [value]="user.role" class="mini-select">
+                        <option value="superadmin">SuperAdmin</option>
+                        <option value="admin">Admin</option>
+                        <option value="agent">Agent</option>
+                      </select>
+                      <button class="btn-mini-action edit" (click)="editUser(user.id)" title="Edit User">
+                        <i class="fa-solid fa-pencil"></i>
+                      </button>
+                      <button class="btn-mini-action delete" (click)="deleteUser(user.id)" title="Delete User">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                      <button class="btn-manage" (click)="toggleExpand(user.id)" [class.active]="expandedUserId() === user.id">
+                        {{ expandedUserId() === user.id ? 'Close' : 'Manage' }}
+                        <i class="fa-solid" [class.fa-chevron-up]="expandedUserId() === user.id" [class.fa-chevron-down]="expandedUserId() !== user.id"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                @if (expandedUserId() === user.id) {
+                  <tr class="expanded-row">
+                    <td colspan="5">
+                      <div class="permissions-manager animate-fade-in">
+                        <div class="manager-header">
+                          <h3>Set Access Permissions for <strong>{{ user.username }}</strong></h3>
+                          @if (user.role === 'superadmin') {
+                            <div class="alert-info">SuperAdmins have full access to all modules automatically.</div>
+                          }
+                        </div>
+
+                        <div class="groups-grid">
+                          @for (group of permissionGroups; track group.name) {
+                            <div class="permission-group">
+                              <div class="group-header">
+                                <i class="fa-solid" [class]="group.icon"></i>
+                                <span>{{ group.name }}</span>
+                                @if (group.masterToggle && user.role !== 'superadmin') {
+                                  <div class="master-switch-container">
+                                    <span class="switch-label">{{ user.permissions?.control_panel_enabled !== false ? 'Enabled' : 'Disabled' }}</span>
+                                    <button class="btn-toggle-mini" 
+                                            [class.enabled]="user.permissions?.control_panel_enabled !== false" 
+                                            (click)="toggleGroupMaster(user, group.name)">
+                                      <i class="fa-solid" [class.fa-toggle-on]="user.permissions?.control_panel_enabled !== false" [class.fa-toggle-off]="user.permissions?.control_panel_enabled === false"></i>
+                                    </button>
+                                  </div>
+                                }
+                              </div>
+                              
+                              @if (group.isGranular) {
+                                <div class="granular-permissions" [class.disabled-area]="group.name === 'Control Panel Modules' && user.permissions?.control_panel_enabled === false">
+                                  <table class="granular-tbl">
+                                    <thead>
+                                      <tr>
+                                        <th>Module</th>
+                                        <th>View</th>
+                                        <th>Add</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      @for (page of group.pages; track page.id) {
+                                        <tr>
+                                          <td class="module-name">{{ page.label }}</td>
+                                          <td>
+                                            <input type="checkbox" 
+                                                   [checked]="user.role === 'superadmin' || (group.masterToggle ? (user.permissions?.control_panel_enabled !== false && user.permissions?.module_permissions?.[page.id]?.view) : user.permissions?.module_permissions?.[page.id]?.view)" 
+                                                   [disabled]="user.role === 'superadmin' || (group.masterToggle && user.permissions?.control_panel_enabled === false)"
+                                                   (change)="toggleModulePermission(user, page.id, 'view')">
+                                          </td>
+                                          <td>
+                                            <input type="checkbox" 
+                                                   [checked]="user.role === 'superadmin' || (group.masterToggle ? (user.permissions?.control_panel_enabled !== false && user.permissions?.module_permissions?.[page.id]?.add) : user.permissions?.module_permissions?.[page.id]?.add)" 
+                                                   [disabled]="user.role === 'superadmin' || (group.masterToggle && user.permissions?.control_panel_enabled === false)"
+                                                   (change)="toggleModulePermission(user, page.id, 'add')">
+                                          </td>
+                                          <td>
+                                            <input type="checkbox" 
+                                                   [checked]="user.role === 'superadmin' || (group.masterToggle ? (user.permissions?.control_panel_enabled !== false && user.permissions?.module_permissions?.[page.id]?.edit) : user.permissions?.module_permissions?.[page.id]?.edit)" 
+                                                   [disabled]="user.role === 'superadmin' || (group.masterToggle && user.permissions?.control_panel_enabled === false)"
+                                                   (change)="toggleModulePermission(user, page.id, 'edit')">
+                                          </td>
+                                          <td>
+                                            <input type="checkbox" 
+                                                   [checked]="user.role === 'superadmin' || (group.masterToggle ? (user.permissions?.control_panel_enabled !== false && user.permissions?.module_permissions?.[page.id]?.delete) : user.permissions?.module_permissions?.[page.id]?.delete)" 
+                                                   [disabled]="user.role === 'superadmin' || (group.masterToggle && user.permissions?.control_panel_enabled === false)"
+                                                   (change)="toggleModulePermission(user, page.id, 'delete')">
+                                          </td>
+                                        </tr>
+                                      }
+                                    </tbody>
+                                  </table>
+                                </div>
+                              } @else {
+                                <div class="chips-container">
+                                  @for (page of group.pages; track page.id) {
+                                    <div class="chip" 
+                                         [class.active]="user.role === 'superadmin' || user.permissions?.pages?.includes(page.id)"
+                                         [class.disabled]="user.role === 'superadmin'"
+                                         (click)="user.role !== 'superadmin' && togglePagePermission(user, page.id)">
+                                      {{ page.label }}
+                                      @if (user.role === 'superadmin' || user.permissions?.pages?.includes(page.id)) {
+                                        <i class="fa-solid fa-check"></i>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty-text">No users found.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </section>
+
+    <!-- Additional settings sections can be added here -->
+    <section class="settings-section info-card">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-circle-info"></i> RBAC Policy</h2>
+      </div>
+      <div class="policy-list">
+        <div class="policy-item">
+          <span class="role-badge superadmin">Super Admin</span>
+          <p>Full access to everything, including User Management and System Settings.</p>
+        </div>
+        <div class="policy-item">
+          <span class="role-badge admin">Admin</span>
+          <p>Full access to all tours, hotels, and bookings. Cannot manage users.</p>
+        </div>
+        <div class="policy-item">
+          <span class="role-badge agent">Agent</span>
+          <p>Can only view/edit their own bookings. Read-only access to master data.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

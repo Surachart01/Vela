@@ -1,0 +1,143 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ initialData() ? 'Edit Tour' : t()['form.addTour'] }}</h2>
+      <button class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="tourForm" class="tour-form">
+        <div class="form-grid">
+          
+          <!-- Row 1 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-globe text-teal"></i> {{ t()['form.country'] }} *</label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of masterData.countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-city text-teal"></i> {{ t()['form.startCity'] }} *</label>
+            <select formControlName="startCity">
+              <option value="">Select city</option>
+              @for (city of masterData.cities(); track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-map-location-dot text-teal"></i> {{ t()['form.tour'] }} *</label>
+            <select formControlName="tour">
+              <option value="">Select Tour</option>
+              @for (tour of filteredTours(); track tour.id) {
+                <option [value]="tour.id">{{ tour.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-route text-teal"></i> {{ t()['form.route'] }}</label>
+            <input type="text" formControlName="route" class="bg-light-grey">
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar text-teal"></i> {{ t()['form.startDate'] }}</label>
+            <app-date-input formControlName="startDate" [min]="minDate()" />
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar text-teal"></i> {{ t()['form.endDate'] }}</label>
+            <app-date-input formControlName="endDate" [min]="tourForm.get('startDate')?.value || minDate()" />
+          </div>
+
+          <!-- Row 3: Room Type & Pax -->
+          <div class="form-group col-span-2">
+            <label>{{ t()['form.roomType'] }}</label>
+            <div class="room-type-inputs">
+              <div class="room-type-item">
+                <input type="checkbox" formControlName="singleRoom">
+                <span>{{ t()['form.singleRoom'] }}</span>
+                <input type="number" min="0" formControlName="singleRoomCount" class="bg-light-grey w-sm">
+              </div>
+              <div class="room-type-item">
+                <input type="checkbox" formControlName="doubleRoom">
+                <span>{{ t()['form.doubleRoom'] }}</span>
+                <input type="number" min="0" formControlName="doubleRoomCount" class="bg-light-grey w-sm">
+              </div>
+              <div class="room-type-item">
+                <input type="checkbox" formControlName="tripleRoom">
+                <span>{{ t()['form.tripleRoom'] }}</span>
+                <input type="number" min="0" formControlName="tripleRoomCount" class="bg-light-grey w-sm">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fa-solid fa-users text-teal"></i> {{ t()['form.pax'] }}</label>
+            <input type="number" min="0" formControlName="pax" class="bg-light-grey" readonly>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-users-line text-teal"></i> {{ t()['form.tot'] }} *</label>
+            <select formControlName="tot">
+              <option value="">Select Type</option>
+              <option value="PVT">PVT</option>
+              <option value="SIC">SIC</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-plane-arrival text-teal"></i> {{ t()['form.flightIn'] }}</label>
+            <input type="text" formControlName="flightIn">
+          </div>
+          <div class="form-group highlighted-border">
+            <label><i class="fa-regular fa-clock text-teal"></i> {{ t()['form.arrivalTime'] }}</label>
+            <input type="time" formControlName="arrivalTime">
+          </div>
+
+          <!-- Row 5 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-plane-departure text-teal"></i> {{ t()['form.flightOut'] }}</label>
+            <input type="text" formControlName="flightOut">
+          </div>
+          <div class="form-group highlighted-border">
+            <label><i class="fa-regular fa-clock text-teal"></i> {{ t()['form.departureTime'] }}</label>
+            <input type="time" formControlName="departureTime">
+          </div>
+          @if (!authService.isAgent()) {
+            <div class="form-group">
+              <label><i class="fa-solid fa-list-ol text-teal"></i> Display Order</label>
+              <input type="number" min="0" formControlName="display_order" placeholder="e.g. 1, 2, 3...">
+            </div>
+          }
+          <div class="form-group price-group">
+            <label>{{ t()['form.updatedTourPrice'] }}</label>
+            <div class="price-input-action">
+              <input type="text" formControlName="price" class="bg-light-grey" readonly>
+              <button type="button" class="btn-get-price bg-teal" (click)="getPrice()">
+                <i class="fa-solid fa-money-bill"></i> {{ t()['form.getPrice'] }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Row 6 -->
+          <div class="form-group full-width mt-2">
+            <label><i class="fa-solid fa-comment text-teal"></i> {{ t()['form.remarks'] }}</label>
+            <textarea formControlName="remarks" rows="3" placeholder="Additional remarks"></textarea>
+          </div>
+
+        </div>
+      </form>
+      @if (errorMessage()) {
+        <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+        </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="close.emit()">{{ t()['form.cancel'] }}</button>
+      <button class="btn-save bg-teal" (click)="onSave()">{{ initialData() ? 'Update Tour' : t()['form.save'] }}</button>
+    </div>
+  </div>
+</div>

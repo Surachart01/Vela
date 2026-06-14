@@ -1,0 +1,357 @@
+<div class="add-tour-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">
+        {{ viewOnly() ? (t()['tour.viewTitle'] || 'View Tour') : (isEditMode() ? (t()['tour.editTitle'] || 'Edit Tour') : (t()['tour.createTitle'] || 'Add New Tour')) }}
+      </h1>
+    </div>
+
+    <form class="tour-form" [formGroup]="tourForm">
+      
+      <!-- General Information Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ t()['form.generalInfo'] || 'General Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label>{{ t()['tour.name'] || 'Tour Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="name" 
+                   [class.invalid-field]="isFieldInvalid('name')"
+                   [placeholder]="t()['tour.placeholder.name'] || 'Enter tour name'">
+            @if (isFieldInvalid('name')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+          <div class="form-group flex-1" *ngIf="!authService.isAgent()">
+            <label>{{ t()['common.order'] || 'Display Order' }}</label>
+            <input type="number" formControlName="displayOrder" placeholder="0">
+          </div>
+          <div class="form-group flex-1">
+            <label>{{ t()['tour.country'] || 'Country' }} <span class="required">*</span></label>
+            <select formControlName="country" [class.invalid-field]="isFieldInvalid('country')">
+              <option value="">Select Country</option>
+              @for (country of countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('country')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+          <div class="form-group flex-1">
+            <label>{{ t()['tour.startCity'] || 'Start City' }} <span class="required">*</span></label>
+            <div class="input-with-btn">
+              <select formControlName="startCity" [class.invalid-field]="isFieldInvalid('startCity')">
+                <option value="" disabled selected>{{ t()['tour.placeholder.city'] || 'Select City' }}</option>
+                @for (city of masterData.cities(); track city) {
+                  <option [value]="city">{{ city }}</option>
+                }
+              </select>
+              <button *ngIf="!viewOnly()" type="button" class="btn-inline-plus"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            @if (isFieldInvalid('startCity')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>{{ t()['tour.category'] || 'Category' }} <span class="required">*</span></label>
+            <select formControlName="category" [class.invalid-field]="isFieldInvalid('category')">
+              <option value="" disabled selected>{{ t()['tour.placeholder.category'] || 'Select Category' }}</option>
+              <option value="Standard">Standard</option>
+              <option value="Superior">Superior</option>
+              <option value="Deluxe">Deluxe</option>
+            </select>
+            @if (isFieldInvalid('category')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+          <div class="form-group flex-1">
+            <label>{{ t()['tour.duration'] || 'Duration (Days)' }} <span class="required">*</span></label>
+            <div class="input-with-btn">
+              <input type="number" [value]="duration()" disabled class="bg-gray-100">
+              <button *ngIf="!viewOnly()" type="button" class="btn-inline-plus green" (click)="addDay()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="form-group flex-1">
+            <label>{{ t()['tour.departureType'] || 'Departure Type' }} <span class="required">*</span></label>
+            <select formControlName="departureType" [class.invalid-field]="isFieldInvalid('departureType')">
+              <option value="" disabled selected>{{ t()['tour.placeholder.departure'] || 'Select Departure Type' }}</option>
+              <option value="PVT">Private (PVT)</option>
+              <option value="SIC">Seat-in-Coach (SIC)</option>
+            </select>
+            @if (isFieldInvalid('departureType')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['tour.description'] || 'Description' }} <span class="required">*</span></label>
+            <textarea formControlName="description" rows="3" 
+                      [class.invalid-field]="isFieldInvalid('description')"
+                      [placeholder]="t()['tour.placeholder.description'] || 'Enter description'"></textarea>
+            @if (isFieldInvalid('description')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['tour.route'] || 'Route' }} <span class="required">*</span></label>
+            <input type="text" formControlName="route" 
+                   [class.invalid-field]="isFieldInvalid('route')"
+                   [placeholder]="t()['tour.placeholder.route'] || 'Enter route'">
+            @if (isFieldInvalid('route')) {
+              <span class="error-message">{{ t()['form.required'] || 'This field is required' }}</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Tour Validity Period -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-calendar-days"></i> {{ t()['tour.validityPeriod'] || 'Tour Validity Period' }}</h2>
+        <div class="validity-box">
+          <label class="form-label-bold">{{ t()['tour.validDaysOfWeek'] || 'Valid Days of Week' }} <span class="required">*</span></label>
+          <div class="day-pills" formGroupName="validDays">
+            @for (day of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']; track day) {
+              <button type="button" class="day-pill" 
+                [class.active]="tourForm.get('validDays.' + day)?.value"
+                (click)="!viewOnly() && toggleDay(day)"
+                [disabled]="viewOnly()">
+                {{ day | uppercase }}
+              </button>
+            }
+          </div>
+          <span class="help-text">{{ t()['excursion.validDaysNote'] || 'Select the days of the week when this tour is available.' }}</span>
+        </div>
+      </section>
+
+      <!-- Itinerary Details -->
+      <section class="form-section">
+        <div class="section-head-with-btn">
+          <h2 class="section-title"><i class="fa-solid fa-list-check"></i> {{ t()['tour.itineraryDetails'] || 'Itinerary Details' }}</h2>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="total-days-badge">{{ t()['tour.totalDays'] || 'Total Days:' }} <span>{{ duration() }}</span></div>
+            <button *ngIf="!viewOnly()" type="button" class="btn-add-day" (click)="addDay()"><i class="fa-solid fa-plus"></i> {{ t()['tour.addDay'] || 'Add Day' }}</button>
+          </div>
+        </div>
+
+        <div class="itinerary-list">
+          @for (day of itinerary(); track day.dayNumber; let dayIdx = $index) {
+            <div class="itinerary-day-card">
+              <div class="day-header">
+                <div class="day-title"><i class="fa-solid fa-chevron-down"></i> {{ t()['tour.day'] || 'Day' }} {{ day.dayNumber }}</div>
+                <button *ngIf="!viewOnly()" type="button" class="btn-remove-day" (click)="removeDay(dayIdx)"><i class="fa-solid fa-trash-can"></i> {{ t()['tour.removeDay'] || 'Remove Day' }}</button>
+              </div>
+              <div class="day-body">
+                <div class="form-group full-width">
+                  <label>{{ t()['tour.itineraryDesc'] || 'Itinerary Description' }}</label>
+                  <textarea [(ngModel)]="day.description" [ngModelOptions]="{standalone: true}" rows="2" [placeholder]="t()['tour.placeholder.itinerary'] || 'Enter details'" [disabled]="viewOnly()"></textarea>
+                </div>
+
+                <!-- Nested Services Section -->
+                <div class="service-block">
+                  <div class="service-head">
+                    <div class="service-title"><i class="fa-solid fa-hotel"></i> {{ t()['tour.hotels'] || 'Hotels' }}</div>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-add-more" (click)="addService(dayIdx, 'hotels')"><i class="fa-solid fa-plus"></i> {{ t()['tour.addMore'] || 'Add More' }}</button>
+                  </div>
+                  @for (hotel of day.hotels; track hotel.id) {
+                    <div class="service-row">
+                      <div class="form-group flex-1">
+                        <label>{{ t()['hotel.city'] || 'City' }}</label>
+                        <select [(ngModel)]="hotel.city" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.city'] || 'Select City' }}</option>
+                           @for (city of masterData.cities(); track city) {
+                             <option [value]="city">{{ city }}</option>
+                           }
+                        </select>
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.fromTime'] || 'From Time' }}</label>
+                        <input type="time" [(ngModel)]="hotel.from_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.toTime'] || 'To Time' }}</label>
+                        <input type="time" [(ngModel)]="hotel.to_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['nav.tabs.hotels'] || 'Hotel' }}</label>
+                        <select [(ngModel)]="hotel.item_id" (ngModelChange)="onHotelChange(hotel)" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.hotel'] || 'Select Hotel' }}</option>
+                           @for (h of getFilteredHotels(hotel.city); track h.id) {
+                             <option [value]="h.id.toString()">{{ h.name }}</option>
+                           }
+                        </select>
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.roomType'] || 'Room Type' }}</label>
+                        <select [(ngModel)]="hotel.room_type" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.roomType'] || 'Select Room Type' }}</option>
+                           @for (room of hotelRoomsMap()[hotel.item_id]; track room.id) {
+                             <option [value]="room.name">{{ room.name }}</option>
+                           }
+                        </select>
+                      </div>
+                      <button *ngIf="!viewOnly()" type="button" class="btn-remove-service" (click)="removeService(dayIdx, 'hotels', hotel.id)"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                  }
+                </div>
+
+                <div class="service-block">
+                  <div class="service-head">
+                    <div class="service-title"><i class="fa-solid fa-person-walking"></i> {{ t()['tour.excursions'] || 'Excursions' }}</div>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-add-more" (click)="addService(dayIdx, 'excursions')"><i class="fa-solid fa-plus"></i> {{ t()['tour.addMore'] || 'Add More' }}</button>
+                  </div>
+                  @for (excursion of day.excursions; track excursion.id) {
+                    <div class="service-row">
+                      <div class="form-group flex-1">
+                        <label>{{ t()['hotel.city'] || 'City' }}</label>
+                        <select [(ngModel)]="excursion.city" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.city'] || 'Select City' }}</option>
+                           @for (city of masterData.cities(); track city) {
+                             <option [value]="city">{{ city }}</option>
+                           }
+                        </select>
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.fromTime'] || 'From Time' }}</label>
+                        <input type="time" [(ngModel)]="excursion.from_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.toTime'] || 'To Time' }}</label>
+                        <input type="time" [(ngModel)]="excursion.to_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-2">
+                        <label>{{ t()['excursion.pageTitle'] || 'Excursion' }}</label>
+                        <select [(ngModel)]="excursion.item_id" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.excursion'] || 'Select Excursion' }}</option>
+                           @for (e of getFilteredExcursions(excursion.city); track e.id) {
+                             <option [value]="e.id.toString()">{{ e.name }}</option>
+                           }
+                        </select>
+                      </div>
+                      <button *ngIf="!viewOnly()" type="button" class="btn-remove-service" (click)="removeService(dayIdx, 'excursions', excursion.id)"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                  }
+                </div>
+
+                <div class="service-block">
+                  <div class="service-head">
+                    <div class="service-title"><i class="fa-solid fa-car"></i> {{ t()['tour.transfers'] || 'Transfers' }}</div>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-add-more" (click)="addService(dayIdx, 'transfers')"><i class="fa-solid fa-plus"></i> {{ t()['tour.addMore'] || 'Add More' }}</button>
+                  </div>
+                  @for (transfer of day.transfers; track transfer.id) {
+                    <div class="service-row">
+                      <div class="form-group flex-1">
+                        <label>{{ t()['hotel.city'] || 'City' }}</label>
+                        <select [(ngModel)]="transfer.city" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.city'] || 'Select City' }}</option>
+                           @for (city of masterData.cities(); track city) {
+                             <option [value]="city">{{ city }}</option>
+                           }
+                        </select>
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.fromTime'] || 'From Time' }}</label>
+                        <input type="time" [(ngModel)]="transfer.from_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>{{ t()['tour.toTime'] || 'To Time' }}</label>
+                        <input type="time" [(ngModel)]="transfer.to_time" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                      </div>
+                      <div class="form-group flex-2">
+                        <label>{{ t()['transfer.pageTitle'] || 'Transfer' }}</label>
+                        <select [(ngModel)]="transfer.item_id" [ngModelOptions]="{standalone: true}" [disabled]="viewOnly()">
+                           <option value="" disabled selected>{{ t()['tour.placeholder.transfer'] || 'Select Transfer' }}</option>
+                           @for (tr of getFilteredTransfers(transfer.city); track tr.id) {
+                             <option [value]="tr.id.toString()">{{ tr.name }}</option>
+                           }
+                        </select>
+                      </div>
+                      <button *ngIf="!viewOnly()" type="button" class="btn-remove-service" (click)="removeService(dayIdx, 'transfers', transfer.id)"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                  }
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Tour Prices -->
+      <section class="form-section">
+        <div class="section-head-with-btn">
+          <h2 class="section-title"><i class="fa-solid fa-dollar-sign"></i> {{ t()['tour.tourPrices'] || 'Tour Prices' }}</h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-price" (click)="openPriceModal()"><i class="fa-solid fa-plus"></i> {{ t()['tour.btnAddPrice'] || 'Add Price' }}</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="prices-tbl">
+            <thead>
+              <tr>
+                <th>{{ t()['tour.startDate'] || 'Start Date' }}</th>
+                <th>{{ t()['tour.endDate'] || 'End Date' }}</th>
+                <th>{{ t()['tour.pax'] || 'Pax' }}</th>
+                <th>{{ t()['tour.singlePrice'] || 'Single Price' }}</th>
+                <th>{{ t()['tour.doublePrice'] || 'Double Price' }}</th>
+                <th>{{ t()['tour.triplePrice'] || 'Triple Price' }}</th>
+                <th>{{ t()['hotel.col.actions'] || 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (price of prices(); track price; let pIdx = $index) {
+                <tr>
+                  <td>{{ price.startDate | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ price.endDate | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ price.pax }}</td>
+                  <td>{{ price.singlePrice | number }}</td>
+                  <td>{{ price.doublePrice | number }}</td>
+                  <td>{{ price.triplePrice | number }}</td>
+                  <td>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-edit-price" (click)="openPriceModal(pIdx)"><i class="fa-solid fa-pencil"></i></button>
+                    <button *ngIf="!viewOnly()" type="button" class="btn-delete-price" (click)="deletePrice(pIdx)"><i class="fa-solid fa-trash-can"></i></button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="empty-state">No prices added yet.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+      
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()">
+          <i class="fa-solid fa-xmark"></i> {{ viewOnly() ? (t()['form.close'] || 'Close') : (t()['form.cancel'] || 'Cancel') }}
+        </button>
+        @if (viewOnly()) {
+          <button type="button" class="btn-save" (click)="printPage()" style="background-color: #17a2b8; border-color: #17a2b8;"><i class="fa-solid fa-print"></i> Print</button>
+        }
+        <button *ngIf="!viewOnly()" type="button" class="btn-save" (click)="saveTour()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ isEditMode() ? (t()['form.save'] || 'Update Tour') : (t()['form.save'] || 'Save Tour') }}
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<app-add-tour-price-modal 
+  [isOpen]="isPriceModalOpen()" 
+  [editData]="editingPriceData()"
+  (close)="isPriceModalOpen.set(false)" 
+  (save)="savePrice($event)">
+</app-add-tour-price-modal>

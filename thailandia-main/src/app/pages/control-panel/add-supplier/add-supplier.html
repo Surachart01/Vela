@@ -1,0 +1,124 @@
+@if (!authService.isAgent()) {
+<div class="add-supplier-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ isEditMode() ? (viewOnly() ? 'View Supplier' : 'Edit Supplier') : (t()['supplier.createTitle'] || 'Add New Supplier') }}</h1>
+    </div>
+
+    <form class="supplier-form" [formGroup]="supplierForm">
+      
+      <!-- General Information Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ t()['form.generalInfo'] || 'General Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.name'] }} <span class="required">*</span></label>
+            <input type="text" formControlName="name" [placeholder]="t()['supplier.placeholder.name']">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.email'] }} <span class="required">*</span></label>
+            <input type="email" formControlName="email" [placeholder]="t()['supplier.placeholder.email']">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.phone'] }} <span class="required">*</span></label>
+            <input type="text" formControlName="phone" [placeholder]="t()['supplier.placeholder.phone']">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.country'] }} <span class="required">*</span></label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['supplier.location'] }} <span class="required">*</span></label>
+            <input type="text" formControlName="location" [placeholder]="t()['supplier.placeholder.location']">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['supplier.description'] }}</label>
+            <textarea formControlName="description" rows="3" [placeholder]="t()['supplier.placeholder.description']"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Service Types Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-toolbox"></i> {{ t()['supplier.serviceTypes'] }}</h2>
+        <div class="checkbox-row">
+           <label class="checkbox-label">
+             <input type="checkbox" formControlName="serviceTransfers">
+             <i class="fa-solid fa-car"></i> {{ t()['service.transfers'] }}
+           </label>
+           <label class="checkbox-label">
+             <input type="checkbox" formControlName="serviceExcursions">
+             <i class="fa-solid fa-person-walking"></i> {{ t()['service.excursions'] }}
+           </label>
+           <label class="checkbox-label">
+             <input type="checkbox" formControlName="serviceTours">
+             <i class="fa-solid fa-map-location-dot"></i> {{ t()['service.tours'] }}
+           </label>
+        </div>
+      </section>
+
+      <!-- Payment & Cancellation Policy Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-file-contract"></i> {{ t()['supplier.policyTitle'] }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.cancellationAllowed'] }} <span class="required">*</span></label>
+            <input type="number" formControlName="cancellationDays">
+            <span class="help-text">{{ t()['supplier.cancellationNote'] }}</span>
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['supplier.paymentDeadline'] }} <span class="required">*</span></label>
+            <input type="number" formControlName="paymentDays">
+            <span class="help-text">{{ t()['supplier.paymentNote'] }}</span>
+          </div>
+        </div>
+
+        <!-- Policy Preview Box -->
+        <div class="policy-preview-box">
+           <div class="preview-header"><i class="fa-solid fa-circle-info"></i> {{ t()['supplier.policyPreview'] }}</div>
+           <div class="preview-content">{{ policyPreview() }}</div>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()">
+          <i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] || 'Cancel' }}
+        </button>
+        <button type="button" class="btn-save" (click)="saveSupplier()" *ngIf="!viewOnly()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ isEditMode() ? 'Update Supplier' : (t()['supplier.btnSave'] || 'Save Supplier') }}
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+} @else {
+  <div class="access-denied-container">
+    <div class="denied-box">
+      <i class="fa-solid fa-lock denied-icon"></i>
+      <h2>Access Denied</h2>
+      <p>You do not have permission to view or edit supplier details.</p>
+      <button class="btn btn-primary mt-3" routerLink="/control-panel">Return to Dashboard</button>
+    </div>
+  </div>
+}

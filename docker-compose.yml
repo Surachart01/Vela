@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # -------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: vela-db
+    restart: always
+    environment:
+      POSTGRES_DB: railway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: HbGnNMxDHtPSgjOaQmBlPdSyuExeNBlq
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Automatically initialize database with schema and data dump on first run
+      - ./public.sql:/docker-entrypoint-initdb.d/public.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d railway"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------------------------
+  # 2. Node.js Express Backend API Service
+  # -------------------------------------------------------------
+  api:
+    build:
+      context: ./API-Thailandia-main
+      dockerfile: Dockerfile
+    container_name: vela-api
+    restart: always
+    ports:
+      - "4300:4300"
+    environment:
+      NODE_ENV: production
+      PORT: 4300
+      # Empty DATABASE_URL forces backend to fall back to PG* env variables without SSL
+      DATABASE_URL: ""
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: HbGnNMxDHtPSgjOaQmBlPdSyuExeNBlq
+      PGDATABASE: railway
+      PGPORT: 5432
+      # SMTP Settings
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 465
+      SMTP_SECURE: "true"
+      SMTP_USER: verathailandai@gmail.com
+      SMTP_PASS: zjjjtavfhiurepws
+      SMTP_FROM: verathailandai@gmail.com
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 3. Angular Frontend Application Service
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./thailandia-main
+      dockerfile: Dockerfile
+    container_name: vela-frontend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+    driver: local

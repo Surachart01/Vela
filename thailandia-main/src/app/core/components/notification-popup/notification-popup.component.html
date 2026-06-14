@@ -1,0 +1,24 @@
+<div class="notification-wrapper" [class.visible]="isVisible()">
+  <div class="notification-card" *ngIf="activeNotification() as notif" (click)="handleAction()">
+    <div class="notif-icon" [ngClass]="notif.type.toLowerCase()">
+      <i class="fa-solid" [ngClass]="{
+        'fa-calendar-check': notif.type === 'Booking',
+        'fa-file-invoice-dollar': notif.type === 'Quotation',
+        'fa-arrows-rotate': notif.type === 'StatusUpdate'
+      }"></i>
+    </div>
+    
+    <div class="notif-content">
+      <div class="notif-header">
+        <span class="notif-type">{{ notif.type }}</span>
+        <span class="notif-time">Just now</span>
+      </div>
+      <div class="notif-message">{{ notif.message }}</div>
+      <div class="notif-hint">Click to view transaction</div>
+    </div>
+
+    <button class="btn-close" (click)="$event.stopPropagation(); close()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+</div>

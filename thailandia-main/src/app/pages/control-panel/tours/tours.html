@@ -1,0 +1,119 @@
+<div class="tours-container">
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['tour.pageTitle'] || 'Tours' }}</h1>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-section">
+      <div class="search-box">
+        <input type="text" 
+               [placeholder]="t()['tour.searchPlaceholder'] || 'Search for tours...'" 
+               [(ngModel)]="searchQuery"
+               (keyup.enter)="onSearch()">
+        <button class="btn-search" (click)="onSearch()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+      <div class="show-entries">
+        <label class="show-label">Show:</label>
+        <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event); currentPage.set(1)">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="section-head">
+        <div class="section-head-title">{{ t()['tour.listTitle'] || 'List of Tours' }}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button *ngIf="authService.canAdd('cp_tours')" class="add-btn" routerLink="/control-panel/add-tour">
+            <i class="fa-solid fa-plus"></i> {{ t()['tour.btnAdd'] || 'Add Tour' }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['tour.colStartCity'] || 'Start City' }}</th>
+              <th>{{ t()['tour.colName'] || 'Name' }}</th>
+              <th>{{ t()['tour.colDuration'] || 'Duration' }}</th>
+              <th>{{ t()['tour.colValidDays'] || 'Valid Days' }}</th>
+              <th>{{ t()['tour.colCategory'] || 'Category' }}</th>
+              <th>{{ t()['tour.colDescription'] || 'Description' }}</th>
+              <th class="text-center">{{ t()['hotel.col.edit'] || 'Edit' }}</th>
+              <th class="text-center">{{ t()['hotel.col.delete'] || 'Delete' }}</th>
+            </tr>
+          </thead>
+          <tbody [class.loading]="isLoading()">
+            @for (item of toursList(); track item.id) {
+              <tr>
+                <td>{{ item.city }}</td>
+                <td>{{ item.name }}</td>
+                <td>
+                  <span class="badge-duration">{{ item.duration }} days</span>
+                </td>
+                <td>
+                  <span class="days-list">{{ formatValidDays(item.valid_days) }}</span>
+                </td>
+                <td>{{ item.category }}</td>
+                <td class="td-desc">
+                  <div class="desc-container">{{ item.description }}</div>
+                </td>
+                <td class="text-center" style="width: 80px;">
+                  <button class="btn-action blue" [routerLink]="['/control-panel/add-tour', item.id]" [queryParams]="authService.canEdit('cp_tours') ? {} : { mode: 'view' }" [title]="authService.canEdit('cp_tours') ? 'Edit' : 'View'">
+                    <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_tours')" [class.fa-eye]="!authService.canEdit('cp_tours')"></i>
+                  </button>
+                </td>
+                <td style="width: 80px;">
+                  <button *ngIf="authService.canDelete('cp_tours')" class="btn-action red" (click)="deleteTour(item.id)" title="Delete">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="empty-state">
+                  <ng-container *ngIf="!isLoading()">{{ t()['hotel.noData'] || 'No tours found.' }}</ng-container>
+                  <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination-container" *ngIf="totalPages() > 0">
+        <div class="pagination-info">
+          {{ t()['common.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['common.to'] || 'to' }} {{ endIndex() }} {{ t()['common.of'] || 'of' }} {{ totalItems() }} {{ t()['common.entries'] || 'entries' }}
+        </div>
+        <div class="pagination-buttons">
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+            &larr; Prev
+          </button>
+          
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <button class="pagination-btn" 
+                    *ngIf="page !== -1"
+                    [class.active]="page === currentPage()"
+                    (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+          </ng-container>
+
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages() || totalPages() === 0" (click)="nextPage()">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

@@ -1,0 +1,302 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ initialData() ? 'Edit Hotel Details' : t()['form.hotelBookingDetails'] }}</h2>
+      <button class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="hotelForm" class="hotel-form">
+        
+        <!-- Row 1 -->
+        <div class="form-grid col-4">
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar-check text-teal"></i> {{ t()['form.checkIn'] }} *</label>
+            <app-date-input formControlName="checkIn" [min]="minDate()" />
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar-xmark text-teal"></i> {{ t()['form.checkOut'] }} *</label>
+            <app-date-input formControlName="checkOut" [min]="hotelForm.get('checkIn')?.value || minDate()" />
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-globe text-teal"></i> {{ t()['form.country'] }} *</label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of masterData.countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-city text-teal"></i> {{ t()['form.city'] }} *</label>
+            <select formControlName="city" [class.is-invalid]="hotelForm.get('city')?.invalid && hotelForm.get('city')?.touched" [compareWith]="compareByName">
+              <option value="">Select city</option>
+              @for (city of masterData.cities(); track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+            @if (hotelForm.get('city')?.invalid && hotelForm.get('city')?.touched) {
+              <span class="error-text">City is required</span>
+            }
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="form-grid col-5 mt-3">
+          <div class="form-group hotel-select-field">
+            <label><i class="fa-solid fa-hotel text-teal"></i> {{ t()['form.hotel'] }} *</label>
+            <div class="search-input-wrapper">
+              <input type="text" 
+                     [placeholder]="selectedCity() ? 'Search hotel...' : 'Select city first'" 
+                     [value]="hotelSearchQuery()" 
+                     [class.is-invalid]="hotelForm.get('hotel')?.invalid && (hotelForm.get('hotel')?.touched || hotelForm.touched)"
+                     (input)="hotelSearchQuery.set($any($event.target).value); showHotelResults.set(true)"
+                     (focus)="showHotelResults.set(true)"
+                     [disabled]="!selectedCity()">
+              @if (hotelSearchQuery()) {
+                <button type="button" class="btn-clear-search" (click)="clearHotelSearch()">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              }
+              
+              @if (showHotelResults() && filteredHotels().length > 0) {
+                <div class="search-results-dropdown">
+                  @for (hotel of filteredHotels(); track hotel.id) {
+                    <div class="search-result-item" (click)="selectHotel(hotel)">
+                      <span class="hotel-name">{{ hotel.name }}</span>
+                      <span class="hotel-city">{{ hotel.city }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <input type="hidden" formControlName="hotel">
+            @if (hotelForm.get('hotel')?.invalid && hotelForm.get('hotel')?.touched) {
+              <span class="error-text">Hotel is required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-moon text-teal"></i> {{ t()['form.nights'] }}</label>
+            <input type="number" min="0" formControlName="nights" class="bg-light-grey" readonly>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-users text-teal"></i> {{ t()['form.pax'] }}</label>
+            <input type="number" min="0" formControlName="pax" class="bg-light-grey" readonly>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-bed text-teal"></i> {{ t()['form.single'] }}</label>
+            <input type="number" min="0" formControlName="single">
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-bed text-teal"></i> {{ t()['form.double'] }}</label>
+            <input type="number" min="0" formControlName="double">
+          </div>
+        </div>
+
+        <!-- Row 3 Checkboxes -->
+        <div class="form-grid col-auto mt-2">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="earlyCheckIn"> {{ t()['form.earlyCheckIn'] }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="lateCheckOut"> {{ t()['form.lateCheckOut'] }}
+          </label>
+        </div>
+
+        <hr class="divider">
+
+        <!-- FormArray for Room Types -->
+        <div formArrayName="roomTypes">
+          @if (numberOfAdults() > 0 || numberOfChildren() > 0) {
+            <div style="display:flex; gap:16px; margin-bottom:8px; font-size:13px; color:#555; background:#f0f9ff; padding:8px 12px; border-radius:6px; border:1px solid #bae6fd;">
+              <span><i class="fa-solid fa-user" style="color:#0284c7"></i> Adults: <strong [style.color]="totalAdultsInRooms() > numberOfAdults() ? '#e53e3e' : '#0284c7'">{{ totalAdultsInRooms() }}</strong> / {{ numberOfAdults() }}</span>
+              <span><i class="fa-solid fa-child" style="color:#0284c7"></i> Children: <strong [style.color]="totalChildrenInRooms() > numberOfChildren() ? '#e53e3e' : '#0284c7'">{{ totalChildrenInRooms() }}</strong> / {{ numberOfChildren() }}</span>
+            </div>
+          }
+          @for (room of roomTypes.controls; track $index) {
+            <div [formGroupName]="$index" class="room-type-row">
+              <div class="form-grid room-grid mt-3">
+                <div class="form-group">
+                  <label>{{ t()['form.roomType'] }} *</label>
+                  <select formControlName="roomType" [class.is-invalid]="room.get('roomType')?.invalid && room.get('roomType')?.touched" [compareWith]="compareByName">
+                    <option value="">Select Room Type</option>
+                    @for (entry of allRoomEntries(); track entry.name) {
+                      <option [value]="entry.name">{{ entry.name }}</option>
+                    }
+                  </select>
+                  @if (room.get('roomType')?.invalid && room.get('roomType')?.touched) {
+                    <span class="error-text">Room type is required</span>
+                  }
+                </div>
+                <div class="form-group">
+                  <label>Adults @if (numberOfAdults() > 0) { <span style="color:#6b7280; font-weight:400;">(max {{ getMaxAdultsForRoom($index) ?? '∞' }})</span> }</label>
+                  <input type="number" min="0" [max]="getMaxAdultsForRoom($index)" formControlName="adults"
+                    (input)="clampRoomField($index, 'adults')"
+                    [style.border-color]="totalAdultsInRooms() > numberOfAdults() && numberOfAdults() > 0 ? '#e53e3e' : ''">
+                </div>
+                <div class="form-group">
+                  <label>Children @if (numberOfChildren() > 0) { <span style="color:#6b7280; font-weight:400;">(max {{ getMaxChildrenForRoom($index) ?? '∞' }})</span> }</label>
+                  <input type="number" min="0" [max]="getMaxChildrenForRoom($index)" formControlName="children"
+                    (input)="clampRoomField($index, 'children')"
+                    [style.border-color]="totalChildrenInRooms() > numberOfChildren() && numberOfChildren() > 0 ? '#e53e3e' : ''">
+                </div>
+                
+                <div class="form-group options-group">
+                  <label>Options</label>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+                    <label class="checkbox-label"><input type="checkbox" formControlName="compAbf"> {{ t()['form.complimentaryAbf'] }}</label>
+                    <label class="checkbox-label"><input type="checkbox" formControlName="sharingBed"> {{ t()['form.sharingBed'] }}</label>
+                    
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <label class="checkbox-label"><input type="checkbox" formControlName="extraAdultBed"> {{ t()['form.extraAdultBed'] }}</label>
+                      @if (room.get('extraAdultBed')?.value) {
+                        <input type="number" formControlName="extraAdultBedQty" style="width: 50px; padding: 4px 8px; border-radius: 6px; border: 1px solid #e8e1d9; font-size: 13px;" min="1" placeholder="Qty">
+                        @if (!authService.isAgent()) {
+                          <label class="checkbox-label" style="color: #059669; font-size: 11px;"><input type="checkbox" formControlName="compExtraAdultBed"> Free</label>
+                        }
+                      }
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <label class="checkbox-label"><input type="checkbox" formControlName="extraChildBed"> {{ t()['form.extraChildBed'] }}</label>
+                      @if (room.get('extraChildBed')?.value) {
+                        <input type="number" formControlName="extraChildBedQty" style="width: 50px; padding: 4px 8px; border-radius: 6px; border: 1px solid #e8e1d9; font-size: 13px;" min="1" placeholder="Qty">
+                        @if (!authService.isAgent()) {
+                          <label class="checkbox-label" style="color: #059669; font-size: 11px;"><input type="checkbox" formControlName="compExtraChildBed"> Free</label>
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <div class="delete-action" style="display: flex; flex-direction: column; gap: 8px;">
+                  <label>&nbsp;</label>
+                  @if (roomTypes.length > 1) {
+                    <button type="button" class="btn-delete" (click)="removeRoomType($index)"><i class="fa-solid fa-trash-can"></i></button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="add-action mt-2">
+          <button type="button" class="btn-add-teal" (click)="addRoomType()">
+            <i class="fa-solid fa-plus"></i> {{ t()['form.addRoomType'] }}
+          </button>
+        </div>
+
+
+
+        <!-- Meals Section -->
+        <div class="meals-section mt-4" formGroupName="meals">
+          <h4 class="section-subtitle">{{ t()['form.meals'] }}</h4>
+          <div class="checkbox-options mt-2 mb-3">
+            <label class="checkbox-label"><input type="checkbox" formControlName="hasAbf"> {{ t()['form.abf'] }}</label>
+            <label class="checkbox-label"><input type="checkbox" formControlName="hasLunch"> {{ t()['form.lunch'] }}</label>
+            <label class="checkbox-label"><input type="checkbox" formControlName="hasDinner"> {{ t()['form.dinner'] }}</label>
+            <label class="checkbox-label"><input type="checkbox" formControlName="hasAllInclusive"> {{ t()['form.allInclusive'] }}</label>
+          </div>
+
+          <div class="form-grid col-4 mb-2">
+            <div class="form-group">
+              <label>{{ t()['form.abf'] }} {{ t()['form.days'] }}</label>
+              <input type="number" min="0" formControlName="abfDays" class="bg-light-grey">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.lunch'] }} {{ t()['form.days'] }}</label>
+              <input type="number" min="0" formControlName="lunchDays" class="bg-light-grey">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.dinner'] }} {{ t()['form.days'] }}</label>
+              <input type="number" min="0" formControlName="dinnerDays" class="bg-light-grey">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.allInclusive'] }} {{ t()['form.days'] }}</label>
+              <input type="number" min="0" formControlName="allInclusiveDays" class="bg-light-grey">
+            </div>
+          </div>
+
+          <div class="form-grid col-4 mb-4">
+            <div class="form-group">
+              <label>{{ t()['form.abf'] }} {{ t()['form.notes'] }}</label>
+              <input type="text" formControlName="abfNotes" class="bg-light-grey" placeholder="ABF Notes">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.lunch'] }} {{ t()['form.notes'] }}</label>
+              <input type="text" formControlName="lunchNotes" class="bg-light-grey" placeholder="Lunch Notes">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.dinner'] }} {{ t()['form.notes'] }}</label>
+              <input type="text" formControlName="dinnerNotes" class="bg-light-grey" placeholder="Dinner Notes">
+            </div>
+            <div class="form-group">
+              <label>{{ t()['form.allInclusive'] }} {{ t()['form.notes'] }}</label>
+              <input type="text" formControlName="allInclusiveNotes" class="bg-light-grey" placeholder="All Inclusive Notes">
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Flights & Price -->
+        <div class="form-grid col-3 mt-3">
+          <div class="form-group">
+            <label>{{ t()['form.flightIn'] }}</label>
+            <input type="text" formControlName="flightIn" placeholder="Flight In">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.flightOut'] }}</label>
+            <input type="text" formControlName="flightOut" placeholder="Flight Out">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.flightInfo'] }}</label>
+            <input type="text" formControlName="flightInfo" placeholder="Flight Information">
+          </div>
+        </div>
+
+        <div class="form-grid col-3 mt-3">
+          @if (!authService.isAgent()) {
+            <div class="form-group">
+              <label><i class="fa-solid fa-list-ol text-teal"></i> Display Order</label>
+              <input type="number" min="0" formControlName="display_order" placeholder="e.g. 1, 2, 3...">
+            </div>
+          }
+          <div class="form-group price-group">
+            <label>{{ t()['form.updatedHotelPrice'] }}</label>
+            <div class="price-input-action">
+              <input type="text" formControlName="price" class="bg-light-grey" readonly>
+              <button type="button" class="btn-get-price bg-teal" (click)="getPrice()">
+                <i class="fa-solid fa-money-bill"></i> {{ t()['form.getPrice'] }}
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Discount</label>
+            <input type="number" min="0" formControlName="discount" class="bg-light-grey">
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width mt-3">
+          <label>Notes</label>
+          <textarea formControlName="notes" rows="3" placeholder="Enter any additional notes"></textarea>
+        </div>
+
+      </form>
+      @if (errorMessage()) {
+        <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+        </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <div class="validation-summary" style="color: #d32f2f; font-size: 12px; font-weight: bold; margin-right: auto; padding-left: 20px;">
+        @if (hotelForm.invalid && hotelForm.touched) {
+          <span><i class="fa-solid fa-circle-exclamation"></i> Please fill in all required fields.</span>
+        }
+      </div>
+      <button class="btn-cancel" (click)="close.emit()">Close</button>
+      <button type="button" class="btn-save bg-teal" (click)="onSave()">{{ initialData() ? 'Update Hotel' : 'Save Hotel' }}</button>
+    </div>
+  </div>
+</div>

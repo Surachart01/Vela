@@ -1,0 +1,171 @@
+<div class="add-markup-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ t()['markup.createTitle'] || 'Add New Markup' }}</h1>
+    </div>
+
+    <form class="markup-form" [formGroup]="markupForm">
+      
+      <!-- Basic Information Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ t()['markup.basicInfo'] || 'Basic Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label>{{ t()['markup.groupName'] || 'Group Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="groupName" [placeholder]="t()['agent.placeholder.name'] || 'Enter group name'">
+          </div>
+          <div class="form-group flex-1">
+            <label>{{ t()['markup.hotelMarkupUnit'] || 'Hotel Markup Unit' }} <span class="required">*</span></label>
+            <select formControlName="hotelMarkupUnit">
+              <option value="%">%</option>
+              <option value="THB">THB</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hotel Markup Configuration Section -->
+      <section class="form-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-hotel"></i> {{ t()['markup.hotelConfig'] || 'Hotel Markup Configuration' }}</h2>
+          <button type="button" class="btn-add-item" (click)="openRangeModal()">
+            <i class="fa-solid fa-plus"></i> {{ t()['markup.addRange'] || 'Add Markup Range' }}
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="nested-tbl">
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-dollar-sign"></i> {{ t()['markup.priceFrom'] || 'Price From' }}</th>
+                <th><i class="fa-solid fa-dollar-sign"></i> {{ t()['markup.priceTo'] || 'Price To' }}</th>
+                <th><i class="fa-solid fa-percent"></i> {{ (markupForm.get('hotelMarkupUnit')?.value === '%' ? t()['markup.markupPercent'] : t()['markup.markupValue']) || 'Markup Value' }}</th>
+                <th class="text-center">{{ t()['hotel.col.actions'] || 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (range of hotelRanges(); track $index) {
+                <tr>
+                  <td>{{ range.priceFrom | number }}</td>
+                  <td>{{ range.priceTo | number }}</td>
+                  <td>{{ range.markupValue }}{{ markupForm.get('hotelMarkupUnit')?.value === '%' ? '%' : ' THB' }}</td>
+                  <td class="text-center" style="width: 100px;">
+                    <div class="action-cell justify-center">
+                      <button type="button" class="btn-action blue" (click)="openRangeModal(range, $index)" title="Edit">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button type="button" class="btn-action red" (click)="removeRange($index)" title="Delete">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="empty-state">{{ t()['excursion.noPrices'] || 'No items added yet.' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-row" style="margin-top: 1rem;">
+          <div class="form-group flex-1">
+            <label>
+              <i class="fa-solid fa-percent"></i>
+              {{ t()['markup.hotelDefaultValue'] || 'Default Hotel Markup (Fallback)' }}
+            </label>
+            <div class="input-with-suffix">
+              <input type="number" formControlName="hotelMarkupValue" min="0" placeholder="0">
+              <span class="suffix">{{ markupForm.get('hotelMarkupUnit')?.value }}</span>
+            </div>
+            <small class="field-hint">{{ t()['markup.hotelDefaultHint'] || 'Used when no price ranges are defined above.' }}</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Other Markup Types Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-tags"></i> {{ t()['markup.otherTypes'] || 'Other Markup Types' }}</h2>
+        
+        <div class="markup-types-grid">
+          <!-- Excursion -->
+          <div class="markup-type-item">
+            <div class="form-group">
+              <label><i class="fa-solid fa-person-walking"></i> {{ t()['markup.excursionMarkupUnit'] || 'Excursion Markup Unit' }} *</label>
+              <select formControlName="excursionMarkupUnit">
+                <option value="THB">THB</option>
+                <option value="%">%</option>
+              </select>
+            </div>
+            <div class="form-group mt-2">
+              <label>{{ t()['markup.excursionMarkupValue'] || 'Excursion Markup Value' }} *</label>
+              <div class="input-with-suffix">
+                <input type="number" formControlName="excursionMarkupValue" [placeholder]="t()['excursion.sicAdult'] || 'Enter value'">
+                <span class="suffix">{{ markupForm.get('excursionMarkupUnit')?.value }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tour -->
+          <div class="markup-type-item">
+            <div class="form-group">
+              <label><i class="fa-solid fa-map-location-dot"></i> {{ t()['markup.tourMarkupUnit'] || 'Tour Markup Unit' }} *</label>
+              <select formControlName="tourMarkupUnit">
+                <option value="THB">THB</option>
+                <option value="%">%</option>
+              </select>
+            </div>
+            <div class="form-group mt-2">
+              <label>{{ t()['markup.tourMarkupValue'] || 'Tour Markup Value' }} *</label>
+              <div class="input-with-suffix">
+                <input type="number" formControlName="tourMarkupValue" [placeholder]="t()['excursion.sicAdult'] || 'Enter value'">
+                <span class="suffix">{{ markupForm.get('tourMarkupUnit')?.value }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transfer -->
+          <div class="markup-type-item">
+            <div class="form-group">
+              <label><i class="fa-solid fa-car"></i> {{ t()['markup.transferMarkupUnit'] || 'Transfer Markup Unit' }} *</label>
+              <select formControlName="transferMarkupUnit">
+                <option value="THB">THB</option>
+                <option value="%">%</option>
+              </select>
+            </div>
+            <div class="form-group mt-2">
+              <label>{{ t()['markup.transferMarkupValue'] || 'Transfer Markup Value' }} *</label>
+              <div class="input-with-suffix">
+                <input type="number" formControlName="transferMarkupValue" [placeholder]="t()['excursion.sicAdult'] || 'Enter value'">
+                <span class="suffix">{{ markupForm.get('transferMarkupUnit')?.value }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()">
+          <i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] || 'Cancel' }}
+        </button>
+        <button type="button" class="btn-save" (click)="saveMarkup()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ t()['markup.btnSave'] || 'Save Markup' }}
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<app-add-markup-range-modal
+  [isOpen]="isRangeModalOpen()"
+  [selectedRange]="selectedRange()"
+  (close)="isRangeModalOpen.set(false)"
+  (save)="handleSaveRange($event)">
+</app-add-markup-range-modal>

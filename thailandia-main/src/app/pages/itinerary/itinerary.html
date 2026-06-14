@@ -1,0 +1,121 @@
+<div class="itinerary-container">
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['itinerary.title'] }}</h1>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="filter-group group-search">
+        <label>{{ t()['quote.search'] }}</label>
+        <div class="input-container icon-left">
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="checkFilters()"
+            [placeholder]="t()['itinerary.searchPlaceholder']">
+        </div>
+      </div>
+      
+      <div class="filter-group group-date">
+        <label>{{ t()['quote.dateFrom'] }}</label>
+        <app-date-input [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event); checkFilters()"></app-date-input>
+      </div>
+      
+      <div class="filter-group group-date">
+        <label>{{ t()['quote.dateTo'] }}</label>
+        <app-date-input [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event); checkFilters()"></app-date-input>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-search" (click)="onSearch()">
+          {{ t()['quote.searchBtn'] }} <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button 
+          class="btn-reset" 
+          [class.disabled]="!hasActiveFilters()"
+          (click)="resetFilters()">
+          {{ t()['quote.resetBtn'] }} <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="info-alert">
+      <i class="fa-solid fa-circle-info"></i> {{ t()['itinerary.showing'] }}
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">  
+      <div class="table-header-context">
+        <h2 class="table-title">{{ t()['itinerary.listTitle'] }}</h2>
+        <div class="table-controls">
+          <select class="entries-select">
+            <option value="25">25</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="data-table itinerary-table">
+          <thead>
+            <tr>
+              <th class="col-agent">{{ t()['itinerary.table.staff'] || 'Staff' }}</th>
+              <th>{{ t()['itinerary.table.quotationRef'] }}</th>
+              <th class="col-client">{{ t()['itinerary.table.clientName'] }}</th>
+              <th>{{ t()['itinerary.table.tripStart'] }}</th>
+              <th>{{ t()['itinerary.table.pax'] }}</th>
+              <th>{{ t()['itinerary.table.telephone'] }}</th>
+              <th>{{ t()['itinerary.table.bookingRef'] }}</th>
+              <th>{{ t()['itinerary.table.status'] }}</th>
+              <th>{{ t()['itinerary.table.finalCost'] }}</th>
+              <th>{{ t()['itinerary.table.view'] }}</th>
+              <th>{{ t()['itinerary.table.print'] }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itineraryService.itineraries(); track item.id) {
+              <tr>
+                <td class="col-agent">{{ item.user_name || '-' }}</td>
+                <td>{{ item.quotationRef }}</td>
+                <td class="col-client">{{ item.clientName }}</td>
+                <td>{{ item.tripStartDate }}</td>
+                <td>{{ item.pax }}</td>
+                <td>{{ item.telephone }}</td>
+                <td>{{ item.bookingRef }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="item.status.toLowerCase()">{{ item.status }}</span>
+                </td>
+                <td>{{ item.finalCost | number:'1.2-2' }}</td>
+                <td>
+                  <button class="btn-icon btn-view" [title]="t()['itinerary.table.view']">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
+                <td>
+                  <button class="btn-icon btn-outline-grey" [title]="t()['itinerary.table.print']">
+                    <i class="fa-solid fa-print"></i>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="11" class="text-center empty-state"></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="pagination">
+        <span class="showing-text">Showing 1 to 25 of 50 entries</span>
+        <div class="page-controls">
+          <button class="btn-page disabled"><i class="fa-solid fa-arrow-left"></i> Prev</button>
+          <button class="btn-page active">1</button>
+          <button class="btn-page">2</button>
+          <button class="btn-page">Next <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

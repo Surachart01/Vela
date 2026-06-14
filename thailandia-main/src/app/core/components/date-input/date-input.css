@@ -1,0 +1,74 @@
+.date-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.display-overlay {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #333;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  min-height: 40px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.display-overlay * {
+  pointer-events: none;
+}
+
+.date-input-container:hover .display-overlay {
+  border-color: #ccc;
+  background: #fafafa;
+}
+
+.date-input-container:focus-within .display-overlay {
+  border-color: var(--primary-orange);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(242, 100, 25, 0.1);
+}
+
+.date-text {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.placeholder {
+  color: #aaa;
+  font-weight: 400;
+}
+
+.picker-icon {
+  color: var(--primary-orange);
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.hidden-native-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.disabled .display-overlay {
+  background: #f8f8f8;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #eee;
+  box-shadow: none;
+}

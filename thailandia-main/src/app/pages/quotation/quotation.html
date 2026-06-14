@@ -1,0 +1,180 @@
+<div class="quotation-container">
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['quote.title'] }}</h1>
+      <div class="header-actions">
+        @if (quotations().length > 0) {
+        <button class="btn-clear" (click)="clearAll()">
+          <i class="fa-solid fa-trash-sweep"></i> {{ t()['form.clearAll'] || 'Clear All' }}
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <section class="filter-section" [formGroup]="filterForm">
+      <div class="form-row">
+        <div class="form-group grow-2">
+          <label>{{ t()['quote.search'] }}</label>
+          <input type="text" formControlName="search" [placeholder]="t()['quote.searchPlaceholder']">
+        </div>
+
+          <div class="form-group">
+            <label>{{ t()['quote.dateFrom'] }}</label>
+            <app-date-input formControlName="dateFrom"></app-date-input>
+          </div>
+          <div class="form-group">
+            <label>{{ t()['quote.dateTo'] }}</label>
+            <app-date-input formControlName="dateTo"></app-date-input>
+          </div>
+
+        <div class="form-group">
+          <label>{{ t()['quote.status'] }}</label>
+          <select formControlName="status">
+            <option value="">{{ t()['quote.allStatus'] }}</option>
+            <option value="pending">{{ t()['quote.pending'] }}</option>
+            <option value="approved">{{ t()['quote.approved'] }}</option>
+            <option value="declined">{{ t()['quote.declined'] }}</option>
+            <option value="inprogress">{{ t()['quote.inProgress'] }}</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-search" (click)="currentPage.set(1)">{{ t()['quote.searchBtn'] }} <i
+              class="fa-solid fa-magnifying-glass"></i></button>
+          <button type="button" class="btn-reset" [disabled]="!hasFilters" [class.disabled]="!hasFilters"
+            (click)="resetFilters()">
+            {{ t()['quote.resetBtn'] }} <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Info Alert -->
+    <div class="info-alert" *ngIf="filteredQuotations().length > 0">
+      <i class="fa-solid fa-circle-info"></i> {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} of {{ filteredQuotations().length }} entries
+    </div>
+
+    <!-- Table Section -->
+    <section class="table-section">
+      <div class="table-header">
+        <h2 class="section-title">{{ t()['quote.listTitle'] }}</h2>
+        <div class="header-actions">
+          <div class="showing-dropdown">
+            <select class="entries-select" [ngModel]="pageSize()" (ngModelChange)="pageSize.set($event); currentPage.set(1)">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+          </div>
+          <a *ngIf="authService.canAdd('quotation')" routerLink="/add-quotation" class="btn-primary">
+            <i class="fa-solid fa-plus"></i> {{ t()['quote.addBtn'] }}
+          </a>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="quotation-table">
+          <thead>
+            <tr>
+              <th>{{ t()['quote.table.ref'] }}</th>
+              <th>{{ t()['quote.table.client'] }} <i class="fa-solid fa-sort"></i></th>
+              <th>{{ t()['quote.table.bookingDate'] }} <i class="fa-solid fa-sort"></i></th>
+              <th>{{ t()['quote.table.tripStart'] }} <i class="fa-solid fa-sort"></i></th>
+              <th>{{ t()['quote.table.pax'] }}</th>
+              <th>{{ t()['quote.table.tel'] }}</th>
+              <th>{{ t()['quote.table.bookingRef'] }}</th>
+              <th>{{ t()['quote.table.status'] }}</th>
+              <th class="text-right">{{ t()['quote.table.cost'] }} <i class="fa-solid fa-sort"></i></th>
+              <th class="text-center">{{ t()['common.actions'] || 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (quote of paginatedQuotations(); track quote.id) {
+            <tr>
+              <td><span class="ref-badge">{{ quote.uuid?.slice(0,8) || quote.id }}</span></td>
+              <td><div class="client-name" [title]="quote.client_name">{{ quote.client_name }}</div></td>
+              <td>{{ quote.created_at | date:'dd/MM/yyyy' }}</td>
+              <td>{{ quote.trip_start_date | date:'dd/MM/yyyy' }}</td>
+              <td class="text-center">{{ (quote.number_of_adults || 0) + (quote.number_of_kids || 0) }}</td>
+              <td>{{ quote.client_phone }}</td>
+              <td><span class="ref-badge">{{ quote.booking_reference }}</span></td>
+              <td>
+                <span class="status-badge" [class]="quote.declined ? 'declined' : (quote.is_booking ? 'converted' : 'inprogress')">
+                  • {{ quote.declined ? 'Declined' : (quote.is_booking ? 'Converted' : 'InProgress') }}
+                </span>
+              </td>
+                <td class="text-right">฿{{ quote.final_amount | number }}</td>
+                <td class="actions-cell">
+                  <div class="actions-wrapper">
+                    <button class="btn-action btn-edit" [routerLink]="['/add-quotation', quote.uuid || quote.id]" [title]="authService.canEdit('quotation') ? 'Edit' : 'View'">
+                      <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('quotation')" [class.fa-eye]="!authService.canEdit('quotation')"></i>
+                    </button>
+                    <button class="btn-action btn-pdf" (click)="downloadPdf(quote.uuid || quote.id)" title="Download PDF">
+                      <i class="fa-solid fa-file-pdf"></i>
+                    </button>
+                    <button class="btn-action btn-email" (click)="emailAgent(quote.id)" title="Email">
+                      <i class="fa-solid fa-envelope"></i>
+                    </button>
+                    @if (quote.approved) {
+
+                      <button class="btn-action btn-cancel" (click)="deleteQuotation(quote.id)" title="Cancel">
+                        <i class="fa-solid fa-ban"></i>
+                      </button>
+                    } @else {
+                      <button *ngIf="authService.canDelete('quotation')" class="btn-action btn-delete" (click)="deleteQuotation(quote.id)" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+            <tr class="empty-state">
+                <td colspan="10" class="text-center py-4">No quotations found matching filters</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Standardized Pagination Footer -->
+      <div class="pagination-container" *ngIf="totalPages() > 1">
+        <div class="pagination-info">
+          {{ t()['home.results.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['home.results.to'] || 'to' }} {{ endIndex() }} of {{ filteredQuotations().length }} entries
+        </div>
+        
+        <div class="pagination-controls">
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+            &larr; Prev
+          </button>
+          
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <button class="pagination-btn" 
+                    *ngIf="page !== -1"
+                    [class.active]="page === currentPage()"
+                    (click)="setPage(page)">
+              {{ page }}
+            </button>
+            <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+          </ng-container>
+
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+@if (isStatusModalOpen()) {
+  <app-status-modal 
+    [currentStatus]="selectedQuoteStatus()"
+    (close)="closeStatusModal()" 
+    (save)="saveStatus($event)" />
+}

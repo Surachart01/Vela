@@ -1,0 +1,38 @@
+<div class="modal-overlay" [class.show]="isOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fa-solid fa-address-book"></i> {{ editIndex !== null ? t()['hotel.editContact'] || 'Edit Contact' : t()['hotel.addContact'] || 'Add Contact' }}</h2>
+      <button type="button" class="btn-close" (click)="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>{{ t()['hotel.col.name'] || 'Name' }} <span class="required">*</span></label>
+          <input type="text" formControlName="name" class="form-control" placeholder="Enter contact name">
+        </div>
+        
+        <div class="form-group">
+          <label>{{ t()['hotel.col.email'] || 'Email' }}</label>
+          <input type="email" formControlName="email" class="form-control" placeholder="Enter email address">
+        </div>
+
+        <div class="form-group">
+          <label>{{ t()['hotel.col.telephone'] || 'Telephone' }}</label>
+          <input type="text" formControlName="telephone" class="form-control" placeholder="Enter telephone number">
+        </div>
+
+        @if (errorMessage) {
+          <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 16px; border: 1px solid #fed7d7; text-align: center;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+          </div>
+        }
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" (click)="closeModal()">{{ t()['excursion.btnCancel'] || 'Cancel' }}</button>
+          <button type="submit" class="btn btn-primary">{{ editIndex !== null ? (t()['hotel.btnUpdate'] || 'Update') : (t()['hotel.btnActionAdd'] || 'Add') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

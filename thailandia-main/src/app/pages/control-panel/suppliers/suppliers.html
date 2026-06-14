@@ -1,0 +1,93 @@
+@if (!authService.isAgent()) {
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">{{ t()['supplier.pageTitle'] || 'Suppliers' }}</h1>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="search-box">
+        <input type="text" [placeholder]="t()['supplier.searchPlaceholder'] || 'Search for suppliers...'" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+      </div>
+      <div class="show-entries">
+        <label>{{ t()['supplier.show'] || 'Show:' }}</label>
+        <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event)">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ t()['supplier.listTitle'] || 'List of Suppliers' }}</h2>
+      <div class="header-actions">
+        <div class="total-badge"><i class="fa-solid fa-truck-field"></i> {{ t()['supplier.total'] || 'Total:' }} <strong>{{ totalItems() }}</strong></div>
+        <button *ngIf="authService.canAdd('cp_suppliers')" class="btn btn-add" routerLink="/control-panel/add-supplier">
+          <i class="fa-solid fa-plus"></i> {{ t()['supplier.btnAdd'] || 'Add Supplier' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ t()['supplier.colName'] || 'Name' }}</th>
+            <th>{{ t()['supplier.colEmail'] || 'Email' }}</th>
+            <th>{{ t()['supplier.colPhone'] || 'Phone' }}</th>
+            <th>{{ t()['supplier.colServices'] || 'Services' }}</th>
+            <th>{{ t()['supplier.colDescription'] || 'Description' }}</th>
+            <th class="text-center">{{ t()['supplier.btnEdit'] || 'Edit' }}</th>
+            <th class="text-center">{{ t()['supplier.btnDelete'] || 'Delete' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (supplier of filteredSuppliers(); track supplier.id) {
+            <tr>
+              <td class="font-bold">{{ supplier.name }}</td>
+              <td>{{ supplier.email }}</td>
+              <td>{{ supplier.phone }}</td>
+              <td>
+                <div class="badge-group">
+                  @for (service of supplier.services; track service) {
+                    <span class="service-badge">{{ service }}</span>
+                  }
+                </div>
+              </td>
+              <td>{{ supplier.description }}</td>
+              <td class="text-center">
+                <button class="btn-action btn-edit" [routerLink]="['/control-panel/add-supplier', supplier.id]" [queryParams]="!authService.canEdit('cp_suppliers') ? { mode: 'view' } : {}">
+                  <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_suppliers')" [class.fa-eye]="!authService.canEdit('cp_suppliers')"></i> 
+                  {{ authService.canEdit('cp_suppliers') ? (t()['supplier.btnEdit'] || 'Edit') : (t()['form.view'] || 'View') }}
+                </button>
+              </td>
+              <td class="text-center">
+                <button *ngIf="authService.canDelete('cp_suppliers')" class="btn-action btn-delete" (click)="deleteSupplier(supplier.id)">
+                  <i class="fa-solid fa-trash-can"></i> {{ t()['supplier.btnDelete'] || 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-state">{{ t()['supplier.noData'] || 'No suppliers found.' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+} @else {
+  <div class="access-denied-container">
+    <div class="denied-box">
+      <i class="fa-solid fa-lock denied-icon"></i>
+      <h2>Access Denied</h2>
+      <p>You do not have permission to view this page.</p>
+      <button class="btn btn-primary mt-3" routerLink="/control-panel">Return to Dashboard</button>
+    </div>
+  </div>
+}

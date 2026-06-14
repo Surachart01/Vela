@@ -1,0 +1,378 @@
+:host {
+  display: block;
+  --or: #f26419;
+  --bg: #fdfaf7;
+  --ink: #2e2824;
+  --muted: #8e8378;
+  --line: #ebe5df;
+  --white: #ffffff;
+  --green: #3D9F7D;
+  --blue: #007BFF;
+  --red: #dc3545;
+  --yellow: #ffc107;
+}
+
+.add-hotel-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fafafa;
+  padding-bottom: 80px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-title i {
+  color: var(--or);
+}
+
+.btn-back {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.btn-back:hover {
+  background: #f5f5f5;
+}
+
+
+.hotel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #eaeaea;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title i {
+  color: var(--or);
+}
+.section-title.mb-0 {
+  margin-bottom: 0;
+}
+
+.section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: transparent;
+  padding: 12px 0;
+}
+.table-section {
+  padding: 16px;
+}
+.table-section .section-title {
+  color: var(--ink);
+}
+.table-section .section-title i {
+  color: var(--or);
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.half-width {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-group.third-width {
+  flex: 1;
+  min-width: 180px;
+}
+
+.form-group.full-width {
+  flex: 100%;
+}
+
+.form-group label {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #555;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.form-group label i {
+  color: var(--teal);
+  width: 14px;
+  text-align: center;
+}
+
+.required {
+  color: #d11a2a;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--or);
+  outline: none;
+  background: white;
+}
+
+.input-with-btn {
+  display: flex;
+  gap: 8px;
+}
+.input-with-btn select {
+  flex: 1;
+}
+.btn-add-inline {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-inline:hover {
+  background: #e0e0e0;
+}
+
+
+/* Nested Tables */
+.btn-add-item {
+  background: var(--or);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(242, 100, 25, 0.3);
+}
+.btn-add-item:hover {
+  background: #d85713;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.nested-tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.nested-tbl th {
+  background: var(--bg);
+  color: #9f653b;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.nested-tbl th i {
+  margin-right: 4px;
+  color: inherit;
+}
+
+.nested-tbl td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.nested-tbl tr:last-child td {
+  border-bottom: none;
+}
+.nested-tbl tr:hover td {
+  background: #FDFAF7;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
+}
+
+
+/* Nested Table Action Buttons */
+.action-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.btn-action:hover {
+  opacity: 0.85;
+}
+
+.btn-action.blue {
+  background: #3E71FE;
+}
+
+.btn-action.red {
+  background: #EF0000;
+}
+
+.btn-action.yellow {
+  background: #F7B500;
+}
+
+/* Actions Footer */
+.bottom-spacer {
+  height: 40px;
+}
+
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fafafa;
+  border-top: 1px solid #ddd;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.btn-cancel {
+  background: #6C7A89;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cancel:hover {
+  background: #5a6673;
+}
+
+.btn-save {
+  background: var(--or);
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(242, 100, 25, 0.3);
+}
+
+.btn-save:hover {
+  background: #d85713;
+}

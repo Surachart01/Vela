@@ -1,0 +1,424 @@
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =========================================
+   Map Showcase Section
+   ========================================= */
+.map-showcase-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  height: 100%;
+  flex: 1;
+}
+
+.showcase-header {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.showcase-title {
+  font-size: 38px;
+  font-weight: 900;
+  color: #2c3e50;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.showcase-subtitle {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 32px;
+}
+
+.showcase-categories {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.glass-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  color: #2c3e50;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glass-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+.glass-btn.btn-hotels:hover { color: #007bff; border-color: #007bff; }
+.glass-btn.btn-tours:hover { color: #2e7d32; border-color: #2e7d32; }
+.glass-btn.btn-excursions:hover { color: #efae00; border-color: #efae00; }
+.glass-btn.btn-transfers:hover { color: #d32f2f; border-color: #d32f2f; }
+
+/* Interactive Map */
+.interactive-map-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 900px;
+  border-radius: 24px;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Beautiful Abstract Glowing Background */
+.echarts-map {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.glow-orb {
+  display: none;
+}
+
+/* ECharts interactive map handles the hotspots natively */
+
+/* =========================================
+   Search Mode Sections
+   ========================================= */
+.back-to-map-container {
+  margin-bottom: -8px;
+}
+
+.btn-back-map {
+  background: transparent;
+  border: none;
+  color: #7f8c8d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  transition: color 0.2s;
+}
+.btn-back-map:hover {
+  color: var(--primary-orange);
+}
+
+/* Hero Section */
+
+.hero-section {
+  background: linear-gradient(135deg, #3D2B0F 0%, #936730 100%);
+  border-radius: 12px;
+  padding: 40px 48px;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(104, 72, 42, 0.15);
+}
+
+.hero-section.mini {
+  padding: 20px 24px;
+}
+
+.hero-section.mini .hero-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.hero-welcome {
+  color: #FFB380;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  white-space: pre-line;
+  font-style: italic;
+}
+.hero-title::first-line {
+  color: var(--primary-orange);
+}
+
+.hero-subtitle {
+  color: #C8BFB3;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Search Section */
+.search-section {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  color: #666;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.active-blue { background-color: #007bff !important; color: white !important; border-color: #007bff !important; }
+.active-green { background-color: #2e7d32 !important; color: white !important; border-color: #2e7d32 !important; }
+.active-yellow { background-color: #efae00 !important; color: white !important; border-color: #efae00 !important; }
+.active-red { background-color: #d32f2f !important; color: white !important; border-color: #d32f2f !important; }
+
+.search-form { width: 100%; }
+.form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+.search-section .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 180px;
+}
+
+.search-section .form-group.grow-2 { flex: 2 1 300px; }
+.search-section label { font-size: 11px; font-weight: 700; color: var(--text-gray); }
+
+.search-section select,
+.search-section input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fdfdfd;
+  color: var(--text-dark);
+  height: 44px;
+}
+
+.btn-search {
+  background: var(--primary-orange);
+  color: white;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(255, 90, 0, 0.2);
+}
+
+.btn-search:hover { background: var(--primary-orange-hover); }
+
+/* Results Section */
+.results-section {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--primary-orange);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.entries-select {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-light);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+
+.results-table th {
+  text-align: left;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 11px;
+  font-weight: 700;
+  color: #b58054;
+  text-transform: uppercase;
+}
+
+.results-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.btn-view {
+  background: transparent;
+  color: #007bff;
+  border: 1px solid #007bff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-view:hover {
+  background: #007bff;
+  color: white;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary-orange);
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--text-light-gray);
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pagination-btn {
+  height: 34px;
+  min-width: 34px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--primary-orange);
+  color: var(--primary-orange);
+  background: #fff8f5;
+  transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+  background: var(--primary-orange);
+  color: white;
+  border-color: var(--primary-orange);
+  box-shadow: 0 4px 10px rgba(242, 100, 25, 0.25);
+}
+
+.pagination-btn.nav-btn {
+  padding: 0 16px;
+  min-width: 80px;
+}
+
+.pagination-btn:disabled {
+  background: #f8f9fa;
+  color: #adb5bd;
+  border-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  padding: 0 8px;
+  color: #adb5bd;
+  font-weight: 600;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-center { text-align: center; }
+.py-4 { padding: 24px 0; }

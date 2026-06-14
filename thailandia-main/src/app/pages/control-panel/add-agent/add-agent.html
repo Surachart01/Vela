@@ -1,0 +1,117 @@
+<div class="add-agent-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="location.back()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ t()['agent.createTitle'] || 'Create New Agent' }}</h1>
+    </div>
+      
+    <form class="agent-form booking-form" [formGroup]="agentForm" (ngSubmit)="saveAgent()">
+      
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-file-invoice"></i> {{ t()['form.generalInfo'] || 'General Information' }}</h2>
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['form.name'] || 'Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="name" [placeholder]="t()['agent.placeholder.name'] || 'Enter agent name'">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['form.markup'] || '% Markup' }} <span class="required">*</span></label>
+            <select formControlName="markup">
+              <option value="">{{ t()['agent.placeholder.markup'] || 'Select markup' }}</option>
+              <option value="Admin">Admin</option>
+              <option value="Local DMC">Local DMC</option>
+              <option value="Web">Web</option>
+              <option value="TO Silver">TO Silver</option>
+              <option value="Sales Agent">Sales Agent</option>
+              <option value="Get Your Guide">Get Your Guide</option>
+              <option value="Local Agent">Local Agent</option>
+              <option value="Travel Agent">Travel Agent</option>
+              <option value="TO Gold">TO Gold</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['form.address'] || 'Address' }} <span class="required">*</span></label>
+            <textarea formControlName="address" rows="3" [placeholder]="t()['agent.placeholder.address'] || 'Enter complete address...'"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['form.email'] || 'Email' }} <span class="required">*</span></label>
+            <input type="email" formControlName="email" [placeholder]="t()['agent.placeholder.email'] || 'Enter email address'">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['form.telephone'] || 'Telephone' }} <span class="required">*</span></label>
+            <input type="text" formControlName="telephone" [placeholder]="t()['agent.placeholder.telephone'] || 'Enter telephone number'">
+            <div class="field-hint">{{ t()['agent.hint.telephone'] || '7-13 digits, can start with +' }}</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>TAX ID</label>
+            <input type="text" formControlName="fax" placeholder="Enter tax ID number">
+          </div>
+        </div>
+      </section> 
+
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-calendar-check"></i> {{ t()['agent.deadlineTitle'] || 'Payment Deadline Configuration' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group" [class.half-width]="agentForm.get('deadlineType')?.value === 'custom'" [class.full-width]="agentForm.get('deadlineType')?.value !== 'custom'">
+            <label>{{ t()['agent.deadlineType'] || 'Payment Deadline Type' }} <span class="required">*</span></label>
+            <select formControlName="deadlineType">
+              <option value="">{{ t()['agent.placeholder.deadline'] || 'Select payment deadline type' }}</option>
+              <!-- <option value="24h">{{ t()['agent.deadlineOptions.24h'] || '24 Hours Before Trip Start' }}</option> -->
+              <option value="eom">{{ t()['agent.deadlineOptions.eom'] || 'End of Travel Month' }}</option>
+              <option value="custom">{{ t()['agent.deadlineOptions.custom'] || 'Custom Days Before Trip Start' }}</option>
+            </select>
+            <div class="field-hint">{{ t()['agent.hint.deadlineType'] || 'Choose when agents must make payments for bookings' }}</div>
+          </div>
+
+          @if (agentForm.get('deadlineType')?.value === 'custom') {
+            <div class="form-group half-width">
+              <label>{{ t()['agent.daysBefore'] || 'Days Before Trip Start' }} <span class="required">*</span></label>
+              <input type="number" min="0" formControlName="customDays" [placeholder]="t()['agent.placeholder.days'] || 'Enter number of days'">
+              <div class="field-hint">{{ t()['agent.hint.days'] || 'Number of days before trip start when payment is due (1-365 days)' }}</div>
+            </div>
+          }
+        </div>
+
+        <!-- Preview Box -->
+        <div class="service-header preview-box">
+          <h3><i class="fa-solid fa-circle-info"></i> {{ t()['agent.previewTitle'] || 'Payment Deadline Preview:' }}</h3>
+          <span class="count-badge">
+            @if (agentForm.get('deadlineType')?.value === '24h') {
+              {{ t()['agent.preview.24h'] || 'Current Setting: 24 hours before trip start' }}
+            } @else if (agentForm.get('deadlineType')?.value === 'eom') {
+              {{ t()['agent.preview.eom'] || 'Current Setting: End of travel month' }}
+            } @else if (agentForm.get('deadlineType')?.value === 'custom') {
+              @if (agentForm.get('customDays')?.value) {
+                {{ (t()['agent.preview.customDays'] || 'Current Setting: {days} days before trip start').replace('{days}', agentForm.get('customDays')?.value?.toString() || '') }}
+              } @else {
+                {{ t()['agent.preview.customEmpty'] || 'Current Setting: Custom days before trip start (not configured)' }}
+              }
+            } @else {
+              {{ t()['agent.preview.empty'] || 'Please select a payment deadline type to see the preview' }}
+            }
+          </span>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+      
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="location.back()"><i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] || 'Cancel' }}</button>
+        <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> {{ t()['form.saveAgent'] || 'Save Agent' }}</button>
+      </div>
+
+    </form>
+  </main>
+</div>

@@ -1,0 +1,78 @@
+    <div class="login-container">
+      <div class="lang-toggle-container">
+        <button class="lang-toggle" (click)="translationService.toggleLanguage()">
+          {{ translationService.getLanguage() === 'en' ? 'TH' : 'EN' }}
+        </button>
+      </div>
+
+      <div class="login-box">
+        <div class="logo-container">
+          <div class="logo-circle">
+            <!-- Simulated logo, since we don't have the asset -->
+            <div class="logo-stripes">
+              <div class="stripe s1"></div>
+              <div class="stripe s2"></div>
+              <div class="stripe s3"></div>
+              <div class="stripe s4"></div>
+              <div class="stripe s5"></div>
+              <!-- sdff -->
+            </div>
+          </div>
+          <div class="logo-text">
+            VeraThailandia<br>Co., Ltd
+          </div>
+        </div>
+
+        <p class="welcome-text">{{ t()['login.welcomeBack'] }}</p>
+        <h1 class="login-title">{{ t()['login.signInHeader'] }}</h1>
+
+        <form class="login-form" [formGroup]="loginForm" (submit)="onSubmit($event)">
+          <div class="form-group">
+            <label>{{ t()['login.emailLabel'] }}</label>
+            <input type="text" formControlName="username" [placeholder]="t()['login.emailPlaceholder']" required>
+          </div>
+
+          <div class="form-group">
+            <label>{{ t()['login.passwordLabel'] }}</label>
+            <div class="password-wrapper">
+              <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" [placeholder]="t()['login.passwordPlaceholder']" required>
+              <span class="eye-icon" (click)="showPassword.set(!showPassword())" style="cursor: pointer;">
+                <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+              </span>
+            </div>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="error-message" style="color: #ff4d4d; margin-bottom: 1rem; font-size: 0.9rem;">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="form-actions-row">
+            <label class="remember-me">
+              <input type="checkbox" formControlName="rememberMe">
+              <span>{{ t()['login.rememberMe'] }}</span>
+            </label>
+            <a href="#" class="forgot-password">{{ t()['login.forgotPassword'] }}</a>
+          </div>
+
+          <button type="submit" class="sign-in-btn" [disabled]="isLoading()">
+            {{ isLoading() ? '...' : t()['login.signInBtn'] }}
+          </button>
+        </form>
+
+        <div class="divider">
+          <span>{{ t()['login.or'] }}</span>
+        </div>
+
+        <button type="button" class="google-btn" (click)="onGoogleLogin()" [disabled]="isLoading()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+            <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.62z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H1.04v2.33A9 9 0 0 0 9 18z"/>
+            <path fill="#FBBC05" d="M3.96 10.71a5.41 5.41 0 0 1 0-3.42V4.96H1.04a9 9 0 0 0 0 8.08l2.92-2.33z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15.02 2.3C13.46.86 11.43 0 9 0 5.48 0 2.44 2.05 1.04 4.96l2.92 2.33C4.67 5.16 6.66 3.58 9 3.58z"/>
+          </svg>
+          {{ t()['login.continueWithGoogle'] }}
+        </button>
+      </div>
+    </div>

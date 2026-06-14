@@ -1,0 +1,241 @@
+<div class="add-excursion-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="location.back()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ viewOnly() ? (t()['excursion.viewTitle'] || 'View Excursion') : (t()['excursion.createTitle'] || 'Create New Excursion') }}</h1>
+    </div>
+      
+    <form class="booking-form" [formGroup]="excursionForm" (ngSubmit)="saveExcursion()">
+      
+      <!-- General Info -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-file-invoice"></i> {{ t()['excursion.genInfoTitle'] || 'General Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.name'] || 'Excursion Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="name" placeholder="Enter excursion name">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.country'] || 'Country' }} <span class="required">*</span></label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of masterData.countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.city'] || 'City' }} <span class="required">*</span></label>
+            <div class="input-with-btn">
+              <select formControlName="city">
+                <option value="">Select city</option>
+                @for (city of masterData.cities(); track city) {
+                  <option [value]="city">{{ city }}</option>
+                }
+              </select>
+              <button type="button" class="btn-add-inline" (click)="isCityModalOpen.set(true)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.code'] || 'Excursion Code' }} <span class="required">*</span></label>
+            <input type="text" formControlName="code" placeholder="Enter excursion code">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.supplier'] || 'Supplier' }} <span class="required">*</span></label>
+            <select formControlName="supplier">
+              <option value="">Select supplier</option>
+              <option value="WheelsApart">WheelsApart</option>
+              <option value="Fantasia Asia Travel Service">Fantasia Asia Travel Service</option>
+              <option value="VeraThailandia">VeraThailandia</option>
+              <option value="Papaiteow Transportation Company">Papaiteow Transportation Company</option>
+              <option value="Asia Sensation Travel">Asia Sensation Travel</option>
+              <option value="Grand Pearl Co.,Ltd">Grand Pearl Co.,Ltd</option>
+              <option value="Baiyoke Sky">Baiyoke Sky</option>
+              <option value="Shangri-La Bangkok">Shangri-La Bangkok</option>
+              <option value="Varun Test">Varun Test</option>
+            </select>
+          </div>
+          <div class="form-group half-width" *ngIf="!authService.isAgent()">
+            <label>{{ t()['excursion.displayOrder'] || 'Display Order' }}</label>
+            <input type="number" min="0" formControlName="displayOrder" placeholder="Enter display order (optional)">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['excursion.description'] || 'Description' }} <span class="required">*</span></label>
+            <textarea formControlName="description" rows="3" placeholder="Enter excursion description"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['excursion.sicAdult'] || 'SIC Price for Adult' }} <span class="required">*</span></label>
+            <input type="number" min="0" formControlName="sicAdult" placeholder="Enter SIC price for adult">
+          </div>
+          <div class="form-group half-width">
+            <label> {{ t()['excursion.sicChild'] || 'SIC Price for Child' }} <span class="required">*</span></label>
+            <input type="number" min="0" formControlName="sicChild" placeholder="Enter SIC price for child">
+          </div>
+        </div>
+      </section>
+
+      <!-- Validity Period -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-calendar-days"></i> {{ t()['excursion.validityTitle'] || 'Excursion Validity Period' }}</h2>
+        
+        <div class="form-group full-width">
+          <label>{{ t()['excursion.validDays'] || 'Valid Days of Week' }} <span class="required">*</span></label>
+          <div class="days-pills">
+            @for (day of daysOfWeek; track day) {
+              <button type="button" class="day-pill" 
+                [class.active]="isDaySelected(day)" 
+                (click)="!viewOnly() && toggleDay(day)"
+                [disabled]="viewOnly()">
+                {{ day }}
+              </button>
+            }
+          </div>
+          <div class="field-hint">{{ t()['excursion.validDaysHint'] || 'Select the days of the week when this excursion is available.' }}</div>
+        </div>
+      </section>
+
+      <!-- Prices Section -->
+      <section class="form-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-table-list"></i> {{ t()['excursion.pricesTitle'] || 'Excursion Prices' }}</h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-price" (click)="addPrice()"><i class="fa-solid fa-plus"></i> {{ t()['excursion.addPrice'] || 'Add Price' }}</button>
+        </div>
+        
+        <div class="prices-table-wrapper">
+          <div class="grouped-tables-container">
+            @if (groupedPrices().length === 0) {
+              <div class="empty-state">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ t()['excursion.noPrices'] || 'No excursion prices added yet. Click \'Add Price\' to get started.' }}
+              </div>
+            } @else {
+              @for (group of groupedPrices(); track group.dateFrom + '_' + group.dateTo) {
+                <div class="accordion-card" [class.open]="expandedGroups()[group.dateFrom + '_' + group.dateTo]">
+                  <div class="accordion-header" (click)="toggleGroup(group.dateFrom + '_' + group.dateTo)">
+                    <div class="date-summary">
+                      <i class="fa-solid fa-calendar-days text-orange"></i>
+                      <span class="date-label">From:</span> <strong>{{ group.dateFrom | date:'dd/MM/yyyy' }}</strong>
+                      <span class="date-separator">—</span>
+                      <span class="date-label">To:</span> <strong>{{ group.dateTo | date:'dd/MM/yyyy' }}</strong>
+                    </div>
+                    <div class="accordion-stats" style="display: flex; align-items: center; gap: 8px;">
+                      <span class="pax-count">{{ group.items.length }} Pax Types</span>
+                      <button *ngIf="!viewOnly()" type="button" class="btn-action red" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; border-radius: 6px; cursor: pointer;" title="Delete Entire Group" (click)="removeGroup(group, $event)">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                      <i class="fa-solid fa-chevron-down chevron" style="margin-left: 4px;"></i>
+                    </div>
+                  </div>
+                  <div class="accordion-body">
+                    <div class="accordion-body-content">
+                      <table class="grouped-price-table">
+                        <tbody>
+                          @for (item of group.items; track item.id) {
+                            <tr>
+                              <td style="width: 30%;">
+                                <div class="pax-badge"><i class="fa-solid fa-user"></i> Pax {{ item.pax }}</div>
+                              </td>
+                              <td class="text-orange font-bold text-lg">{{ item.price | number:'1.2-2' }}</td>
+                              <td class="action-cell" style="width: 150px; text-align: right;" *ngIf="!viewOnly()">
+                                <button type="button" class="btn-action blue" title="Edit" (click)="editPrice(item.originalIndex)">
+                                  <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button type="button" class="btn-action red" title="Delete" (click)="removePrice(item.originalIndex)">
+                                  <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                                <button type="button" class="btn-action yellow" title="Duplicate" (click)="duplicatePrice(item.originalIndex)">
+                                  <i class="fa-solid fa-copy"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+      
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="location.back()"><i class="fa-solid fa-xmark"></i> {{ viewOnly() ? (t()['form.close'] || 'Close') : (t()['excursion.btnCancel'] || 'Cancel') }}</button>
+        @if (viewOnly()) {
+          <button type="button" class="btn-save" (click)="printPage()" style="background-color: #17a2b8; border-color: #17a2b8;"><i class="fa-solid fa-print"></i> Print</button>
+        }
+        <button *ngIf="!viewOnly()" type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> {{ t()['excursion.btnSave'] || 'Save Excursion' }}</button>
+      </div>
+
+    </form>
+  </main>
+</div>
+
+<!-- Price Modal -->
+<app-add-excursion-price-modal 
+  [isOpen]="isPriceModalOpen()" 
+  [priceData]="selectedPrice()"
+  (close)="isPriceModalOpen.set(false)" 
+  (save)="handleSavePrice($event)">
+</app-add-excursion-price-modal>
+
+<!-- City Modal -->
+<app-add-city-modal
+  [isOpen]="isCityModalOpen()"
+  [country]="excursionForm.get('country')?.value || ''"
+  (close)="isCityModalOpen.set(false)"
+  (save)="handleSaveCity($event)">
+</app-add-city-modal>
+
+<!-- Duplicate Date Modal -->
+@if (isDuplicateModalOpen()) {
+  <div class="modal-backdrop" (click)="cancelDuplicate()">
+    <div class="duplicate-modal" (click)="$event.stopPropagation()">
+      <div class="duplicate-modal__header">
+        <i class="fa-solid fa-copy"></i> Duplicate Price Row
+      </div>
+      <div class="duplicate-modal__body">
+        <p class="duplicate-modal__hint">Adjust the date range and price for the duplicated row, then click Confirm.</p>
+        <div class="duplicate-modal__row">
+          <div class="duplicate-modal__field">
+            <label>Date From</label>
+            <input type="date" [value]="duplicateDateFrom()" (input)="duplicateDateFrom.set($any($event.target).value)">
+          </div>
+          <div class="duplicate-modal__field">
+            <label>Date To</label>
+            <input type="date" [value]="duplicateDateTo()" (input)="duplicateDateTo.set($any($event.target).value)">
+          </div>
+          <div class="duplicate-modal__field" style="grid-column: 1 / -1;">
+            <label>Price</label>
+            <input type="number" [value]="duplicatePriceValue()" (input)="duplicatePriceValue.set($any($event.target).value)">
+          </div>
+        </div>
+      </div>
+      <div class="duplicate-modal__footer">
+        <button type="button" class="btn-dup-cancel" (click)="cancelDuplicate()">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </button>
+        <button type="button" class="btn-dup-confirm" (click)="confirmDuplicate()">
+          <i class="fa-solid fa-check"></i> Confirm Duplicate
+        </button>
+      </div>
+    </div>
+  </div>
+}

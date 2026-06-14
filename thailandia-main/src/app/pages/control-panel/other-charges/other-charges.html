@@ -1,0 +1,72 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">{{ t()['charge.pageTitle'] || 'Other Charges' }}</h1>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="search-box">
+        <input type="text" [placeholder]="t()['charge.searchPlaceholder'] || 'Search for other charges...'" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+      </div>
+      <div class="show-entries">
+        <label>{{ t()['charge.show'] || 'Show:' }}</label>
+        <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event)">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ t()['charge.listTitle'] || 'List of Other Charges' }}</h2>
+      <div class="header-actions">
+        <div class="total-badge"><i class="fa-solid fa-money-bill-wave"></i> {{ t()['charge.total'] || 'Total:' }} <strong>{{ totalItems() }}</strong></div>
+        <button class="btn btn-add" routerLink="/control-panel/add-other-charge" *ngIf="authService.canAdd('cp_other_charges')">
+          <i class="fa-solid fa-plus"></i> {{ t()['charge.btnAdd'] || 'Add Charge' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ t()['charge.colDescription'] || 'Description' }}</th>
+            <th>{{ t()['charge.colAmount'] || 'Amount' }}</th>
+            <th>{{ t()['charge.colType'] || 'Charge Type' }}</th>
+            <th class="text-center">{{ t()['charge.btnEdit'] || 'Edit' }}</th>
+            <th class="text-center">{{ t()['charge.btnDelete'] || 'Delete' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (charge of filteredCharges(); track charge.id) {
+            <tr>
+              <td>{{ charge.description }}</td>
+              <td>{{ charge.amount | number }}</td>
+              <td>{{ charge.displayType }}</td>
+              <td class="text-center">
+                <button class="btn-action btn-edit" [routerLink]="['/control-panel/add-other-charge', charge.id]" [queryParams]="!authService.canEdit('cp_other_charges') ? { mode: 'view' } : {}">
+                  <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_other_charges')" [class.fa-eye]="!authService.canEdit('cp_other_charges')"></i> 
+                  {{ (authService.canEdit('cp_other_charges') ? (t()['charge.btnEdit'] || 'Edit') : (t()['charge.btnView'] || 'View')) }}
+                </button>
+              </td>
+              <td class="text-center">
+                <button class="btn-action btn-delete" (click)="deleteCharge(charge.id)" *ngIf="authService.canDelete('cp_other_charges')">
+                  <i class="fa-solid fa-trash-can"></i> {{ t()['charge.btnDelete'] || 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-state">{{ t()['charge.noData'] || 'No other charges found.' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

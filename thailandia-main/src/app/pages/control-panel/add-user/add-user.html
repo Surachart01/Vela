@@ -1,0 +1,88 @@
+<div class="add-user-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
+    </div>
+
+    <form class="user-form" [formGroup]="userForm">
+      
+      <!-- Account Information Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ t()['form.generalInfo'] || 'General Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['user.username'] }} <span class="required">*</span></label>
+            <input type="text" formControlName="username" [placeholder]="t()['user.placeholder.username']">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['user.email'] }} <span class="required">*</span></label>
+            <input type="email" formControlName="email" [placeholder]="t()['user.placeholder.email']">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['user.role'] }} <span class="required">*</span></label>
+            <select formControlName="role">
+              <option value="" disabled selected>{{ t()['user.placeholder.role'] }}</option>
+              <option value="superadmin">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="agent">Agent</option>
+            </select>
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['user.agent'] }} <span class="required">*</span></label>
+            <select formControlName="agent">
+              <option value="" disabled selected>{{ t()['user.placeholder.agent'] }}</option>
+              @for (agent of agents(); track agent.id) {
+                <option [value]="agent.id">{{ agent.name }}</option>
+              }
+            </select>
+            <span class="help-text"><i class="fa-solid fa-circle-info"></i> {{ t()['user.agentHelp'] }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> {{ t()['user.securityTitle'] || 'Security' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['user.password'] }} <span class="required">*</span></label>
+            <div class="password-wrapper">
+              <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" [placeholder]="t()['user.placeholder.password']">
+              <button type="button" class="btn-toggle-eye" (click)="togglePassword()">
+                <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['user.confirmPassword'] }} <span class="required">*</span></label>
+            <div class="password-wrapper">
+              <input [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirmPassword" [placeholder]="t()['user.placeholder.confirmPassword']">
+              <button type="button" class="btn-toggle-eye" (click)="toggleConfirmPassword()">
+                <i class="fa-solid" [class.fa-eye]="!showConfirmPassword()" [class.fa-eye-slash]="showConfirmPassword()"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()">
+          <i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] || 'Cancel' }}
+        </button>
+        <button type="button" class="btn-save" (click)="saveUser()">
+          <i class="fa-solid" [class.fa-user-plus]="!userId()" [class.fa-user-pen]="userId()"></i> {{ submitBtnText() }}
+        </button>
+      </div>
+    </form>
+  </main>
+</div>

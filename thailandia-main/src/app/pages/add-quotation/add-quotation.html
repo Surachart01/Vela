@@ -1,0 +1,644 @@
+<div class="add-quotation-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="location.back()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] }}
+      </button>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
+    </div>
+
+    <form class="quotation-form" [formGroup]="quotationForm">
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-file-lines"></i> {{ t()['form.generalInfo'] }}</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Agent Name</label>
+            <input type="text" [value]="agentDisplay()" class="bg-light-grey" readonly placeholder="Loading agent...">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.bookingDate'] }} <span class="required">*</span></label>
+            <app-date-input formControlName="bookingDate" />
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.tripStartDate'] }} <span class="required">*</span></label>
+            <app-date-input formControlName="tripStartDate" />
+          </div>
+
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-user"></i> {{ t()['form.clientInfo'] }}</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ t()['form.clientName'] }} <span class="required">*</span></label>
+            <input type="text" placeholder="Enter Client Name" formControlName="clientName">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.mobileNumber'] }} <span class="required">*</span></label>
+            <input type="text" placeholder="Enter Mobile Number" formControlName="mobileNumber">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.emailId'] }}</label>
+            <input type="email" placeholder="Enter Client Email ID" formControlName="emailId">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-calendar-check"></i> {{ t()['form.bookingDetails'] }}</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ t()['form.adults'] }}</label>
+            <input type="number" min="0" placeholder="Enter the number of adults" formControlName="adults">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.children'] }}</label>
+            <input type="number" min="0" placeholder="Enter the number of children" formControlName="children">
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.bookingRef'] }}</label>
+            <input type="text" placeholder="Enter the booking reference" formControlName="bookingRef">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['form.remark'] }}</label>
+            <textarea placeholder="Enter the remark" rows="3" formControlName="remark"></textarea>
+          </div>
+        </div>
+        <p class="note-text">* NOTE: EVERY BOOKING WILL INCUR AN ASSISTANCE FEE.</p>
+      </section>
+
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-money-bill-1"></i> {{ t()['form.pricingDetails'] }}</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ t()['form.totalPrice'] }}</label>
+            <input type="number" min="0" [value]="totalCost()" readonly>
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.finalPrice'] }}</label>
+            <input type="number" min="0" [value]="finalPrice()" readonly>
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.discount'] }}</label>
+            <input type="number" min="0" value="0" readonly>
+          </div>
+          <div class="form-group">
+            <label>{{ t()['form.assistanceFee'] }}</label>
+            <input type="number" min="0" formControlName="assistanceFee">
+          </div>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="includeFee" formControlName="includeFee">
+          <label for="includeFee">{{ t()['form.includeFee'] }}</label>
+        </div>
+      </section>
+
+      <section class="form-section services-section">
+        <h2 class="section-title"><i class="fa-solid fa-gear"></i> {{ t()['form.servicesSelection'] }}</h2>
+        
+        <div class="services-tabs">
+          @for (tab of tabs; track tab.id) {
+            <button type="button" 
+                    class="tab-btn" 
+                    [class.active]="activeTab() === tab.id"
+                    (click)="setActiveTab(tab.id)">
+              <i class="fa-solid {{ tab.icon }}"></i> {{ tab.name }}
+            </button>
+          }
+        </div>
+
+        <div class="tab-content">
+          @if (activeTab() === 'flight') {
+            <div class="service-header">
+              <h3>{{ t()['form.flightDetails'] }}</h3>
+              <span class="count-badge">{{ flights().length }} flight(s)</span>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="services-table">
+                <thead>
+                  <tr>
+                    <th>DATE</th>
+                    <th>FLIGHT</th>
+                    <th>NUMBER</th>
+                    <th>IN/OUT</th>
+                    <th>ROUTE</th>
+                    <th>EDT</th>
+                    <th>EAT</th>
+                    <th>ISSUED</th>
+                    <th>COST</th>
+                    <th>REMARKS</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (flight of flights(); track $index) {
+                    <tr>
+                      <td>{{ flight.date | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ flight.flight }}</td>
+                      <td>{{ flight.number }}</td>
+                      <td>{{ flight.inOut }}</td>
+                      <td>{{ flight.route }}</td>
+                      <td>{{ flight.edt }}</td>
+                      <td>{{ flight.eat }}</td>
+                      <td>{{ flight.issued }}</td>
+                      <td>{{ flight.cost | number }}</td>
+                      <td>{{ flight.remarks }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openFlightModal($index)">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeFlight($index)">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr class="empty-state">
+                      <td colspan="11">No flights added yet</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (canModify()) {
+              <div class="service-actions">
+                <button type="button" class="btn-add-service" (click)="openFlightModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addFlight'] }}
+                </button>
+              </div>
+            }
+          }
+          @if (activeTab() === 'transfers') {
+            <div class="service-header">
+              <h3>{{ t()['form.transferDetails'] }}</h3>
+              <span class="count-badge">{{ transfers().length }} transfer(s)</span>
+              @if (isAdmin() && selectedServiceKeys().size > 0) {
+                <button type="button" class="btn-bulk-email" (click)="sendBulkServiceEmails()" [disabled]="isSendingBulkEmail()">
+                  @if (isSendingBulkEmail()) { <i class="fa-solid fa-spinner fa-spin"></i> } @else { <i class="fa-solid fa-envelope"></i> }
+                  Send Selected ({{ selectedServiceKeys().size }})
+                </button>
+              }
+            </div>
+            <div class="table-responsive">
+              <table class="services-table header-dark">
+                <thead>
+                  <tr>
+                    @if (isAdmin()) { <th style="width:44px">✉</th> }
+                      <th>FLIGHT</th>
+                    <th>DATE</th>
+                    <th>TYPE</th>
+                    <th>CITY</th>
+                    <th>TRF TYPE</th>
+                    <th>TOT</th>
+                    <th>FROM</th>
+                    <th>TO</th>
+                    <th>PICKUP</th>
+                    <th>REMARKS</th>
+                    <th>PRICE</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (transfer of sortedTransfers(); track $index) {
+                    <tr>
+                      @if (isAdmin()) {
+                        <td>
+                          <input type="checkbox" [checked]="isServiceSelected('transfer:'+$index)" (change)="toggleServiceKey('transfer:'+$index)">
+                        </td>
+                      }
+                        <td>{{ transfer.flight || '-' }}</td>
+                      <td>{{ transfer.date | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ transfer.description || transfer.transfer_name || transfer.tot }}</td>
+                      <td>{{ transfer.city }}</td>
+                      <td>{{ transfer.typeOfTransfer }}</td>
+                      <td>{{ transfer.tot }}</td>
+                      <td>{{ transfer.from }}</td>
+                      <td>{{ transfer.to }}</td>
+                      <td>{{ transfer.pickup }}</td>
+                      <td>{{ transfer.remarks }}</td>
+                      <td>{{ transfer.price | number }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openTransferModal(transfers().indexOf(transfer))">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeTransfer(transfers().indexOf(transfer))">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr class="empty-state">
+                      <td [attr.colspan]="isAdmin() ? 12 : 11">No transfers added yet</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (canModify()) {
+              <div class="service-actions text-center">
+                <button type="button" class="btn-add-service bg-teal" (click)="openTransferModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addTransfer'] }}
+                </button>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'hotels') {
+            <div class="service-header">
+              <h3>{{ t()['form.hotelDetails'] }}</h3>
+              <span class="count-badge">{{ hotels().length }} hotel(s) — sorted by check-in date</span>
+              @if (isAdmin() && selectedServiceKeys().size > 0) {
+                <button type="button" class="btn-bulk-email" (click)="sendBulkServiceEmails()" [disabled]="isSendingBulkEmail()">
+                  @if (isSendingBulkEmail()) { <i class="fa-solid fa-spinner fa-spin"></i> } @else { <i class="fa-solid fa-envelope"></i> }
+                  Send Selected ({{ selectedServiceKeys().size }})
+                </button>
+              }
+            </div>
+            <div class="table-responsive">
+              <table class="services-table header-dark">
+                <thead>
+                  <tr>
+                    @if (isAdmin()) { <th style="width:44px">✉</th> }
+                    <th>CHECK IN</th>
+                    <th>CHECK OUT</th>
+                    <th>CITY</th>
+                    <th>HOTEL</th>
+                    <th>ROOM TYPE</th>
+                    <th>NIGHTS</th>
+                     <th>SINGLE</th>
+                     <th>DOUBLE</th>
+                     <th>EXT. ADULT BED</th>
+                     <th>EXT. CHILD BED</th>
+
+                     <th>PRICE</th>
+                     <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (hotel of sortedHotels(); track $index) {
+                    <tr [class.status-confirmed]="hotel.booking_status === 'Confirmed'"
+                        [class.status-rejected]="hotel.booking_status === 'Rejected'">
+                      @if (isAdmin()) {
+                        <td>
+                          <input type="checkbox" [checked]="isServiceSelected('hotel:'+$index)" (change)="toggleServiceKey('hotel:'+$index)">
+                        </td>
+                      }
+                      <td>{{ hotel.checkIn | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ hotel.checkOut | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ hotel.city }}</td>
+                      <td>
+                        <div class="hotel-info-cell">
+                          <span class="hotel-name">{{ hotel.hotel }}</span>
+                          @if (hotel.booking_status === 'Rejected' && hotel.booking_remark) {
+                            <div class="reject-reason" title="Reason for rejection">
+                              <i class="fa-solid fa-circle-exclamation"></i> {{ hotel.booking_remark }}
+                            </div>
+                          }
+                          @if (hotel.booking_status === 'Confirmed') {
+                             <div class="confirm-badge">
+                               <i class="fa-solid fa-check-circle"></i> Confirmed by Hotel
+                             </div>
+                          }
+                        </div>
+                      </td>
+                      <td>{{ hotel.roomType }}</td>
+                      <td>{{ hotel.nights }}</td>
+                       <td>{{ hotel.singleRoom != null ? (hotel.singleRoom | number:'1.0-0') : '-' }}</td>
+                       <td>{{ hotel.doubleRoom != null ? (hotel.doubleRoom | number:'1.0-0') : '-' }}</td>
+                       <td>{{ hotel.extraAdultBedCount > 0 ? hotel.extraAdultBedCount : '-' }}</td>
+                       <td>{{ hotel.extraChildBedCount > 0 ? hotel.extraChildBedCount : '-' }}</td>
+
+                       <td>{{ hotel.price | number }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (currentUser()?.role !== 'agent') {
+                            <button type="button" class="btn-email" (click)="sendHotelEmail(hotels().indexOf(hotel))"
+                                    [disabled]="sendingEmailIndex() !== null" title="Send email to hotel supplier">
+                              @if (sendingEmailIndex() === hotels().indexOf(hotel)) {
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                              } @else {
+                                <i class="fa-solid fa-envelope"></i>
+                              }
+                            </button>
+                          }
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openHotelModal(hotels().indexOf(hotel))">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeHotel(hotels().indexOf(hotel))">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                     <tr class="empty-state">
+                       <td [attr.colspan]="isAdmin() ? 14 : 13">No hotels added yet</td>
+                     </tr>
+                   }
+                </tbody>
+              </table>
+            </div>
+            @if (canModify()) {
+              <div class="service-actions text-center">
+                <button type="button" class="btn-add-service bg-teal" (click)="openHotelModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addHotel'] }}
+                </button>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'excursions') {
+             <div class="service-header">
+              <h3>{{ t()['form.excursionDetails'] }}</h3>
+              <span class="count-badge">{{ excursions().length }} excursion(s)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="services-table header-dark">
+                <thead>
+                  <tr>
+                    <th>DATE</th>
+                    <th>CITY</th>
+                    <th>NAME</th>
+                    <th>PICKUP</th>
+                    <th>HOTEL</th>
+                    <th>REMARKS</th>
+                    <th>TOE</th>
+                    <th>PRICE</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (excursion of excursions(); track $index) {
+                    <tr>
+                      <td>{{ excursion.date | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ excursion.city }}</td>
+                      <td>{{ excursion.name }}</td>
+                      <td>{{ excursion.pickup }}</td>
+                      <td>{{ excursion.hotel }}</td>
+                      <td>{{ excursion.remarks }}</td>
+                      <td>{{ excursion.toe }}</td>
+                      <td>{{ excursion.price | number }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openExcursionModal($index)">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeExcursion($index)">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr class="empty-state">
+                      <td colspan="9">No excursions added yet</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (canModify()) {
+              <div class="service-actions text-center">
+                <button type="button" class="btn-add-service bg-teal" (click)="openExcursionModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addExcursion'] }}
+                </button>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'tours') {
+            <div class="service-header">
+              <h3>{{ t()['form.tourDetails'] }}</h3>
+              <span class="count-badge">{{ tours().length }} tour(s)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="services-table header-dark">
+                <thead>
+                  <tr>
+                    <th>CITY</th>
+                    <th>NAME</th>
+                    <th>TOT</th>
+                    <th>ROUTE</th>
+                    <th>PAX</th>
+                    <th>REMARKS</th>
+                    <th>PRICE</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (tour of tours(); track $index) {
+                    <tr>
+                      <td>{{ tour.city }}</td>
+                      <td>{{ tour.name }}</td>
+                      <td>{{ tour.tot }}</td>
+                      <td>{{ tour.route }}</td>
+                      <td>{{ tour.pax }}</td>
+                      <td>{{ tour.remarks }}</td>
+                      <td>{{ tour.price | number }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openTourModal($index)">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeTour($index)">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr class="empty-state">
+                      <td colspan="8">No tours added yet</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (canModify()) {
+              <div class="service-actions text-center">
+                <button type="button" class="btn-add-service bg-teal" (click)="openTourModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addTour'] }}
+                </button>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'other') {
+            <div class="service-header">
+              <h3>{{ t()['form.otherDetails'] }}</h3>
+              <span class="count-badge">{{ other().length }} other service(s)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="services-table header-dark">
+                <thead>
+                  <tr>
+                    <th>DESCRIPTION</th>
+                    <th>DATE</th>
+                    <th>TOTAL PRICE</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of other(); track $index) {
+                    <tr>
+                      <td>{{ item.description }}</td>
+                      <td>{{ item.date | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ item.totalPrice | number }}</td>
+                      <td>
+                        <div class="action-btns">
+                          @if (canModify()) {
+                            <button type="button" class="btn-edit" (click)="openOtherModal($index)">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn-delete" (click)="removeOther($index)">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr class="empty-state">
+                      <td colspan="4">No other services added yet</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (canModify()) {
+              <div class="service-actions text-center">
+                <button type="button" class="btn-add-service bg-teal" (click)="openOtherModal()">
+                  <i class="fa-solid fa-plus"></i> {{ t()['form.addOther'] }}
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </section>
+
+    </form>
+    
+    <div class="bottom-spacer"></div>
+  </main>
+
+  <div class="sticky-footer">
+    <button type="button" class="btn-cancel" (click)="location.back()" [disabled]="isSaving()"><i class="fa-solid fa-arrow-left"></i> {{ t()['form.cancel'] || 'Back' }}</button>
+    
+    @if (!isBooking() && editId()) {
+      <button type="button" class="btn-convert" (click)="openConvertConfirmModal()" [disabled]="isSaving()">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i> Convert to Booking
+      </button>
+    }
+
+    @if (isAdmin() && isBooking() && editId()) {
+      <button type="button" class="btn-agent-email" (click)="sendAgentNotificationEmail()" [disabled]="isSendingAgentEmail()">
+        @if (isSendingAgentEmail()) {
+          <i class="fa-solid fa-spinner fa-spin"></i> Sending...
+        } @else {
+          <i class="fa-solid fa-paper-plane"></i> Notify Agent
+        }
+      </button>
+    }
+
+    @if (canModify()) {
+      <button type="button" class="btn-save" (click)="saveQuotation()" [disabled]="isSaving()">
+        @if (isSaving()) {
+          <i class="fa-solid fa-spinner fa-spin"></i> {{ t()['form.saving'] || 'Saving...' }}
+        } @else {
+          <i class="fa-solid fa-floppy-disk"></i> {{ saveBtnText() }}
+        }
+      </button>
+    }
+  </div>
+</div>
+
+@if (isFlightModalOpen()) {
+  <app-flight-modal [initialData]="flightData()" [minDate]="minTravelDate()" (close)="closeFlightModal()" (save)="saveFlight($event)" />
+}
+@if (isTransferModalOpen()) {
+  <app-transfer-modal 
+    [initialData]="transferData()" 
+    [flights]="flights()" 
+    [minDate]="minTravelDate()" 
+    [agentMarkup]="agentMarkup()" 
+    [numberOfAdults]="quotationForm.get('adults')?.value || 0"
+    [numberOfChildren]="quotationForm.get('children')?.value || 0"
+    (close)="closeTransferModal()" 
+    (save)="saveTransfer($event)" />
+}
+@if (isHotelModalOpen()) {
+  <app-hotel-modal 
+    [initialData]="hotelData()" 
+    [minDate]="minTravelDate()" 
+    [agentMarkup]="agentMarkup()" 
+    [numberOfAdults]="quotationForm.get('adults')?.value || 0"
+    [numberOfChildren]="quotationForm.get('children')?.value || 0"
+    (close)="closeHotelModal()" 
+    (save)="saveHotel($event)" />
+}
+@if (isExcursionModalOpen()) {
+  <app-excursion-modal 
+    [initialData]="excursionData()" 
+    [minDate]="minTravelDate()" 
+    [agentMarkup]="agentMarkup()" 
+    [numberOfAdults]="quotationForm.get('adults')?.value || 0"
+    [numberOfChildren]="quotationForm.get('children')?.value || 0"
+    (close)="closeExcursionModal()" 
+    (save)="saveExcursion($event)" />
+}
+@if (isTourModalOpen()) {
+  <app-tour-modal 
+    [initialData]="tourData()" 
+    [minDate]="minTravelDate()" 
+    [agentMarkup]="agentMarkup()" 
+    [numberOfAdults]="quotationForm.get('adults')?.value || 0"
+    [numberOfChildren]="quotationForm.get('children')?.value || 0"
+    (close)="closeTourModal()" 
+    (save)="saveTour($event)" />
+}
+@if (isOtherModalOpen()) {
+  <app-other-modal [initialData]="otherData()" [minDate]="minTravelDate()" (close)="closeOtherModal()" (save)="saveOther($event)" />
+}
+
+@if (isConfirmConvertModalOpen()) {
+  <div class="modal-backdrop" (click)="closeConvertConfirmModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fa-solid fa-arrow-right-arrow-left" style="color: #10b981;"></i> Convert to Booking</h2>
+        <button class="btn-close" (click)="closeConvertConfirmModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 32px 24px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+        <i class="fa-solid fa-circle-question" style="font-size: 56px; color: #10b981; margin-bottom: 20px;"></i>
+        <h3 style="margin-top: 0; margin-bottom: 12px; font-weight: 800; font-size: 24px; color: #111;">Are you sure?</h3>
+        <p style="color: #555; line-height: 1.5; font-size: 15px; margin: 0;">
+          Do you want to convert this quotation to a booking? It will be moved to the Bookings page and become read-only.
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 16px; padding: 20px 24px;">
+        <button type="button" class="btn-cancel" (click)="closeConvertConfirmModal()" style="padding: 10px 24px;">Cancel</button>
+        <button type="button" class="btn-save" style="background: #10b981; padding: 10px 24px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);" (click)="confirmConvertBooking()">
+          Yes, Convert Now
+        </button>
+      </div>
+    </div>
+  </div>
+}

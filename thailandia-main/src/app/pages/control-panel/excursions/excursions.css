@@ -1,0 +1,361 @@
+:host {
+  display: block;
+  --or: #f26419;
+  --bg: #fdfaf7;
+  --ink: #2e2824;
+  --ink2: #4a413a;
+  --muted: #8e8378;
+  --line: #ebe5df;
+  --white: #ffffff;
+  --teal: #1bc5bd;
+  --green: #3D9F7D;
+  --blue: #007BFF;
+  --blue-bg: #e8f0fc;
+  --red: #dc3545;
+}
+
+.excursions-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+}
+
+/* Page head */
+.page-header {
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* Filter Section */
+.filter-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+@media (min-width: 992px) {
+  .filter-section {
+    grid-template-columns: 1.5fr 1.5fr 3fr auto; /* Country, City, Keyword, Show */
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group select,
+.search-box-wrapper input {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  font-family: inherit;
+  transition: all .18s;
+  height: 42px; /* Fixed height for consistency */
+  box-sizing: border-box;
+}
+
+.filter-group select:focus,
+.search-box-wrapper input:focus {
+  border-color: var(--or);
+  box-shadow: 0 0 0 3px rgba(242,100,25,0.10);
+}
+
+.search-box-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  font-size: 14px;
+}
+
+.search-icon:hover {
+  color: var(--or);
+}
+
+.show-group select {
+  min-width: 80px;
+}
+
+/* Table Card */
+.table-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.section-head-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.total-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.total-badge span {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  background: var(--or);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: inherit;
+}
+.add-btn:hover {
+  background: #e05b1b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(242, 100, 25, 0.30);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Table */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tbl th {
+  padding: 16px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+.tbl td {
+  padding: 16px 16px;
+  font-size: 13.5px;
+  color: var(--ink2);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.tbl tr:last-child td {
+  border-bottom: none;
+}
+.tbl tr:hover td {
+  background: #FDFAF7;
+}
+
+/* Dynamic Hover Expand for Description */
+.td-desc {
+  max-width: 350px;
+  min-width: 250px;
+}
+
+.desc-container {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* Shows all content seamlessly on hover */
+.td-desc:hover .desc-container {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  display: block;
+}
+
+/* Action Buttons */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-action.blue {
+  background: var(--blue);
+}
+.btn-action.blue:hover {
+  background: #0069d9;
+}
+
+.btn-action.red {
+  background: var(--red);
+}
+.btn-action.red:hover {
+  background: #c82333;
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 22px;
+  background: var(--white);
+  border-top: 1px solid var(--line);
+}
+
+.pagination-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--or);
+  color: var(--or);
+  background: rgba(242, 100, 25, 0.05);
+}
+
+.pagination-btn.active {
+  background: var(--or);
+  color: var(--white);
+  border-color: var(--or);
+  box-shadow: 0 3px 10px rgba(242, 100, 25, 0.25);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f8f8;
+}
+
+.nav-btn {
+  width: auto;
+  padding: 0 14px;
+}
+
+.pagination-ellipsis {
+  padding: 0 4px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+/* Loading State */
+.table-responsive tbody.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.btn-search {
+  background: transparent;
+  border: none;
+  margin-left: -40px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.btn-search:hover {
+  color: var(--or);
+}

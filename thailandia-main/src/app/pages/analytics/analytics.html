@@ -1,0 +1,246 @@
+<div class="analytics-container">
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['analytics.title'] }}</h1>
+      <div class="header-actions">
+        @if (analyticsService.isLoading()) {
+          <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
+        }
+        <button class="btn-refresh" (click)="onRefresh()" [disabled]="analyticsService.isLoading()">
+          {{ t()['analytics.refreshData'] }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>{{ t()['analytics.periodType'] || 'Period Type:' }}</label>
+          <select [ngModel]="periodType()" (ngModelChange)="periodType.set($event)">
+            <option value="Single Month">Single Month</option>
+            <option value="Quarter">Quarter</option>
+            <option value="Half Year">Half Year</option>
+            <option value="Full Year">Full Year</option>
+            <option value="Custom Range">Custom Range</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>{{ t()['analytics.year'] || 'Year:' }}</label>
+          <select>
+            <option>2026</option>
+          </select>
+        </div>
+        
+        @if (periodType() === 'Single Month') {
+          <div class="filter-group">
+            <label>{{ t()['analytics.month'] || 'Month:' }}</label>
+            <select>
+              @for (m of months; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+        } @else if (periodType() === 'Quarter') {
+          <div class="filter-group">
+            <label>{{ t()['analytics.quarter'] || 'Quarter:' }}</label>
+            <select>
+              <option value="Q1">Q1 (Jan-Mar)</option>
+              <option value="Q2">Q2 (Apr-Jun)</option>
+              <option value="Q3">Q3 (Jul-Sep)</option>
+              <option value="Q4">Q4 (Oct-Dec)</option>
+            </select>
+          </div>
+        } @else if (periodType() === 'Half Year') {
+          <div class="filter-group">
+            <label>{{ t()['analytics.halfYear'] || 'Half Year:' }}</label>
+            <select>
+              <option value="H1">H1 (Jan-Jun)</option>
+              <option value="H2">H2 (Jul-Dec)</option>
+            </select>
+          </div>
+        } @else if (periodType() === 'Custom Range') {
+          <div class="filter-group">
+            <label>{{ t()['analytics.fromMonth'] || 'From Month:' }}</label>
+            <select>
+              @for (m of months; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>{{ t()['analytics.toMonth'] || 'To Month:' }}</label>
+            <select>
+              @for (m of months; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="filter-group">
+          <label>{{ t()['analytics.agent'] }}</label>
+          <select>
+            <option>All Agents</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-status">
+        Data loaded successfully - Period: 2026 - Agent: Organization Metrics
+      </div>
+    </div>
+
+    @if (analyticsService.metrics(); as m) {
+      <!-- Sales Performance -->
+      <div class="metrics-section">
+        <h2 class="section-title-line"><span>{{ t()['analytics.salesPerformance'] }}</span></h2>
+        <div class="metrics-grid six-cols">
+          
+          <div class="metric-card bg-purple">
+            <div class="metric-header">{{ t()['metrics.totalQuotations'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.totalQuotations.value }}</div>
+            <div class="metric-trend" [class.up]="m.totalQuotations.change.includes('\u2191')" [class.down]="m.totalQuotations.change.includes('\u2193')">{{ m.totalQuotations.change }}</div>
+          </div>
+
+          <div class="metric-card bg-green">
+            <div class="metric-header">{{ t()['metrics.confirmedBookings'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.confirmedBookings.value }}</div>
+            <div class="metric-trend" [class.up]="m.confirmedBookings.change.includes('\u2191')" [class.down]="m.confirmedBookings.change.includes('\u2193')">{{ m.confirmedBookings.change }}</div>
+          </div>
+
+          <div class="metric-card bg-yellow">
+            <div class="metric-header">{{ t()['metrics.conversionRate'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.conversionRate.value }}%</div>
+            <div class="metric-trend flat">{{ m.conversionRate.change }}</div>
+          </div>
+
+          <div class="metric-card bg-blue">
+            <div class="metric-header">{{ t()['metrics.averageDealSize'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">&#3647;{{ m.averageDealSize.value }}K</div>
+            <div class="metric-trend flat">{{ m.averageDealSize.change }}</div>
+          </div>
+
+          <div class="metric-card bg-red">
+            <div class="metric-header">{{ t()['metrics.avgCloseTime'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.avgCloseTime.value | number:'1.1-1' }}</div>
+            <div class="metric-trend up">{{ m.avgCloseTime.change }}</div>
+          </div>
+
+          <div class="metric-card bg-dark-green">
+            <div class="metric-header">{{ t()['metrics.winRate'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.winRate.value | number:'1.1-1' }}%</div>
+            <div class="metric-trend" [class.up]="m.winRate.change.includes('\u2191')" [class.down]="m.winRate.change.includes('\u2193')">{{ m.winRate.change }}</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Revenue & Efficiency -->
+      <div class="metrics-section">
+        <h2 class="section-title-line"><span>{{ t()['analytics.revenueEfficiency'] }}</span></h2>
+        <div class="metrics-grid four-cols">
+          
+          <div class="metric-card bg-orange">
+            <div class="metric-header">{{ t()['metrics.monthlyRevenue'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">&#3647;{{ m.monthlyRevenue.value | number:'1.1-1' }}K</div>
+            <div class="metric-trend up">{{ m.monthlyRevenue.change }}</div>
+          </div>
+
+          <div class="metric-card bg-blue-light">
+            <div class="metric-header">{{ t()['metrics.collectionRate'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.collectionRate.value | number:'1.1-1' }}%</div>
+            <div class="metric-trend flat">{{ m.collectionRate.change }}</div>
+          </div>
+
+          <div class="metric-card bg-magenta">
+            <div class="metric-header">{{ t()['metrics.quotesPerWeek'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.quotationsPerWeek.value | number:'1.2-2' }}</div>
+            <div class="metric-trend flat">{{ m.quotationsPerWeek.change }}</div>
+          </div>
+
+          <div class="metric-card bg-crimson">
+            <div class="metric-header">{{ t()['metrics.outstandingAmt'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">&#3647;{{ m.outstandingAmount.value | number:'1.1-1' }}K</div>
+            <div class="metric-trend up">{{ m.outstandingAmount.change }}</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Customer Analytics -->
+      <div class="metrics-section">
+        <h2 class="section-title-line"><span>{{ t()['analytics.customerAnalytics'] }}</span></h2>
+        <div class="metrics-grid four-cols">
+          
+          <div class="metric-card bg-teal">
+            <div class="metric-header">{{ t()['metrics.repeatCustomer'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.repeatCustomerRate.value | number:'1.1-1' }}%</div>
+            <div class="metric-trend flat">{{ m.repeatCustomerRate.change }}</div>
+          </div>
+
+          <div class="metric-card bg-indigo">
+            <div class="metric-header">{{ t()['metrics.totalClients'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.totalUniqueClients.value }}</div>
+            <div class="metric-trend flat">{{ m.totalUniqueClients.change }}</div>
+          </div>
+
+          <div class="metric-card bg-emerald">
+            <div class="metric-header">{{ t()['metrics.highValue'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.highValueBookings.value }}</div>
+            <div class="metric-trend flat">{{ m.highValueBookings.change }}</div>
+          </div>
+
+          <div class="metric-card bg-brown">
+            <div class="metric-header">{{ t()['metrics.mediumValue'] }} <i class="fa-solid fa-eye"></i></div>
+            <div class="metric-value">{{ m.mediumValueBookings.value }}</div>
+            <div class="metric-trend flat">{{ m.mediumValueBookings.change }}</div>
+          </div>
+
+        </div>
+      </div>
+    } @else {
+       <div class="loading-placeholder">
+         <i class="fa-solid fa-chart-line fa-3x"></i>
+         <p>Loading analytics data...</p>
+       </div>
+    }
+
+    <!-- Trends Chart -->
+    <div class="trends-section">
+      <div class="trends-header">
+        <div>
+          <h2 class="trends-title">{{ t()['analytics.monthlyTrends'] }}</h2>
+          <span class="trends-subtitle">{{ t()['analytics.last12Months'] }}</span>
+        </div>
+        <select class="trends-select" [ngModel]="trendType()" (ngModelChange)="trendType.set($event)">
+          <option value="Quotations">Quotations</option>
+          <option value="Revenue">Revenue</option>
+          <option value="Bookings">Bookings</option>
+        </select>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-y-axis">
+          <span>{{ getMaxTrendValue() | number:'1.0-0' }}</span>
+          <span>{{ getMaxTrendValue() * 0.75 | number:'1.0-0' }}</span>
+          <span>{{ getMaxTrendValue() * 0.5 | number:'1.0-0' }}</span>
+          <span>{{ getMaxTrendValue() * 0.25 | number:'1.0-0' }}</span>
+          <span>0</span>
+        </div>
+        <div class="chart-bars">
+          @for (trend of analyticsService.trends(); track trend.month_date) {
+            <div class="bar-wrapper" [title]="getTrendValue(trend)">
+              <div class="bar" 
+                   [class.active]="$last"
+                   [style.height.%]="(getTrendValue(trend) / getMaxTrendValue()) * 100">
+              </div>
+              <span class="label">{{ trend.month }}</span>
+            </div>
+          } @empty {
+             <div class="no-trend-data">No trend data available for the last 12 months.</div>
+          }
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

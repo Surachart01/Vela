@@ -1,0 +1,171 @@
+<div class="countries-page">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-earth-asia"></i> Manage Countries & Cities</h1>
+    <p class="page-subtitle">Add and manage country data and city/province listings independently</p>
+  </div>
+
+  <div class="two-column-layout">
+
+    <!-- ======== COUNTRY SECTION ======== -->
+    <section class="panel">
+      <div class="panel-header country-header">
+        <i class="fa-solid fa-globe"></i>
+        <div>
+          <h2>Countries</h2>
+          <span class="badge">{{ countries().length }} countries</span>
+        </div>
+      </div>
+
+      <!-- Country Form -->
+      <div class="form-card">
+        <h3 class="form-title">
+          <i class="fa-solid" [class.fa-plus]="!editCountryId()" [class.fa-pen-to-square]="editCountryId()"></i>
+          {{ editCountryId() ? 'Edit Country' : 'Add Country' }}
+        </h3>
+        <form [formGroup]="countryForm" (ngSubmit)="onSubmitCountry()">
+          <div class="form-group">
+            <label>Country Name *</label>
+            <input type="text" formControlName="name" placeholder="e.g. Thailand">
+          </div>
+          <div class="form-group">
+            <label>Country Code</label>
+            <input type="text" formControlName="code" placeholder="e.g. TH" maxlength="5">
+          </div>
+          <div class="form-actions">
+            @if (editCountryId()) {
+              <button type="button" class="btn-secondary" (click)="resetCountryForm()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+              </button>
+            }
+            <button type="submit" class="btn-primary" [disabled]="countryForm.invalid || isSavingCountry()">
+              @if (isSavingCountry()) { <i class="fa-solid fa-spinner fa-spin"></i> }
+              @else { <i class="fa-solid fa-floppy-disk"></i> }
+              {{ editCountryId() ? 'Update' : 'Save Country' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Country Table -->
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>COUNTRY</th>
+              <th>CODE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (country of countries(); track country.id) {
+              <tr>
+                <td><strong>{{ country.name }}</strong></td>
+                <td><span class="code-badge">{{ country.code || '-' }}</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn-edit" (click)="onEditCountry(country)" title="Edit">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn-delete" (click)="onDeleteCountry(country.id)" title="Delete">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty-state">
+                  <i class="fa-solid fa-globe"></i> No countries added yet
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======== CITY SECTION ======== -->
+    <section class="panel" id="city-section">
+      <div class="panel-header city-header">
+        <i class="fa-solid fa-city"></i>
+        <div>
+          <h2>Cities / Provinces</h2>
+          <span class="badge">{{ citiesDb().length }} cities</span>
+        </div>
+      </div>
+
+      <!-- City Form -->
+      <div class="form-card">
+        <h3 class="form-title">
+          <i class="fa-solid" [class.fa-plus]="!editCityId()" [class.fa-pen-to-square]="editCityId()"></i>
+          {{ editCityId() ? 'Edit City' : 'Add City / Province' }}
+        </h3>
+        <form [formGroup]="cityForm" (ngSubmit)="onSubmitCity()">
+          <div class="form-group">
+            <label>City / Province Name *</label>
+            <input type="text" formControlName="name" placeholder="e.g. Bangkok">
+          </div>
+          <div class="form-group">
+            <label>Linked Country</label>
+            <select formControlName="country_id">
+              <option [ngValue]="null">— None —</option>
+              @for (country of countries(); track country.id) {
+                <option [ngValue]="country.id">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-actions">
+            @if (editCityId()) {
+              <button type="button" class="btn-secondary" (click)="resetCityForm()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+              </button>
+            }
+            <button type="submit" class="btn-primary" [disabled]="cityForm.invalid || isSavingCity()">
+              @if (isSavingCity()) { <i class="fa-solid fa-spinner fa-spin"></i> }
+              @else { <i class="fa-solid fa-floppy-disk"></i> }
+              {{ editCityId() ? 'Update' : 'Save City' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- City Table -->
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>CITY / PROVINCE</th>
+              <th>COUNTRY</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (city of citiesDb(); track city.id) {
+              <tr>
+                <td><strong>{{ city.name }}</strong></td>
+                <td>{{ city.country_name || '-' }}</td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn-edit" (click)="onEditCity(city)" title="Edit">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn-delete" (click)="onDeleteCity(city.id)" title="Delete">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty-state">
+                  <i class="fa-solid fa-city"></i> No cities added yet
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>

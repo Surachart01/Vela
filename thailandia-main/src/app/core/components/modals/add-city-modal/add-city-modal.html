@@ -1,0 +1,29 @@
+@if (isOpen()) {
+  <div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ t()['modal.addCityTitle'] || 'Add New City' }}</h2>
+        <button class="close-btn" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="form" class="modal-form">
+          <div class="field-group full">
+            <label>{{ t()['modal.cityName'] || 'City Name' }} <span class="required">*</span></label>
+            <input type="text" formControlName="cityName" class="form-control" placeholder="Enter city name">
+          </div>
+          
+          <div class="field-group full">
+            <label>{{ t()['modal.country'] || 'Country' }}</label>
+            <input type="text" formControlName="country" class="form-control disabled">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="onClose()">{{ t()['modal.btnCancel'] || 'Cancel' }}</button>
+        <button class="btn btn-primary" (click)="onSave()">{{ t()['modal.btnAddCity'] || 'Add City' }}</button>
+      </div>
+    </div>
+  </div>
+}

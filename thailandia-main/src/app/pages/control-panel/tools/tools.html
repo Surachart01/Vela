@@ -1,0 +1,141 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-screwdriver-wrench"></i> {{ t()['tools.pageTitle'] || 'Import / Export Tools' }}</h1>
+    <p class="subtitle">{{ t()['tools.subtitle'] || 'Download templates to import your data or export existing data for backup and migration' }}</p>
+  </div>
+
+  <div class="currency-card">
+    <div class="currency-row">
+      <div class="label-box">
+        <label>{{ t()['tools.defaultCurrency'] || 'DEFAULT CURRENCY FOR EXPORT' }}</label>
+        <select [ngModel]="selectedCurrency()" (ngModelChange)="selectedCurrency.set($event)">
+          <option value="THB - Thai Baht">THB – Thai Baht</option>
+          <option value="USD - US Dollar">USD – US Dollar</option>
+          <option value="EUR - Euro">EUR – Euro</option>
+        </select>
+      </div>
+      <!-- <span class="help-text">{{ t()['tools.currencyHelp'] || 'Used when exporting data to Excel templates' }}</span> -->
+    </div>
+  </div>
+
+  <div class="tool-list">
+    @for (cat of toolCategories; track cat.key) {
+      <div class="tool-card">
+        <div class="card-left">
+          <div class="icon-box" [style.backgroundColor]="cat.color + '15'" [style.color]="cat.color">
+            <i class="fa-solid" [class]="cat.icon"></i>
+          </div>
+          <div class="info-box">
+            <h3 class="tool-name">{{ t()['tools.cat.' + cat.key] }}</h3>
+            <p class="tool-desc">{{ t()['tools.cat.' + cat.key + 'Desc'] }}</p>
+          </div>
+        </div>
+        <div class="card-right">
+          <button class="btn btn-download" (click)="onDownloadTemplate(cat.key)">
+            <i class="fa-solid fa-cloud-arrow-down"></i> {{ t()['tools.btnDownloadTemplate'] }}
+          </button>
+          <button class="btn btn-export" (click)="onExportData(cat.key)">
+            <i class="fa-solid fa-file-export"></i> {{ t()['tools.btnExport'] }}
+          </button>
+          <button class="btn btn-import" (click)="onImportData(cat.key)">
+            <i class="fa-solid fa-file-import"></i> {{ t()['tools.btnImport'] }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="instructions-section">
+    <h2 class="section-title"><i class="fa-solid fa-lightbulb"></i> {{ t()['tools.howToTitle'] || 'How to Use Import / Export Tools' }}</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-icon"><i class="fa-solid fa-circle-down"></i></div>
+        <div class="step-label">{{ t()['tools.step1Title'] }}</div>
+        <h4 class="step-name">{{ t()['tools.step1Name'] }}</h4>
+        <p class="step-desc">{{ t()['tools.step1Desc'] }}</p>
+      </div>
+      <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="step-card">
+        <div class="step-icon pencil"><i class="fa-solid fa-pencil"></i></div>
+        <div class="step-label">{{ t()['tools.step2Title'] }}</div>
+        <h4 class="step-name">{{ t()['tools.step2Name'] }}</h4>
+        <p class="step-desc">{{ t()['tools.step2Desc'] }}</p>
+      </div>
+      <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="step-card">
+        <div class="step-icon import"><i class="fa-solid fa-file-arrow-up"></i></div>
+        <div class="step-label">{{ t()['tools.step3Title'] }}</div>
+        <h4 class="step-name">{{ t()['tools.step3Name'] }}</h4>
+        <p class="step-desc">{{ t()['tools.step3Desc'] }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <h2 class="section-title"><i class="fa-solid fa-star"></i> {{ t()['tools.featuresTitle'] || 'Key Features' }}</h2>
+    <div class="features-grid">
+      <div class="feat-card green">
+        <div class="feat-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="feat-content">
+          <h4>{{ t()['tools.featSmartVal'] }}</h4>
+          <p>{{ t()['tools.featSmartValDesc'] }}</p>
+        </div>
+      </div>
+      <div class="feat-card blue">
+        <div class="feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="feat-content">
+          <h4>{{ t()['tools.featSafety'] }}</h4>
+          <p>{{ t()['tools.featSafetyDesc'] }}</p>
+        </div>
+      </div>
+      <div class="feat-card yellow">
+        <div class="feat-icon"><i class="fa-solid fa-copy"></i></div>
+        <div class="feat-content">
+          <h4>{{ t()['tools.featDupPrev'] }}</h4>
+          <p>{{ t()['tools.featDupPrevDesc'] }}</p>
+        </div>
+      </div>
+      <div class="feat-card teal">
+        <div class="feat-icon"><i class="fa-solid fa-chart-simple"></i></div>
+        <div class="feat-content">
+          <h4>{{ t()['tools.featExcel'] }}</h4>
+          <p>{{ t()['tools.featExcelDesc'] }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tips-section">
+    <h2 class="section-title"><i class="fa-solid fa-bullseye"></i> {{ t()['tools.tipsTitle'] || 'Tips for Success' }}</h2>
+    <div class="tips-grid">
+      <div class="tips-column">
+        <h3><i class="fa-solid fa-circle-check"></i> {{ t()['tools.dos'] }}</h3>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> {{ t()['tools.do1'] }}</li>
+          <li><i class="fa-solid fa-check"></i> {{ t()['tools.do2'] }}</li>
+          <li><i class="fa-solid fa-check"></i> {{ t()['tools.do3'] }}</li>
+          <li><i class="fa-solid fa-check"></i> {{ t()['tools.do4'] }}</li>
+        </ul>
+      </div>
+      <div class="tips-column">
+        <h3 class="donts"><i class="fa-solid fa-circle-xmark"></i> {{ t()['tools.donts'] }}</h3>
+        <ul>
+          <li><i class="fa-solid fa-xmark"></i> {{ t()['tools.dont1'] }}</li>
+          <li><i class="fa-solid fa-xmark"></i> {{ t()['tools.dont2'] }}</li>
+          <li><i class="fa-solid fa-xmark"></i> {{ t()['tools.dont3'] }}</li>
+          <li><i class="fa-solid fa-xmark"></i> {{ t()['tools.dont4'] }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-requirements">
+    <div class="req-content">
+      <i class="fa-solid fa-paperclip"></i>
+      <div class="req-text">
+        <strong>{{ t()['tools.fileReqsTitle'] }}</strong>
+        <p>{{ t()['tools.fileReqsDesc'] }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">{{ t()['hotel.pageTitle'] || 'Hotels' }}</h1>
+  </div>
+
+  <!-- Advanced Filter Card -->
+  <div class="filter-card-advanced">
+    <div class="filter-body">
+      <!-- Country -->
+      <div class="filter-field">
+        <label class="filter-label">COUNTRY</label>
+        <select [ngModel]="filterCountry()" (ngModelChange)="filterCountry.set($event)" class="filter-select">
+          <option value="">Select Country</option>
+          @for (c of masterData.countries(); track c.id) {
+            <option [value]="c.name">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- City -->
+      <div class="filter-field">
+        <label class="filter-label">CITY</label>
+        <select [ngModel]="filterCity()" (ngModelChange)="filterCity.set($event)" class="filter-select">
+          <option value="">Select a city</option>
+          @for (city of masterData.cities(); track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Keyword -->
+      <div class="filter-field filter-field--keyword">
+        <label class="filter-label">KEYWORD</label>
+        <div class="filter-search-input">
+          <input type="text"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Search..."
+                 (keyup.enter)="onSearch()">
+          <i class="fa-solid fa-magnifying-glass filter-search-icon"></i>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="filter-actions">
+        <button class="btn-filter-search" (click)="onSearch()">
+          Search <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        @if (filterCity() || filterCountry() || searchQuery()) {
+          <button class="btn-filter-clear" (click)="clearFilters()">
+            <i class="fa-solid fa-xmark"></i> Clear
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Show entries (right side) -->
+    <div class="filter-show-entries">
+      <label>Show:</label>
+      <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event); currentPage.set(1)">
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="25">25</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
+      </select>
+    </div>
+  </div>
+
+
+  <div class="data-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ t()['hotel.listTitle'] || 'List of Hotels' }}</h2>
+      <div class="header-actions">
+        <button *ngIf="authService.canAdd('cp_hotels')" class="btn btn-add" routerLink="/control-panel/add-hotel">
+          <i class="fa-solid fa-plus"></i> {{ t()['hotel.btnAdd'] || 'Add Hotel' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ t()['hotel.colName'] || 'Name' }}</th>
+            <th>{{ t()['hotel.colCity'] || 'City' }}</th>
+            <th>{{ t()['hotel.colEdit'] || 'Edit' }}</th>
+            <th>{{ t()['hotel.colDelete'] || 'Delete' }}</th>
+          </tr>
+        </thead>
+        <tbody [class.loading]="isLoading()">
+          @for (hotel of hotelsList(); track hotel.id) {
+            <tr [class.completed]="hotel.has_pricing">
+              <td>{{ hotel.name }}</td>
+              <td>{{ hotel.city }}</td>
+              <td>
+                <button class="btn-action btn-edit" [routerLink]="['/control-panel/add-hotel', hotel.id]" [queryParams]="authService.canEdit('cp_hotels') ? {} : { mode: 'view' }" [title]="authService.canEdit('cp_hotels') ? 'Edit' : 'View'">
+                  <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_hotels')" [class.fa-eye]="!authService.canEdit('cp_hotels')"></i> {{ authService.canEdit('cp_hotels') ? (t()['hotel.btnEdit'] || 'Edit') : (t()['common.view'] || 'View') }}
+                </button>
+              </td>
+              <td>
+                <button *ngIf="authService.canDelete('cp_hotels')" class="btn-action btn-delete" (click)="deleteHotel(hotel.id)">
+                  <i class="fa-solid fa-trash-can"></i> {{ t()['hotel.btnDelete'] || 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="empty-state">
+                <ng-container *ngIf="!isLoading()">{{ t()['hotel.noData'] || 'No hotels found.' }}</ng-container>
+                <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="pagination-container" *ngIf="totalPages() > 0">
+      <div class="pagination-info">
+        {{ t()['common.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['common.to'] || 'to' }} {{ endIndex() }} {{ t()['common.of'] || 'of' }} {{ totalItems() }} {{ t()['common.entries'] || 'entries' }}
+      </div>
+      <div class="pagination-buttons">
+        <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+          &larr; Prev
+        </button>
+        
+        <ng-container *ngFor="let page of getPageNumbers()">
+          <button class="pagination-btn" 
+                  *ngIf="page !== -1"
+                  [class.active]="page === currentPage()"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+          <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+        </ng-container>
+
+        <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages() || totalPages() === 0" (click)="nextPage()">
+          Next &rarr;
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

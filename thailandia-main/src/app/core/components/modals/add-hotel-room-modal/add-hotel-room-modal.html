@@ -1,0 +1,88 @@
+<div class="modal-overlay" [class.show]="isOpen">
+  <div class="modal-content wide">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fa-solid fa-bed"></i> Add Room Type Details</h2>
+      <button type="button" class="btn-close" (click)="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+
+        <!-- Date Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>From Date</label>
+            <app-date-input formControlName="dateFrom" />
+          </div>
+          <div class="form-group">
+            <label>To Date</label>
+            <app-date-input formControlName="dateTo" />
+          </div>
+        </div>
+
+        <!-- Room Entries — iterate signal snapshot so OnPush detects mutations -->
+        @for (entry of roomEntriesControls(); track $index; let i = $index) {
+          <div [formGroup]="entry" class="room-entry-block">
+            <div class="sub-section-row">
+              <div class="sub-section-label">Room Type(Name,Allotment,Cut-Off,Max Capacity)</div>
+              <div class="sub-section-label">Room Price(Single, Double)</div>
+            </div>
+            <div class="room-entry-row">
+              <div class="room-entry-group">
+                <input type="text" formControlName="name" class="form-control" placeholder="Name">
+                <input type="number" formControlName="allotment" class="form-control" placeholder="Allotment">
+                <input type="number" formControlName="cutOff" class="form-control" placeholder="Cut-Off">
+                <input type="number" formControlName="maxCapacity" class="form-control" placeholder="Max Capacity">
+              </div>
+              <div class="room-entry-group">
+                <input type="number" formControlName="singlePrice" class="form-control" placeholder="Single Price">
+                <input type="number" formControlName="doublePrice" class="form-control" placeholder="Double Price">
+              </div>
+            </div>
+            @if (i > 0) {
+              <button type="button" class="btn-remove" (click)="removeRoomEntry(i)">Remove</button>
+            }
+          </div>
+        }
+
+        <!-- Add Button -->
+        <div class="add-entry-row">
+          <button type="button" class="btn-add-entry" (click)="addRoomEntry()">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+
+        <!-- Food Cost [Adult] -->
+        <div class="sub-section-label-full">Food Cost [Adult] (ABF, Lunch, Dinner, All Inclusive)</div>
+        <div class="form-row compact-row">
+          <input type="number" formControlName="foodCostAdultAbf" class="form-control" placeholder="ABF">
+          <input type="number" formControlName="foodCostAdultLunch" class="form-control" placeholder="Lunch">
+          <input type="number" formControlName="foodCostAdultDinner" class="form-control" placeholder="Dinner">
+          <input type="number" formControlName="foodCostAdultAllInclusive" class="form-control" placeholder="All Inclusive">
+        </div>
+
+        <!-- Food Cost [Child] -->
+        <div class="sub-section-label-full">Food Cost [Child] (ABF, Lunch, Dinner, All Inclusive)</div>
+        <div class="form-row compact-row">
+          <input type="number" formControlName="foodCostChildAbf" class="form-control" placeholder="ABF">
+          <input type="number" formControlName="foodCostChildLunch" class="form-control" placeholder="Lunch">
+          <input type="number" formControlName="foodCostChildDinner" class="form-control" placeholder="Dinner">
+          <input type="number" formControlName="foodCostChildAllInclusive" class="form-control" placeholder="All Inclusive">
+        </div>
+
+        <!-- Extra Bed -->
+        <div class="sub-section-label-full">Extra Bed (Adult, Child, Shared)</div>
+        <div class="form-row compact-row">
+          <input type="number" formControlName="extraBedAdult" class="form-control wide-third" placeholder="Adult">
+          <input type="number" formControlName="extraBedChild" class="form-control wide-third" placeholder="Child">
+          <input type="number" formControlName="extraBedShared" class="form-control wide-third" placeholder="Shared">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" (click)="closeModal()">Close</button>
+          <button type="button" class="btn btn-primary" (click)="onSubmit()">Save Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

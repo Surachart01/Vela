@@ -1,0 +1,67 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-money-bill-wave text-teal" style="margin-right: 8px;"></i> Process Payment</h2>
+      <button class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="payment-summary">
+        <div class="summary-item">
+          <span class="label">Total Cost:</span>
+          <span class="value">฿{{ finalCost() | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Previously Paid:</span>
+          <span class="value">฿{{ previousPaid() | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item highlight">
+          <span class="label">Remaining Balance:</span>
+          <span class="value text-danger">฿{{ balance() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <form [formGroup]="paymentForm" class="payment-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fa-solid fa-coins text-teal"></i> Payment Amount *</label>
+            <div class="input-with-currency">
+              <span class="currency-prefix">฿</span>
+              <input type="number" formControlName="amount_paid" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div *ngIf="paymentForm.get('amount_paid')?.invalid && paymentForm.get('amount_paid')?.touched" class="error-text">
+              Valid amount is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fa-solid fa-triangle-exclamation text-teal"></i> Penalty Cost</label>
+            <div class="input-with-currency">
+              <span class="currency-prefix">฿</span>
+              <input type="number" formControlName="penalty_cost" min="0" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label><i class="fa-solid fa-comment text-teal"></i> Remarks / Payment Reference</label>
+            <textarea formControlName="remarks" rows="3" placeholder="Enter transaction reference, bank details, or other notes"></textarea>
+          </div>
+        </div>
+        @if (errorMessage()) {
+          <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+          </div>
+        }
+      </form>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="close.emit()">{{ t()['form.cancel'] || 'Cancel' }}</button>
+      <button class="btn-save bg-teal" (click)="onSave()">
+        <i class="fa-solid fa-check"></i> Submit Payment
+      </button>
+    </div>
+  </div>
+</div>

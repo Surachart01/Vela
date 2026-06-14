@@ -1,0 +1,68 @@
+@if (isOpen()) {
+  <div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ t()['modal.addExcursionPriceTitle'] || 'Add Excursion Price' }}</h2>
+        <button class="close-btn" (click)="onClose()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="form" style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="field-group">
+              <label>From Date <span class="required">*</span></label>
+              <app-date-input formControlName="dateFrom" />
+            </div>
+            <div class="field-group">
+              <label>To Date <span class="required">*</span></label>
+              <app-date-input formControlName="dateTo" />
+            </div>
+          </div>
+          
+          <div formArrayName="paxPrices" style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+            <div style="font-size: 13px; font-weight: 800; color: #111; border-bottom: 1px solid #ebe5df; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <span>Pricing Details</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 11px; color: #8e8378; margin: 0; text-transform: uppercase;">Max Pax:</label>
+                <input type="number" #paxCount value="6" min="1" max="50" class="form-control" style="width: 60px; height: 30px; padding: 4px 8px; margin: 0; min-height: 30px;">
+                <button type="button" class="btn btn-primary" style="font-size: 12px; padding: 0 10px; height: 30px;" (click)="generatePaxRows(paxCount.value)">
+                  <i class="fa-solid fa-bolt"></i> Generate
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 0 10px; height: 30px;" (click)="addPaxPrice()">
+                  <i class="fa-solid fa-plus"></i> Add 1
+                </button>
+              </div>
+            </div>
+            @for (paxPrice of paxPrices.controls; track paxPrice) {
+              <div class="pax-price-row" [formGroupName]="$index" style="display: flex; gap: 16px; align-items: flex-end; background: #fdfaf7; padding: 12px; border-radius: 8px; border: 1px solid #ebe5df;">
+                <div class="field-group" style="flex: 1; margin-bottom: 0;">
+                  <label>{{ t()['modal.pax'] || 'Pax' }} <span class="required">*</span></label>
+                  <input type="number" min="0" formControlName="pax" class="form-control" style="background: #fff;">
+                </div>
+                
+                <div class="field-group" style="flex: 1; margin-bottom: 0;">
+                  <label>{{ t()['modal.price'] || 'Price' }} <span class="required">*</span></label>
+                  <input type="number" min="0" formControlName="price" class="form-control" style="background: #fff;">
+                </div>
+
+                <button type="button" class="btn btn-action red" style="height: 42px; width: 42px; flex: 0 0 42px; display: flex; align-items: center; justify-content: center; background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; border-radius: 6px; cursor: pointer;" *ngIf="paxPrices.length > 1" (click)="removePaxPrice($index)">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </form>
+        @if (errorMessage()) {
+          <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="onClose()">{{ t()['modal.btnCancel'] || 'Cancel' }}</button>
+        <button class="btn btn-primary" (click)="onSave()">{{ t()['modal.btnSavePrice'] || 'Save Price' }}</button>
+      </div>
+    </div>
+  </div>
+}

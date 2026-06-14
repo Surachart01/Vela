@@ -1,0 +1,47 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ (selectedRange() ? t()['markup.editTitle'] : t()['markup.range.modalTitle']) || 'Add Hotel Markup' }}</h2>
+      <button class="btn-close" (click)="onClose()">&times;</button>
+    </div>
+
+    <div class="modal-body" [formGroup]="form">
+      <div class="input-grid">
+        <!-- Price From -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-solid fa-dollar-sign"></i> {{ t()['markup.range.priceFrom'] || 'Price From' }} *
+          </label>
+          <input type="number" formControlName="priceFrom" class="form-control" [placeholder]="t()['markup.range.placeholder.min'] || 'Enter minimum price'">
+        </div>
+
+        <!-- Price To -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-solid fa-dollar-sign"></i> {{ t()['markup.range.priceTo'] || 'Price To' }} *
+          </label>
+          <input type="number" formControlName="priceTo" class="form-control" [placeholder]="t()['markup.range.placeholder.max'] || 'Enter maximum price'">
+        </div>
+
+        <!-- Markup % -->
+        <div class="form-group full-width">
+          <label class="form-label">
+            <i class="fa-solid fa-percent"></i> {{ t()['markup.range.markup'] || 'Markup (%)' }} *
+          </label>
+          <input type="number" formControlName="markupValue" class="form-control" [placeholder]="t()['markup.range.placeholder.markup'] || 'Enter markup percentage'">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="onClose()">
+        <i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] || 'Cancel' }}
+      </button>
+      <button class="btn btn-save" (click)="onSave()">
+        <i class="fa-solid fa-check"></i> {{ t()['markup.range.btnSave'] || 'Save Markup' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

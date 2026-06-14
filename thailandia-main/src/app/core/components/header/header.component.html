@@ -1,0 +1,163 @@
+<header class="header">
+
+  <!-- ===== LOGO ===== -->
+  <div class="logo">
+    <span class="vera">Vera</span><span class="thailandia">Thailandia</span>
+  </div>
+
+  <!-- ===== DESKTOP NAV ===== -->
+  <nav class="main-nav desktop-nav">
+    @if (authService.hasPageAccess('home')) {
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-house"></i> {{ t()['nav.home'] }}
+      </a>
+    }
+
+    @if (authService.hasControlPanelAccess()) {
+      <div class="nav-item dropdown-container">
+        <div class="dropdown-toggle">
+          <i class="fa-solid fa-pen-to-square"></i> {{ t()['nav.controlPanel'] }}
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </div>
+        <div class="dropdown-menu">
+          @if (authService.hasPageAccess('cp_activities'))    { <a routerLink="/control-panel/activities"    routerLinkActive="active" class="dropdown-item">{{ t()['cp.activities'] }}</a> }
+          @if (authService.hasPageAccess('cp_agents'))        { <a routerLink="/control-panel/agents"        routerLinkActive="active" class="dropdown-item">{{ t()['cp.agents'] }}</a> }
+          @if (authService.hasPageAccess('cp_bookings'))      { <a routerLink="/control-panel/bookings"      routerLinkActive="active" class="dropdown-item">{{ t()['cp.bookings'] }}</a> }
+          @if (authService.hasPageAccess('cp_countries'))     { <a routerLink="/control-panel/countries"     routerLinkActive="active" class="dropdown-item">{{ t()['cp.countries'] || 'Countries & Cities' }}</a> }
+          @if (authService.hasPageAccess('cp_excursions'))    { <a routerLink="/control-panel/excursions"    routerLinkActive="active" class="dropdown-item">{{ t()['cp.excursions'] }}</a> }
+          @if (authService.hasPageAccess('cp_hotels'))        { <a routerLink="/control-panel/hotels"        routerLinkActive="active" class="dropdown-item">{{ t()['cp.hotels'] }}</a> }
+          @if (authService.hasPageAccess('cp_markups'))       { <a routerLink="/control-panel/markups"       routerLinkActive="active" class="dropdown-item">{{ t()['cp.markups'] }}</a> }
+          @if (authService.hasPageAccess('cp_other_charges')) { <a routerLink="/control-panel/other-charges" routerLinkActive="active" class="dropdown-item">{{ t()['cp.otherCharges'] }}</a> }
+          @if (authService.hasPageAccess('cp_suppliers') && !authService.isAgent()) { <a routerLink="/control-panel/suppliers" routerLinkActive="active" class="dropdown-item">{{ t()['cp.suppliers'] }}</a> }
+          @if (authService.hasPageAccess('cp_tools'))         { <a routerLink="/control-panel/tools"         routerLinkActive="active" class="dropdown-item">{{ t()['cp.tools'] }}</a> }
+          @if (authService.hasPageAccess('cp_tours'))         { <a routerLink="/control-panel/tours"         routerLinkActive="active" class="dropdown-item">{{ t()['cp.tours'] }}</a> }
+          @if (authService.hasPageAccess('cp_transfers'))     { <a routerLink="/control-panel/transfers"     routerLinkActive="active" class="dropdown-item">{{ t()['cp.transfers'] }}</a> }
+          @if (authService.hasPageAccess('cp_users'))         { <a routerLink="/control-panel/users"         routerLinkActive="active" class="dropdown-item">{{ t()['cp.users'] }}</a> }
+        </div>
+      </div>
+    }
+
+    @if (authService.hasPageAccess('quotation')) {
+      <a routerLink="/quotation" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-book"></i> {{ t()['nav.quotation'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('payment')) {
+      <a routerLink="/payment" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-credit-card"></i> {{ t()['nav.payment'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('itinerary')) {
+      <a routerLink="/itinerary" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-ticket"></i> {{ t()['nav.itinerary'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('analytics')) {
+      <a routerLink="/analytics" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-chart-column"></i> {{ t()['nav.analytics'] }}
+      </a>
+    }
+    @if (authService.isSuperAdmin()) {
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-gears"></i> {{ t()['nav.settings'] || 'Settings' }}
+      </a>
+    }
+  </nav>
+
+  <!-- ===== RIGHT ACTIONS ===== -->
+  <div class="header-right">
+    @if (!authService.isAgent()) {
+      <app-notification-bell></app-notification-bell>
+    }
+    <button class="lang-toggle-header" (click)="translationService.toggleLanguage()">
+      {{ translationService.getLanguage() === 'en' ? 'TH' : 'EN' }}
+    </button>
+    <div class="user-profile">
+      <div class="avatar">{{ (authService.currentUser()?.username?.[0] || 'U').toUpperCase() }}</div>
+      <div class="user-info hide-mobile">
+        <div class="name">{{ authService.currentUser()?.username }}</div>
+        <div class="role">{{ authService.currentUser()?.role }}</div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="authService.logout()" title="Logout">
+      <i class="fa-solid fa-power-off"></i>
+    </button>
+
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger-btn" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileMenuOpen()" aria-label="Toggle menu">
+      <i class="fa-solid" [class.fa-bars]="!mobileMenuOpen()" [class.fa-xmark]="mobileMenuOpen()"></i>
+    </button>
+  </div>
+
+</header>
+
+<!-- ===== MOBILE DRAWER ===== -->
+@if (mobileMenuOpen()) {
+  <div class="mobile-overlay" (click)="closeMobileMenu()"></div>
+}
+<div class="mobile-menu-wrapper" [class.open]="mobileMenuOpen()">
+  <nav class="mobile-nav">
+
+    @if (authService.hasPageAccess('home')) {
+      <a routerLink="/home" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-house"></i> {{ t()['nav.home'] }}
+      </a>
+    }
+
+    @if (authService.hasControlPanelAccess()) {
+      <div class="mobile-section-title">
+        <i class="fa-solid fa-pen-to-square"></i> {{ t()['nav.controlPanel'] }}
+      </div>
+      <div class="mobile-sub">
+        @if (authService.hasPageAccess('cp_activities'))    { <a routerLink="/control-panel/activities"    routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.activities'] }}</a> }
+        @if (authService.hasPageAccess('cp_agents'))        { <a routerLink="/control-panel/agents"        routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.agents'] }}</a> }
+        @if (authService.hasPageAccess('cp_bookings'))      { <a routerLink="/control-panel/bookings"      routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.bookings'] }}</a> }
+        @if (authService.hasPageAccess('cp_countries'))     { <a routerLink="/control-panel/countries"     routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.countries'] || 'Countries & Cities' }}</a> }
+        @if (authService.hasPageAccess('cp_excursions'))    { <a routerLink="/control-panel/excursions"    routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.excursions'] }}</a> }
+        @if (authService.hasPageAccess('cp_hotels'))        { <a routerLink="/control-panel/hotels"        routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.hotels'] }}</a> }
+        @if (authService.hasPageAccess('cp_markups'))       { <a routerLink="/control-panel/markups"       routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.markups'] }}</a> }
+        @if (authService.hasPageAccess('cp_other_charges')) { <a routerLink="/control-panel/other-charges" routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.otherCharges'] }}</a> }
+        @if (authService.hasPageAccess('cp_suppliers') && !authService.isAgent()) { <a routerLink="/control-panel/suppliers" routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.suppliers'] }}</a> }
+        @if (authService.hasPageAccess('cp_tools'))         { <a routerLink="/control-panel/tools"         routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.tools'] }}</a> }
+        @if (authService.hasPageAccess('cp_tours'))         { <a routerLink="/control-panel/tours"         routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.tours'] }}</a> }
+        @if (authService.hasPageAccess('cp_transfers'))     { <a routerLink="/control-panel/transfers"     routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.transfers'] }}</a> }
+        @if (authService.hasPageAccess('cp_users'))         { <a routerLink="/control-panel/users"         routerLinkActive="active" class="mobile-nav-item sub" (click)="closeMobileMenu()">{{ t()['cp.users'] }}</a> }
+      </div>
+    }
+
+    @if (authService.hasPageAccess('quotation')) {
+      <a routerLink="/quotation" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-book"></i> {{ t()['nav.quotation'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('payment')) {
+      <a routerLink="/payment" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-credit-card"></i> {{ t()['nav.payment'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('itinerary')) {
+      <a routerLink="/itinerary" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-ticket"></i> {{ t()['nav.itinerary'] }}
+      </a>
+    }
+    @if (authService.hasPageAccess('analytics')) {
+      <a routerLink="/analytics" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-chart-column"></i> {{ t()['nav.analytics'] }}
+      </a>
+    }
+    @if (authService.isSuperAdmin()) {
+      <a routerLink="/settings" routerLinkActive="active" class="mobile-nav-item" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-gears"></i> {{ t()['nav.settings'] || 'Settings' }}
+      </a>
+    }
+
+    <!-- User info at bottom of drawer -->
+    <div class="mobile-user-info">
+      <div class="avatar">{{ (authService.currentUser()?.username?.[0] || 'U').toUpperCase() }}</div>
+      <div>
+        <div class="name">{{ authService.currentUser()?.username }}</div>
+        <div class="role">{{ authService.currentUser()?.role }}</div>
+      </div>
+    </div>
+  </nav>
+</div>

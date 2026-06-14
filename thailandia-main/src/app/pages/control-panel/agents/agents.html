@@ -1,0 +1,90 @@
+<div class="agents-container">
+  <main class="page-content">
+    
+    <div class="page-head">
+      <div class="page-head-left">
+        <div class="page-title">{{ t()['agents.title'] || 'Agents' }}</div>
+      </div>
+    </div>
+
+    <!-- Search + show -->
+    <div class="search-bar-wrap">
+      <div class="search-input-wrap">
+        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" [placeholder]="t()['agents.searchPlaceholder'] || 'Search for agents…'" 
+               #searchInput (input)="filterAgents(searchInput.value)"/>
+      </div>
+      <div class="show-wrap">
+        {{ t()['agents.show'] || 'Show:' }}
+        <select>
+          <option>25</option><option>50</option><option>100</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- List card -->
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-head-title">{{ t()['agents.listTitle'] || 'List of Agents' }}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="total-badge"><i class="fa-solid fa-suitcase"></i> {{ t()['agents.total'] || 'Total:' }} <span>{{ filteredAgents().length }}</span></div>
+          <button *ngIf="authService.canAdd('cp_agents')" class="add-btn" routerLink="/control-panel/add-agent"><i class="fa-solid fa-plus"></i> {{ t()['agents.addAgent'] || 'Add Agent' }}</button>
+        </div>
+      </div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>{{ t()['table.name'] || 'Name' }}</th>
+            <th>{{ t()['table.markupGroup'] || 'Markup Group' }}</th>
+            <th>{{ t()['table.email'] || 'Email' }}</th>
+            <th>{{ t()['table.telephone'] || 'Telephone' }}</th>
+            <th>{{ t()['table.address'] || 'Address' }}</th>
+            <th>{{ t()['table.assistanceFee'] || 'Assistance Fee' }}</th>
+            <th>{{ t()['agents.btnEdit'] || 'Edit' }}</th>
+            <th>{{ t()['agents.btnDelete'] || 'Delete' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filteredAgents(); track a.id) {
+            <tr>
+              <td style="font-weight:700;white-space:nowrap">{{a.name}}</td>
+              <td><span class="mu-badge">{{a.markup_group || a.markup}}</span></td>
+              <td style="font-size:12.5px">{{a.email}}</td>
+              <td style="white-space:nowrap">{{a.telephone || a.tel}}</td>
+              <td class="address-cell">{{a.address}}</td>
+              <td>
+                <div class="af-wrap">
+                  <span class="af-badge" [class.af-default]="a.assistanceFeeEnabled" [class.af-disabled]="!a.assistanceFeeEnabled">
+                    {{ a.assistanceFeeEnabled ? (t()['agents.feeDefault'] || 'Assistance fees: SYSTEM DEFAULT') : (t()['agents.feeDisabled'] || 'Assistance fees DISABLED') }}
+                  </span>
+                  <button *ngIf="authService.canEdit('cp_agents')" class="af-edit-btn" (click)="openFeeModal(a)"><i class="fa-solid fa-pen"></i> {{ t()['agents.btnEditFee'] || 'Edit Fee' }}</button>
+                </div>
+              </td>
+              <td>
+                <button class="edit-btn" [routerLink]="['/control-panel/add-agent', a.id]" [queryParams]="!authService.canEdit('cp_agents') ? { mode: 'view' } : {}">
+                  <i class="fa-solid" [class.fa-pen]="authService.canEdit('cp_agents')" [class.fa-eye]="!authService.canEdit('cp_agents')"></i> 
+                  {{ authService.canEdit('cp_agents') ? (t()['agents.btnEdit'] || 'Edit') : (t()['form.view'] || 'View') }}
+                </button>
+              </td>
+              <td>
+                <button *ngIf="authService.canDelete('cp_agents')" class="del-btn" (click)="deleteAgent(a.id!)">
+                  <i class="fa-solid fa-trash"></i> {{ t()['agents.btnDelete'] || 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<app-assistance-fee-modal 
+  [isOpen]="isFeeModalOpen()"
+  [agentName]="activeAgentForFee()?.name || ''"
+  [initialEnabled]="activeAgentForFee()?.assistanceFeeEnabled ?? true"
+  [initialAmount]="activeAgentForFee()?.feeAmount ?? 1000"
+  (closeModal)="closeFeeModal()"
+  (save)="handleFeeSave($event)"
+></app-assistance-fee-modal>

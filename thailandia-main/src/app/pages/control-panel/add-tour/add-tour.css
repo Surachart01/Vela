@@ -1,0 +1,479 @@
+:host {
+  display: block;
+}
+
+.add-tour-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fafafa;
+  padding-bottom: 80px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.btn-back {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-back:hover {
+  background: #f5f5f5;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+}
+
+.tour-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #eaeaea;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title i {
+  color: #111;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flex-1 { flex: 1; min-width: 200px; }
+.flex-2 { flex: 2; min-width: 300px; }
+.full-width { flex: 100%; }
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #333;
+}
+
+.form-label-bold {
+  font-size: 14px;
+  font-weight: 800;
+  color: #333;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.required {
+  color: #d11a2a;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #1bc5bd;
+  outline: none;
+}
+
+.form-group input.invalid-field,
+.form-group textarea.invalid-field,
+.form-group select.invalid-field {
+  border-color: #d11a2a !important;
+  background-color: #fff9f9;
+}
+
+.error-message {
+  color: #d11a2a;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.bg-gray-100 {
+  background-color: #f5f5f5 !important;
+  cursor: not-allowed;
+}
+
+/* Input with button */
+.input-with-btn {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-inline-plus {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  color: #555;
+  cursor: pointer;
+}
+
+.btn-inline-plus.green {
+  background: #1bc5bd;
+  color: white;
+  border-color: #1bc5bd;
+}
+
+/* Validity Period */
+.validity-box {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.day-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.day-pill {
+  padding: 6px 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.day-pill.active {
+  background: #1bc5bd;
+  color: white;
+  border-color: #1bc5bd;
+}
+
+/* Itinerary Section */
+.section-head-with-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.total-days-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #f1faff;
+  border: 1px solid #cceeff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0088cc;
+}
+
+.total-days-badge span {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.btn-add-day, .btn-add-price {
+  background: #1bc5bd;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Itinerary Day Card */
+.itinerary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.itinerary-day-card {
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.day-header {
+  background: #fcfcfc;
+  padding: 14px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-remove-day {
+  background: #fff0f0;
+  color: #d11a2a;
+  border: 1px solid #ffebeb;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Service Blocks */
+.service-block {
+  border-top: 1px dashed #eee;
+  padding-top: 15px;
+}
+
+.service-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.service-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-add-more {
+  background: #f1faff;
+  color: #007bff;
+  border: 1px solid #e1f0ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.service-row {
+  display: flex;
+  gap: 12px;
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  align-items: flex-end;
+  position: relative;
+}
+
+.btn-remove-service {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  color: #888;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+/* Prices Table */
+.prices-tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prices-tbl th {
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #333;
+  background: #f8f9fa;
+  border-bottom: 2px solid #eee;
+  text-align: left;
+}
+
+.prices-tbl td {
+  padding: 12px;
+  font-size: 13px;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-edit-price {
+  background: none;
+  border: none;
+  color: #17a2b8;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 12px;
+  transition: color 0.2s;
+}
+
+.btn-edit-price:hover {
+  color: #138496;
+}
+
+.btn-delete-price {
+  background: none;
+  border: none;
+  color: #d11a2a;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.btn-delete-price:hover {
+  color: #a3000b;
+}
+
+/* Footer Section */
+.bottom-spacer {
+  height: 40px;
+}
+
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fafafa;
+  border-top: 1px solid #ddd;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.btn-cancel {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-save {
+  background: #f26419;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(242, 100, 25, 0.3);
+}
+
+.help-text {
+  font-size: 11px;
+  color: #888;
+  display: block;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px !important;
+  color: #999;
+  font-style: italic;
+}

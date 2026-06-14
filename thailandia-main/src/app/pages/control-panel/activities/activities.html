@@ -1,0 +1,311 @@
+<div class="activities-container">
+
+  <main class="page-content">
+    <!-- Page head -->
+    <div class="page-head">
+      <div>
+        <div class="page-title"><i class="fa-solid fa-chart-line"></i> {{ t()['activities.title'] || 'Activity Tracking'
+          }}</div>
+        <div class="page-sub">{{ t()['activities.subtitle'] || 'Monitor system usage and user activity patterns' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">{{ t()['kpi.totalActions'] || 'Total Actions' }}</div>
+        <div class="kpi-val blue">26</div>
+        <div class="kpi-sub">{{ t()['kpi.last7Days'] || 'Last 7 days' }}</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="kpi-label">{{ t()['kpi.activeUsers'] || 'Active Users' }}</div>
+        <div class="kpi-val teal">17</div>
+        <div class="kpi-sub">{{ t()['kpi.usersWithActivity'] || 'Users with activity' }}</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">{{ t()['kpi.topEntity'] || 'Top Entity' }}</div>
+        <div class="kpi-hl amber">QUOTATION</div>
+        <div class="kpi-sub">10 view actions</div>
+      </div>
+      <div class="kpi-card or">
+        <div class="kpi-label">{{ t()['kpi.latestActivity'] || 'Latest Activity' }}</div>
+        <div class="kpi-hl or">hotel</div>
+        <div class="kpi-sub">{{ t()['kpi.justNow'] || 'Just now' }}</div>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.on]="activeTab() === 'overview'" (click)="setTab('overview')">
+        <i class="fa-solid fa-gauge-high chart-icon"></i> {{ t()['tab.overview'] || 'Overview' }}
+      </button>
+      <button class="tab-btn" [class.on]="activeTab() === 'log'" (click)="setTab('log')">
+        <i class="fa-solid fa-list chart-icon"></i> {{ t()['tab.activityLog'] || 'Activity Log' }}
+      </button>
+      <button class="tab-btn" [class.on]="activeTab() === 'users'" (click)="setTab('users')">
+        <i class="fa-solid fa-users chart-icon"></i> {{ t()['tab.userStats'] || 'User Stats' }}
+      </button>
+      <button class="tab-btn" [class.on]="activeTab() === 'popular'" (click)="setTab('popular')">
+        <i class="fa-solid fa-star chart-icon"></i> {{ t()['tab.popularEntities'] || 'Popular Entities' }}
+      </button>
+    </div>
+
+    <!-- Tab: Overview -->
+    @if (activeTab() === 'overview') {
+    <div>
+      <!-- Charts -->
+      <div class="chart-row">
+        <!-- Activity by Entity Type -->
+        <div class="chart-card">
+          <div class="chart-title">{{ t()['chart.activityByEntity'] || 'Activity by Entity Type' }}</div>
+          <div class="hbar-list">
+            @for (d of entityData; track d.label) {
+            <div class="hbar-row">
+              <div class="hbar-label"><span class="hbar-badge {{d.badgeClass}}">{{d.label}}</span></div>
+              <div class="hbar-track">
+                <div class="hbar-fill {{d.fillClass}}" [style.width.%]="d.pct"></div>
+              </div>
+              <div class="hbar-count">{{d.count}}</div>
+            </div>
+            }
+          </div>
+        </div>
+        <!-- Activity by Action Type -->
+        <div class="chart-card">
+          <div class="chart-title">{{ t()['chart.activityByAction'] || 'Activity by Action Type' }}</div>
+          <div class="hbar-list">
+            @for (d of actionData; track d.label) {
+            <div class="hbar-row">
+              <div class="hbar-label"><span class="hbar-badge {{d.badgeClass}}">{{d.label}}</span></div>
+              <div class="hbar-track">
+                <div class="hbar-fill {{d.fillClass}}" [style.width.%]="d.pct"></div>
+              </div>
+              <div class="hbar-count">{{d.count}}</div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity table -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-title">{{ t()['chart.recentSummary'] || 'Recent Activity Summary' }}</div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['table.entityType'] || 'Entity Type' }}</th>
+              <th>{{ t()['table.actionType'] || 'Action Type' }}</th>
+              <th>{{ t()['table.count'] || 'Count' }}</th>
+              <th>{{ t()['table.uniqueUsers'] || 'Unique Users' }}</th>
+              <th>{{ t()['table.lastActivity'] || 'Last Activity' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of tableData; track $index) {
+            <tr>
+              <td><span class="hbar-badge {{r.eBadge}}">{{r.entity}}</span></td>
+              <td><span class="hbar-badge {{r.aBadge}}">{{r.action}}</span></td>
+              <td class="count">{{r.count}}</td>
+              <td>{{r.users}}</td>
+              <td class="time">{{r.time}}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+    <!-- Tab: Activity Log -->
+    @if (activeTab() === 'log') {
+    <div>
+      <div class="section-card">
+        <div class="section-head" style="flex-wrap:wrap;gap:12px">
+          <div class="section-head-title">{{ t()['tab.activityLog'] || 'Activity Log' }}</div>
+        </div>
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div>
+            <div class="filter-label">{{ t()['filter.userSearch'] || 'User Search' }}</div>
+            <input type="text" [placeholder]="t()['filter.searchPlaceholder'] || 'Search by username or name…'"
+              class="filter-input" style="width:210px" />
+          </div>
+          <div>
+            <div class="filter-label">{{ t()['filter.entityType'] || 'Entity Type' }}</div>
+            <select class="filter-input" style="width:160px">
+              <option>{{ t()['filter.allEntities'] || 'All Entities' }}</option>
+              <option>QUOTATION</option>
+              <option>HOTEL</option>
+              <option>EXCURSION</option>
+              <option>TRANSFER</option>
+              <option>TOUR</option>
+              <option>BOOKING</option>
+              <option>AGENT</option>
+              <option>USER</option>
+            </select>
+          </div>
+          <div>
+            <div class="filter-label">{{ t()['filter.actionType'] || 'Action Type' }}</div>
+            <select class="filter-input" style="width:150px">
+              <option>{{ t()['filter.allActions'] || 'All Actions' }}</option>
+              <option>View</option>
+              <option>Create</option>
+              <option>Update</option>
+              <option>Delete</option>
+              <option>Calculate</option>
+              <option>Search</option>
+              <option>Approve</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>From Date</label>
+            <app-date-input [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)"></app-date-input>
+          </div>
+          <div class="filter-group">
+            <label>To Date</label>
+            <app-date-input [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)"></app-date-input>
+          </div>
+          <button class="btn-filter"><i class="fa-solid fa-magnifying-glass"></i> {{ t()['filter.btnFilter'] || 'Filter'
+            }}</button>
+          <button class="btn-clear"><i class="fa-solid fa-rotate-right"></i> {{ t()['filter.btnClear'] || 'Clear'
+            }}</button>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['table.id'] || 'ID' }}</th>
+              <th>{{ t()['table.userName'] || 'User Name' }}</th>
+              <th>{{ t()['table.agentName'] || 'Agent Name' }}</th>
+              <th>{{ t()['table.entity'] || 'Entity' }}</th>
+              <th>{{ t()['table.entityName'] || 'Entity Name' }}</th>
+              <th>{{ t()['table.action'] || 'Action' }}</th>
+              <th>{{ t()['table.timestamp'] || 'Timestamp' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of logData; track r.id) {
+            <tr>
+              <td style="color:var(--muted);font-size:12px">{{r.id}}</td>
+              <td style="font-weight:700">{{r.user}}</td>
+              <td style="color:var(--muted)">{{r.agent}}</td>
+              <td><span class="hbar-badge {{r.eBadge}}">{{r.entity}}</span></td>
+              <td class="ellipsis-cell">{{r.entityName}}</td>
+              <td><span class="hbar-badge {{r.aBadge}}">{{r.action}}</span></td>
+              <td class="time">{{r.ts}}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+    <!-- Tab: User Stats -->
+    @if (activeTab() === 'users') {
+    <div>
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-title">{{ t()['tab.userStats'] || 'User Stats' }}</div>
+          <div class="header-filters">
+            <span class="header-filter-label">{{ t()['filter.analysisPeriod'] || 'Analysis Period' }}:</span>
+            <select class="filter-input" style="padding:7px 12px;">
+              <option>{{ t()['filter.last7'] || 'Last 7 days' }}</option>
+              <option>{{ t()['filter.last14'] || 'Last 14 days' }}</option>
+              <option>{{ t()['filter.last30'] || 'Last 30 days' }}</option>
+              <option>{{ t()['filter.last90'] || 'Last 90 days' }}</option>
+            </select>
+            <button class="btn-filter"><i class="fa-solid fa-rotate"></i> {{ t()['filter.refresh'] || 'Refresh Data'
+              }}</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['table.userName'] || 'User Name' }}</th>
+              <th>{{ t()['table.agentName'] || 'Agent Name' }}</th>
+              <th>{{ t()['table.totalActions'] || 'Total Actions' }}</th>
+              <th>{{ t()['table.uniqueEntities'] || 'Unique Entities' }}</th>
+              <th>{{ t()['table.topEntityType'] || 'Top Entity Type' }}</th>
+              <th>{{ t()['table.topActionType'] || 'Top Action Type' }}</th>
+              <th>{{ t()['table.lastActivity'] || 'Last Activity' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of usersData; track r.user) {
+            <tr>
+              <td style="font-weight:700">{{r.user}}</td>
+              <td style="color:var(--muted)">{{r.agent}}</td>
+              <td class="count">{{r.total}}</td>
+              <td>{{r.unique}}</td>
+              <td><span class="hbar-badge {{r.topEntityBadge}}">{{r.topEntity}}</span></td>
+              <td><span class="hbar-badge {{r.topActionBadge}}">{{r.topAction}}</span></td>
+              <td class="time">{{r.last}}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+    <!-- Tab: Popular Entities -->
+    @if (activeTab() === 'popular') {
+    <div>
+      <div class="section-card">
+        <div class="section-head" style="flex-wrap:wrap;gap:10px">
+          <div class="section-head-title">{{ t()['tab.popularEntities'] || 'Popular Entities' }}</div>
+          <div class="header-filters">
+            <div class="filter-group">
+              <span class="header-filter-label">{{ t()['filter.entityType'] || 'Entity Type' }}:</span>
+              <select class="filter-input" style="padding:7px 12px;">
+                <option>{{ t()['filter.allTypes'] || 'All Types' }}</option>
+                <option>Hoteks</option>
+                <option>Transfers</option>
+                <option>Excursions</option>
+                <option>Tours</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <span class="header-filter-label">{{ t()['filter.period'] || 'Period' }}:</span>
+              <select class="filter-input" style="padding:7px 12px;">
+                <option>{{ t()['filter.last7'] || 'Last 7 days' }}</option>
+                <option>{{ t()['filter.last14'] || 'Last 14 days' }}</option>
+                <option>{{ t()['filter.last30'] || 'Last 30 days' }}</option>
+                <option>{{ t()['filter.last90'] || 'Last 90 days' }}</option>
+              </select>
+            </div>
+            <button class="btn-filter"><i class="fa-solid fa-rotate"></i> {{ t()['filter.refresh'] || 'Refresh Data'
+              }}</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['table.entityType'] || 'Entity Type' }}</th>
+              <th>{{ t()['table.entityName'] || 'Entity Name' }}</th>
+              <th>{{ t()['table.accessCount'] || 'Access Count' }}</th>
+              <th>{{ t()['table.uniqueUsers'] || 'Unique Users' }}</th>
+              <th>{{ t()['table.lastAccessed'] || 'Last Accessed' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of popularData; track r.name) {
+            <tr>
+              <td><span class="hbar-badge {{r.tBadge}}">{{r.type}}</span></td>
+              <td style="font-weight:700">{{r.name}}</td>
+              <td class="count">{{r.count}}</td>
+              <td>{{r.users}}</td>
+              <td class="time">{{r.last}}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+  </main>
+</div>

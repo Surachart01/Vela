@@ -1,0 +1,29 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fa-solid fa-list-check"></i> {{ t()['quote.updateStatus'] || 'Update Status' }}</h3>
+      <button type="button" class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="modal-body" [formGroup]="statusForm">
+      <div class="form-group full-width">
+        <label>{{ t()['quote.status'] || 'Status' }} <span class="required">*</span></label>
+        <select formControlName="status">
+          <option value="Pending">{{ t()['quote.pending'] || 'Pending' }}</option>
+          <option value="InProgress">{{ t()['quote.inProgress'] || 'In Progress' }}</option>
+          <option value="Approved">{{ t()['quote.approved'] || 'Approved' }}</option>
+          <option value="Declined">{{ t()['quote.declined'] || 'Declined' }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="close.emit()">
+        <i class="fa-solid fa-xmark"></i> {{ t()['form.cancel'] }}
+      </button>
+      <button type="button" class="btn-save" (click)="onSave()">
+        <i class="fa-solid fa-floppy-disk"></i> {{ t()['form.save'] || 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>

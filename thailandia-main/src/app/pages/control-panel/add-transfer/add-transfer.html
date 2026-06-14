@@ -1,0 +1,249 @@
+<div class="add-transfer-container">
+  <main class="main-content">
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t()['form.back'] || 'Back' }}
+      </button>
+      <h1 class="page-title">
+        {{ viewOnly() ? (t()['transfer.viewTitle'] || 'View Transfer') : (isEditMode() ? (t()['transfer.editTitle'] || 'Edit Transfer') : (t()['transfer.createTitle'] || 'Create New Transfer')) }}
+      </h1>
+    </div>
+
+    <form class="transfer-form" [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+      
+      <!-- General Information Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ t()['form.generalInfo'] || 'General Information' }}</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.type'] || 'Transfer Type' }} <span class="required">*</span></label>
+            <select formControlName="transfer_type" [class.error]="isFieldInvalid('transfer_type')">
+              <option value="">{{ t()['transfer.placeholder.type'] || 'Select transfer type' }}</option>
+              <option value="TIN">TIN — Transfer In</option>
+              <option value="TOUT">TOUT — Transfer Out</option>
+              <option value="TIT">TIT — Transfer In Transit</option>
+              <option value="SIC">SIC — Seat-in-Coach</option>
+              <option value="PVT">PVT — Private</option>
+            </select>
+            @if (isFieldInvalid('transfer_type')) {
+              <span class="error-message">This field is required</span>
+            }
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.country'] || 'Country' }} <span class="required">*</span></label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.city'] || 'City' }} <span class="required">*</span></label>
+            <select formControlName="city" [class.error]="isFieldInvalid('city')">
+              <option value="">{{ t()['transfer.placeholder.city'] || 'Select city' }}</option>
+              @for (city of cities; track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('city')) {
+              <span class="error-message">This field is required</span>
+            }
+          </div>
+          <div class="form-group half-width" *ngIf="!authService.isAgent() || viewOnly()">
+            <label>{{ t()['transfer.supplier'] || 'Supplier' }}</label>
+            <select formControlName="supplier_id">
+              <option value="">{{ t()['transfer.placeholder.supplier'] || 'Select supplier' }}</option>
+              @for (s of suppliersList(); track s.id) {
+                <option [value]="s.id">{{ s.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width" *ngIf="!authService.isAgent()">
+            <label>{{ t()['common.order'] || 'Display Order' }}</label>
+            <input type="number" formControlName="display_order" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>{{ t()['transfer.description'] || 'Description' }} <span class="required">*</span></label>
+            <textarea formControlName="description" rows="3"
+              [placeholder]="t()['transfer.placeholder.description'] || 'Enter transfer description'"
+              [class.error]="isFieldInvalid('description')"></textarea>
+            @if (isFieldInvalid('description')) {
+              <span class="error-message">This field is required</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.sicAdult'] || 'SIC PRICE FOR ADULT' }} <span class="required">*</span></label>
+            <input type="number" formControlName="sic_price_adult" placeholder="0.00">
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.sicChild'] || 'SIC PRICE FOR CHILD' }} <span class="required">*</span></label>
+            <input type="number" formControlName="sic_price_child" placeholder="0.00">
+          </div>
+        </div>
+      </section>
+
+      <!-- Locations Section -->
+      <section class="form-section">
+        <h2 class="section-title"><i class="fa-solid fa-map-location-dot"></i> Locations</h2>
+        
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.departureLocation'] || 'Departure Location' }} <span class="required">*</span></label>
+            <input type="text" formControlName="departure"
+              [placeholder]="t()['transfer.placeholder.departure'] || 'Enter departure location'"
+              [class.error]="isFieldInvalid('departure')">
+            @if (isFieldInvalid('departure')) {
+              <span class="error-message">This field is required</span>
+            }
+          </div>
+          <div class="form-group half-width">
+            <label>{{ t()['transfer.arrivalLocation'] || 'Arrival Location' }} <span class="required">*</span></label>
+            <input type="text" formControlName="arrival"
+              [placeholder]="t()['transfer.placeholder.arrival'] || 'Enter arrival location'"
+              [class.error]="isFieldInvalid('arrival')">
+            @if (isFieldInvalid('arrival')) {
+              <span class="error-message">This field is required</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Transfer Prices Table Section -->
+      <section class="form-section">
+        <div class="section-header-flex">
+          <h2 class="section-title mb-0"><i class="fa-solid fa-table-list"></i> {{ t()['transfer.pricesTitle'] || 'Transfer Prices' }}</h2>
+          <button *ngIf="!viewOnly()" type="button" class="btn-add-item" (click)="$event.preventDefault(); openAddPriceModal()">
+            <i class="fa-solid fa-plus"></i> {{ t()['transfer.btnAddPrice'] || 'Add Price' }}
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="grouped-tables-container">
+            @if (groupedPrices().length === 0) {
+              <div class="empty-state">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ t()['transfer.noPrices'] || 'No prices added yet. Click "Add Price" to start.' }}
+              </div>
+            } @else {
+              @for (group of groupedPrices(); track group.dateFrom + '_' + group.dateTo) {
+                <div class="accordion-card" [class.open]="expandedGroups()[group.dateFrom + '_' + group.dateTo]">
+                  <div class="accordion-header" (click)="toggleGroup(group.dateFrom + '_' + group.dateTo)">
+                    <div class="date-summary">
+                      <i class="fa-solid fa-calendar-days text-orange"></i>
+                      <span class="date-label">From:</span> <strong>{{ group.dateFrom | date:'dd/MM/yyyy' }}</strong>
+                      <span class="date-separator">—</span>
+                      <span class="date-label">To:</span> <strong>{{ group.dateTo | date:'dd/MM/yyyy' }}</strong>
+                    </div>
+                    <div class="accordion-stats">
+                      <span class="pax-count">{{ group.items.length }} Pax Types</span>
+                      <i class="fa-solid fa-chevron-down chevron"></i>
+                    </div>
+                  </div>
+                  <div class="accordion-body">
+                    <div class="accordion-body-content">
+                      <table class="grouped-price-table">
+                        <tbody>
+                          @for (item of group.items; track item.id) {
+                            <tr>
+                              <td style="width: 30%;">
+                                <div class="pax-badge"><i class="fa-solid fa-user"></i> Pax {{ item.pax }}</div>
+                              </td>
+                              <td class="text-orange font-bold text-lg">{{ item.price | number:'1.2-2' }}</td>
+                              <td class="action-cell" style="width: 150px; text-align: right;">
+                                <button *ngIf="!viewOnly()" type="button" class="btn-action blue" [title]="viewOnly() ? 'View' : 'Edit'" (click)="editPrice(item)">
+                                  <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button *ngIf="!viewOnly()" type="button" class="btn-action orange" title="Duplicate" (click)="duplicatePrice(item)">
+                                  <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button *ngIf="!viewOnly()" type="button" class="btn-action red" title="Delete" (click)="removePrice(item.id)">
+                                  <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-spacer"></div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-cancel" (click)="goBack()">
+          <i class="fa-solid fa-xmark"></i> {{ viewOnly() ? (t()['form.close'] || 'Close') : (t()['form.cancel'] || 'Cancel') }}
+        </button>
+        @if (viewOnly()) {
+          <button type="button" class="btn-save" (click)="printPage()" style="background-color: #17a2b8; border-color: #17a2b8;"><i class="fa-solid fa-print"></i> Print</button>
+        }
+        <button *ngIf="!viewOnly()" type="submit" class="btn-save">
+          <i class="fa-solid fa-floppy-disk"></i>
+          {{ isEditMode() ? 'Update Transfer' : (t()['user.btnSave'] || 'Save Transfer') }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Custom Pricing Modal -->
+    <app-add-transfer-price-modal 
+      [isOpen]="isPriceModalOpen()" 
+      [priceData]="selectedPrice()"
+      (close)="isPriceModalOpen.set(false)" 
+      (save)="handlePriceSave($event)">
+    </app-add-transfer-price-modal>
+  </main>
+</div>
+
+<!-- Duplicate Date Modal -->
+@if (isDuplicateModalOpen()) {
+  <div class="modal-backdrop" (click)="cancelDuplicate()">
+    <div class="duplicate-modal" (click)="$event.stopPropagation()">
+      <div class="duplicate-modal__header">
+        <i class="fa-solid fa-copy"></i> Duplicate Price Row
+      </div>
+      <div class="duplicate-modal__body">
+        <p class="duplicate-modal__hint">Adjust the date range and price for the duplicated row, then click Confirm.</p>
+        <div class="duplicate-modal__row">
+          <div class="duplicate-modal__field">
+            <label>Date From</label>
+            <input type="date" [value]="duplicateDateFrom()" (input)="duplicateDateFrom.set($any($event.target).value)">
+          </div>
+          <div class="duplicate-modal__field">
+            <label>Date To</label>
+            <input type="date" [value]="duplicateDateTo()" (input)="duplicateDateTo.set($any($event.target).value)">
+          </div>
+          <div class="duplicate-modal__field" style="grid-column: 1 / -1;">
+            <label>Price</label>
+            <input type="number" [value]="duplicatePriceValue()" (input)="duplicatePriceValue.set($any($event.target).value)">
+          </div>
+        </div>
+      </div>
+      <div class="duplicate-modal__footer">
+        <button type="button" class="btn-dup-cancel" (click)="cancelDuplicate()">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </button>
+        <button type="button" class="btn-dup-confirm" (click)="confirmDuplicate()">
+          <i class="fa-solid fa-check"></i> Confirm Duplicate
+        </button>
+      </div>
+    </div>
+  </div>
+}

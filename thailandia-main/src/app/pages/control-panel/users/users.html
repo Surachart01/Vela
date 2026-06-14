@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">{{ t()['user.pageTitle'] || 'Users' }}</h1>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="search-box">
+        <input type="text" [placeholder]="t()['user.searchPlaceholder'] || 'Search for users...'" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+      </div>
+      <div class="show-entries">
+        <label>{{ t()['user.show'] || 'Show:' }}</label>
+        <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event)">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ t()['user.listTitle'] || 'List of Users' }}</h2>
+      <div class="header-actions">
+        <div class="total-badge"><i class="fa-solid fa-users"></i> {{ t()['user.total'] || 'Total:' }} <strong>{{ totalItems() }}</strong></div>
+        <button *ngIf="authService.canAdd('cp_users')" class="btn btn-add" routerLink="/control-panel/add-user">
+          <i class="fa-solid fa-plus"></i> {{ t()['user.btnAdd'] || 'Add User' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ t()['user.colName'] || 'User Name' }}</th>
+            <th>{{ t()['user.colRole'] || 'Role' }}</th>
+            <th>{{ t()['user.colAgent'] || 'Agent' }}</th>
+            <th>{{ t()['user.colEmail'] || 'Email' }}</th>
+            <th class="text-center">{{ t()['user.btnEdit'] || 'Edit' }}</th>
+            <th class="text-center">{{ t()['user.btnDelete'] || 'Delete' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers(); track user.id) {
+            <tr>
+              <td class="font-bold">{{ user.name }}</td>
+              <td><span class="role-badge" [class.admin]="user.role === 'admin'">{{ user.role }}</span></td>
+              <td>{{ user.agent }}</td>
+              <td>{{ user.email }}</td>
+              <td class="text-center">
+                <button class="btn-action btn-edit" [routerLink]="['/control-panel/add-user', user.id]" [queryParams]="!authService.canEdit('cp_users') ? { mode: 'view' } : {}">
+                  <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_users')" [class.fa-eye]="!authService.canEdit('cp_users')"></i> 
+                  {{ authService.canEdit('cp_users') ? (t()['user.btnEdit'] || 'Edit') : (t()['form.view'] || 'View') }}
+                </button>
+              </td>
+              <td class="text-center">
+                <button *ngIf="authService.canDelete('cp_users')" class="btn-action btn-delete" (click)="deleteUser(user.id)">
+                  <i class="fa-solid fa-trash-can"></i> {{ t()['user.btnDelete'] || 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">{{ t()['user.noData'] || 'No users found.' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

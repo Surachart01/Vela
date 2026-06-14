@@ -1,0 +1,136 @@
+<div class="excursions-container">
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">{{ t()['excursions.title'] || 'Excursions' }}</h1>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <label>{{ t()['home.country'] || 'Country' }}</label>
+        <select [ngModel]="filterCountry()" (ngModelChange)="filterCountry.set($event); onSearch()">
+          <option value="">All Countries</option>
+          @for (c of masterData.countries(); track c.id) {
+            <option [value]="c.name">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>{{ t()['home.city'] || 'City' }}</label>
+        <select [ngModel]="filterCity()" (ngModelChange)="filterCity.set($event); onSearch()">
+          <option value="">All Cities</option>
+          @for (city of masterData.cities(); track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>{{ t()['home.keyword'] || 'Keyword' }}</label>
+        <div class="search-box-wrapper">
+          <input type="text" 
+                 [placeholder]="t()['excursions.search'] || 'Search for excursions...'" 
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 (keyup.enter)="onSearch()">
+          <i class="fa-solid fa-magnifying-glass search-icon" (click)="onSearch()"></i>
+        </div>
+      </div>
+
+      <div class="filter-group show-group">
+        <label class="show-label">Show</label>
+        <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event); currentPage.set(1)">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="section-head">
+        <div class="section-head-title">{{ t()['excursions.listTitle'] || 'List of Excursions' }}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button *ngIf="authService.canAdd('cp_excursions')" class="add-btn" routerLink="/control-panel/add-excursion">
+            <i class="fa-solid fa-plus"></i> {{ t()['excursions.addExcursion'] || 'Add Excursion' }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ t()['excursions.col.city'] || 'City' }}</th>
+              <th>{{ t()['excursions.col.name'] || 'Name' }}</th>
+              <th>{{ t()['excursions.col.validDays'] || 'Valid Days' }}</th>
+              <th *ngIf="!authService.isAgent()">{{ t()['excursions.col.supplierName'] || 'Supplier Name' }}</th>
+              <th>{{ t()['excursions.col.description'] || 'Description' }}</th>
+              <th class="text-center">{{ t()['excursions.col.edit'] || 'Edit' }}</th>
+              <th class="text-center">{{ t()['excursions.col.delete'] || 'Delete' }}</th>
+            </tr>
+          </thead>
+          <tbody [class.loading]="isLoading()">
+            @for (item of excursionsList(); track item.id) {
+              <tr>
+                <td>{{ item.city }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.valid_days }}</td>
+                <td *ngIf="!authService.isAgent()">{{ item.supplier_name }}</td>
+                <td class="td-desc">
+                  <div class="desc-container">{{ item.description }}</div>
+                </td>
+                <td class="text-center" style="width: 80px;">
+                  <button class="btn-action blue" [routerLink]="['/control-panel/add-excursion', item.id]" [queryParams]="authService.canEdit('cp_excursions') ? {} : { mode: 'view' }" [title]="authService.canEdit('cp_excursions') ? 'Edit' : 'View'">
+                    <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_excursions')" [class.fa-eye]="!authService.canEdit('cp_excursions')"></i>
+                  </button>
+                </td>
+                <td class="text-center" style="width: 80px;">
+                  <button *ngIf="authService.canDelete('cp_excursions')" class="btn-action red" (click)="deleteExcursion(item.id)" title="Delete">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td [attr.colspan]="authService.isAgent() ? 6 : 7" class="empty-state">
+                  <ng-container *ngIf="!isLoading()">{{ t()['hotel.noData'] || 'No excursions found.' }}</ng-container>
+                  <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination-container" *ngIf="totalPages() > 0">
+        <div class="pagination-info">
+          {{ t()['common.showing'] || 'Showing' }} {{ startIndex() }} {{ t()['common.to'] || 'to' }} {{ endIndex() }} {{ t()['common.of'] || 'of' }} {{ totalItems() }} {{ t()['common.entries'] || 'entries' }}
+        </div>
+        <div class="pagination-buttons">
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+            &larr; Prev
+          </button>
+          
+          <ng-container *ngFor="let page of getPageNumbers()">
+            <button class="pagination-btn" 
+                    *ngIf="page !== -1"
+                    [class.active]="page === currentPage()"
+                    (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <span class="pagination-ellipsis" *ngIf="page === -1">...</span>
+          </ng-container>
+
+          <button class="pagination-btn nav-btn" [disabled]="currentPage() === totalPages() || totalPages() === 0" (click)="nextPage()">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

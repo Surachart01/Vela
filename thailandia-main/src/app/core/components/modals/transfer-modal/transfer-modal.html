@@ -1,0 +1,129 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ initialData() ? 'Edit Transfer' : t()['form.addTransfer'] }}</h2>
+      <button class="btn-close" (click)="close.emit()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="transferForm" class="transfer-form">
+        <div class="form-grid">
+          <!-- Row 1 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-globe text-teal"></i> {{ t()['form.country'] }} *</label>
+            <select formControlName="country">
+              <option value="">Select Country</option>
+              @for (country of masterData.countries(); track country.id) {
+                <option [value]="country.name">{{ country.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-city text-teal"></i> {{ t()['form.city'] }} *</label>
+            <select formControlName="city">
+              <option value="">Select city</option>
+              @for (city of masterData.cities(); track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-calendar text-teal"></i> {{ t()['form.date'] }} *</label>
+            <app-date-input formControlName="date" [min]="minDate()" />
+          </div>
+
+          <!-- Row 2 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-arrows-turn-right text-teal"></i> Type of Transfer *</label>
+            <select formControlName="typeOfTransfer">
+              <option value="">Select Type</option>
+              <option value="TRF IN">TRF IN</option>
+              <option value="TRF OUT">TRF OUT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-bus text-teal"></i> {{ t()['form.transfer'] }} *</label>
+            <select formControlName="transfer">
+              <option value="">Select Transfer</option>
+              @for (t of filteredTransfers(); track t.id) {
+                <option [value]="t.description">{{ t.description }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-users text-teal"></i> {{ t()['form.tot'] }} *</label>
+            <select formControlName="tot">
+              <option value="">Select ToT</option>
+              <option value="PVT">PVT</option>
+              <option value="SIC">SIC</option>
+            </select>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-location-dot text-teal"></i> {{ t()['form.from'] }}</label>
+            <input type="text" formControlName="from" placeholder="Enter origin">
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-location-dot text-teal"></i> {{ t()['form.to'] }}</label>
+            <input type="text" formControlName="to" placeholder="Enter destination">
+          </div>
+          <div class="form-group price-group">
+            <label>{{ t()['form.updatedTransferPrice'] }} *</label>
+            <div class="price-input-action">
+              <input type="number" min="0" formControlName="price" placeholder="0">
+              <button type="button" class="btn-get-price bg-teal" (click)="getPrice()">
+                <i class="fa-solid fa-money-bill"></i> {{ t()['form.getPrice'] }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-plane text-teal"></i> {{ t()['form.flight'] }}</label>
+            @if (flights().length > 0) {
+              <select formControlName="selectedFlightIndex" class="mb-1">
+                <option value="">-- Select from added flights --</option>
+                @for (flight of flights(); track $index) {
+                  <option [value]="$index">{{ flight.flight }} {{ flight.number }} - {{ flight.date | date:'dd-MM-yyyy' }}</option>
+                }
+              </select>
+            }
+            <input type="text" formControlName="flight" placeholder="Flight details (e.g. TG123)">
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-clock text-teal"></i> {{ t()['form.flightTime'] }}</label>
+            <input type="time" formControlName="flightTime">
+          </div>
+          <div class="form-group">
+            <label><i class="fa-regular fa-clock text-teal"></i> {{ t()['form.pickupTime'] }}</label>
+            <input type="time" formControlName="pickupTime">
+          </div>
+
+          <!-- Row 5 -->
+          @if (!authService.isAgent()) {
+            <div class="form-group">
+              <label><i class="fa-solid fa-list-ol text-teal"></i> Display Order</label>
+              <input type="number" min="0" formControlName="display_order" placeholder="e.g. 1, 2, 3...">
+            </div>
+            <div></div>
+            <div></div>
+          }
+
+          <div class="form-group full-width">
+            <label><i class="fa-solid fa-comment text-teal"></i> {{ t()['form.remarks'] }}</label>
+            <textarea formControlName="remarks" rows="3" placeholder="Additional remarks"></textarea>
+          </div>
+        </div>
+      </form>
+      @if (errorMessage()) {
+        <div style="color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 16px; border: 1px solid #fed7d7; text-align: center;">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}
+        </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="close.emit()">{{ t()['form.cancel'] }}</button>
+      <button class="btn-save bg-teal" (click)="onSave()">{{ initialData() ? 'Update Transfer' : t()['form.save'] }}</button>
+    </div>
+  </div>
+</div>

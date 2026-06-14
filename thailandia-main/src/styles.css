@@ -1,0 +1,82 @@
+:root {
+  --primary-orange: #F26419;
+  --primary-orange-hover: #e04f00;
+  --text-dark: #111111;
+  --text-gray: #777777;
+  --text-light-gray: #aaaaaa;
+  --bg-light: #f5f2ef;
+  --border-color: #e2e2e2;
+  --white: #ffffff;
+  --font-family: 'Inter', sans-serif;
+  
+  /* Additional Home page colors */
+  --hero-brown: #68482A;
+  --tab-blue-bg: #006EB5;
+  --tab-green-bg: #E0FFEC;
+  --tab-green-text: #006946;
+  --tab-yellow-bg: #FFFFF0;
+  --tab-yellow-text: #C27500;
+  --tab-red-bg: #FFF6F5;
+  --tab-red-text: #D81226;
+}
+
+/* Global Form Utilities Helper */
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flex-1 { flex: 1; }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* Form Validation Error Styles */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border-color: #e53e3e !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.2) !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
