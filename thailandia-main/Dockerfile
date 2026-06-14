@@ -14,8 +14,8 @@ RUN npm install
 # Copy source files
 COPY . .
 
-# Build Angular app in development mode so it connects to local backend URL (localhost:4300)
-RUN npx ng build --configuration development
+# Build Angular app in production mode so it connects to the production backend URL
+RUN npx ng build --configuration production
 
 # Prune devDependencies to keep only production dependencies in node_modules
 RUN npm prune --omit=dev
