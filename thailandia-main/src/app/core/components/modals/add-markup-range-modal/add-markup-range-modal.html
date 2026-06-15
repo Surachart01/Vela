@@ -24,12 +24,23 @@
           <input type="number" formControlName="priceTo" class="form-control" [placeholder]="t()['markup.range.placeholder.max'] || 'Enter maximum price'">
         </div>
 
-        <!-- Markup % -->
-        <div class="form-group full-width">
+        <!-- Markup Value -->
+        <div class="form-group">
           <label class="form-label">
-            <i class="fa-solid fa-percent"></i> {{ t()['markup.range.markup'] || 'Markup (%)' }} *
+            <i class="fa-solid fa-calculator"></i> {{ t()['markup.range.markup'] || 'Markup Value' }} *
           </label>
-          <input type="number" formControlName="markupValue" class="form-control" [placeholder]="t()['markup.range.placeholder.markup'] || 'Enter markup percentage'">
+          <input type="number" formControlName="markupValue" class="form-control" [placeholder]="t()['markup.range.placeholder.markup'] || 'Enter markup value'">
+        </div>
+
+        <!-- Markup Unit -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-solid fa-coins"></i> Unit *
+          </label>
+          <select formControlName="markupUnit" class="form-control">
+            <option value="%">%</option>
+            <option value="THB">THB</option>
+          </select>
         </div>
       </div>
     </div>

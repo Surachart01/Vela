@@ -52,7 +52,7 @@
                 <tr>
                   <td>{{ range.priceFrom | number }}</td>
                   <td>{{ range.priceTo | number }}</td>
-                  <td>{{ range.markupValue }}{{ markupForm.get('hotelMarkupUnit')?.value === '%' ? '%' : ' THB' }}</td>
+                  <td>{{ range.markupValue }}{{ (range.markupUnit || markupForm.get('hotelMarkupUnit')?.value) === '%' ? '%' : ' THB' }}</td>
                   <td class="text-center" style="width: 100px;">
                     <div class="action-cell justify-center">
                       <button type="button" class="btn-action blue" (click)="openRangeModal(range, $index)" title="Edit">

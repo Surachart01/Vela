@@ -47,8 +47,10 @@ export class MarkupCalculatorService {
 
     if (range) {
       // พบ range → ใช้ markup_percentage ของ range นั้น
-      const v = Number(range.markup_percentage) || 0;
-      return isFlat ? b + v : b * (1 + v / 100);
+      const v = Number(range.markup_percentage ?? range.markupValue) || 0;
+      const rangeUnit = range.markup_unit ?? range.markupUnit ?? range.unit ?? unit;
+      const rangeIsFlat = rangeUnit === 'flat rate' || rangeUnit === 'THB';
+      return rangeIsFlat ? b + v : b * (1 + v / 100);
     }
 
     // ไม่พบ range ที่ match → ใช้ fallbackValue (Default Hotel Markup)

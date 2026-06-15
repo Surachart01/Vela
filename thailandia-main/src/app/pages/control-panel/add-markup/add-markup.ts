@@ -86,7 +86,8 @@ export class AddMarkupComponent implements OnInit {
           this.hotelRanges.set(markup.hotel_markup_percentages.map((r: any) => ({
             priceFrom: r.price_from,
             priceTo: r.price_to,
-            markupValue: r.markup_percentage
+            markupValue: r.markup_percentage,
+            markupUnit: unMapUnit(r.markup_unit)
           })));
         }
         
@@ -135,7 +136,8 @@ export class AddMarkupComponent implements OnInit {
       hotel_markup_percentages: this.hotelRanges().map(r => ({
         price_from: r.priceFrom,
         price_to: r.priceTo,
-        markup_percentage: r.markupValue
+        markup_percentage: r.markupValue,
+        markup_unit: mapUnit(r.markupUnit)
       })),
       currency_id: 4 // Default to THB
     };

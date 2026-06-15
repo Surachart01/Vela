@@ -25,7 +25,8 @@ export class AddMarkupRangeModalComponent {
   form = this.fb.group({
     priceFrom: [null as number | null, [Validators.required, Validators.min(0)]],
     priceTo: [null as number | null, [Validators.required, Validators.min(0)]],
-    markupValue: [null as number | null, [Validators.required, Validators.min(0)]]
+    markupValue: [null as number | null, [Validators.required, Validators.min(0)]],
+    markupUnit: ['%', Validators.required]
   });
 
   constructor() {

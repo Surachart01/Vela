@@ -28,7 +28,7 @@ exports.getMarkup = async (req, res) => {
     
     // Fetch hotel ranges
     const ranges = await db.query(
-      'SELECT price_from, price_to, markup_percentage FROM hotel_markup_percentages WHERE markup_id = $1 ORDER BY price_from ASC', 
+      'SELECT price_from, price_to, markup_percentage, markup_unit FROM hotel_markup_percentages WHERE markup_id = $1 ORDER BY price_from ASC', 
       [id]
     );
     const markup = result.rows[0];
@@ -72,8 +72,8 @@ exports.createMarkup = async (req, res) => {
     if (hotel_markup_percentages && Array.isArray(hotel_markup_percentages)) {
       for (const range of hotel_markup_percentages) {
         await client.query(
-          'INSERT INTO hotel_markup_percentages (markup_id, price_from, price_to, markup_percentage) VALUES ($1, $2, $3, $4)',
-          [markupId, range.price_from, range.price_to, range.markup_percentage]
+          'INSERT INTO hotel_markup_percentages (markup_id, price_from, price_to, markup_percentage, markup_unit) VALUES ($1, $2, $3, $4, $5)',
+          [markupId, range.price_from, range.price_to, range.markup_percentage, range.markup_unit || '%']
         );
       }
     }
@@ -127,8 +127,8 @@ exports.updateMarkup = async (req, res) => {
     if (hotel_markup_percentages && Array.isArray(hotel_markup_percentages)) {
       for (const range of hotel_markup_percentages) {
         await client.query(
-          'INSERT INTO hotel_markup_percentages (markup_id, price_from, price_to, markup_percentage) VALUES ($1, $2, $3, $4)',
-          [id, range.price_from, range.price_to, range.markup_percentage]
+          'INSERT INTO hotel_markup_percentages (markup_id, price_from, price_to, markup_percentage, markup_unit) VALUES ($1, $2, $3, $4, $5)',
+          [id, range.price_from, range.price_to, range.markup_percentage, range.markup_unit || '%']
         );
       }
     }
