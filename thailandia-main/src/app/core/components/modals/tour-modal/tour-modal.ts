@@ -33,8 +33,13 @@ export class TourModalComponent implements OnInit {
 
   filteredTours = computed(() => {
     const city = this.selectedCity();
-    if (!city || city === 'Select city') return this.masterData.tours();
-    return this.masterData.tours().filter((t: any) => t.city === city);
+    let list = this.masterData.tours();
+    if (city && city !== 'Select city') {
+      list = list.filter((t: any) => t.city === city);
+    }
+    return [...list].sort((a: any, b: any) => 
+      (Number(a.display_order) || 0) - (Number(b.display_order) || 0)
+    );
   });
   
   close = output<void>();

@@ -33,8 +33,13 @@ export class ExcursionModalComponent implements OnInit {
 
   filteredExcursions = computed(() => {
     const city = this.selectedCity();
-    if (!city || city === 'Select city') return this.masterData.excursions();
-    return this.masterData.excursions().filter((e: any) => e.city === city);
+    let list = this.masterData.excursions();
+    if (city && city !== 'Select city') {
+      list = list.filter((e: any) => e.city === city);
+    }
+    return [...list].sort((a: any, b: any) => 
+      (Number(a.display_order) || 0) - (Number(b.display_order) || 0)
+    );
   });
   
   close = output<void>();

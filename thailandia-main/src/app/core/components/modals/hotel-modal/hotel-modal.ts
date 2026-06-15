@@ -90,8 +90,12 @@ export class HotelModalComponent implements OnInit {
     const query = this.hotelSearchQuery().toLowerCase().trim();
     
     // Filter by city first
-    const hotelsInCity = this.masterData.hotels().filter((h: any) => 
+    let hotelsInCity = this.masterData.hotels().filter((h: any) => 
       !city || city === 'Select city' || city === '' || String(h.city).toLowerCase() === String(city).toLowerCase()
+    );
+
+    hotelsInCity = [...hotelsInCity].sort((a: any, b: any) => 
+      (Number(a.display_order) || 0) - (Number(b.display_order) || 0)
     );
 
     if (!query) return hotelsInCity.slice(0, 10); // Show top 10 if no query
