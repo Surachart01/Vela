@@ -9,8 +9,8 @@ exports.listNotifications = async (req, res) => {
     let params = [];
     let whereClause = [];
 
-    // Filter by agent_id for agent users (disabled for agents to align with superadmin)
-    if (user && user.role === 'agent' && user.agent_id && false) {
+    // Filter by agent_id for agent users
+    if (user && user.role === 'agent' && user.agent_id) {
       whereClause.push(`agent_id = $${whereClause.length + 1}`);
       params.push(user.agent_id);
     }
@@ -51,7 +51,7 @@ exports.getUnreadCount = async (req, res) => {
     let query = 'SELECT COUNT(*) FROM notifications WHERE is_read = FALSE';
     let params = [];
 
-    if (user && user.role === 'agent' && user.agent_id && false) {
+    if (user && user.role === 'agent' && user.agent_id) {
       query += ' AND agent_id = $1';
       params.push(user.agent_id);
     }
@@ -85,7 +85,7 @@ exports.markAllAsRead = async (req, res) => {
     let query = 'UPDATE notifications SET is_read = TRUE';
     let params = [];
 
-    if (user && user.role === 'agent' && user.agent_id && false) {
+    if (user && user.role === 'agent' && user.agent_id) {
       query += ' WHERE agent_id = $1';
       params.push(user.agent_id);
     }

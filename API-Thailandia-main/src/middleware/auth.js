@@ -22,8 +22,8 @@ const authorize = (roles = [], pageId = null) => {
     const user = req.user;
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-    // 1. SuperAdmin / Agent bypass
-    if (user.role === 'superadmin' || user.role === 'agent') return next();
+    // 1. SuperAdmin bypass
+    if (user.role === 'superadmin') return next();
 
     // 2. Role check
     const hasRole = roles.length === 0 || roles.includes(user.role);

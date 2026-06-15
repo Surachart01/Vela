@@ -25,7 +25,7 @@ export class QuotationComponent implements OnInit {
   private router = inject(Router);
   protected readonly Math = Math;
 
-  isAdmin = computed(() => ['admin', 'superadmin'].includes(this.authService.currentUser()?.role || ''));
+  isAdmin = computed(() => ['admin', 'superadmin', 'agent'].includes(this.authService.currentUser()?.role || ''));
 
   quotations = signal<any[]>([]);
 

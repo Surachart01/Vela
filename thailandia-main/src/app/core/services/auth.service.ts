@@ -29,15 +29,15 @@ export class AuthService {
 
   readonly currentUser = this._currentUser.asReadonly();
   readonly isLoggedIn = computed(() => this._currentUser() !== null);
-  readonly isSuperAdmin = computed(() => ['superadmin', 'agent'].includes(this._currentUser()?.role || ''));
-  readonly isAdmin = computed(() => ['admin', 'superadmin', 'agent'].includes(this._currentUser()?.role || ''));
+  readonly isSuperAdmin = computed(() => this._currentUser()?.role === 'superadmin');
+  readonly isAdmin = computed(() => ['admin', 'superadmin'].includes(this._currentUser()?.role || ''));
   readonly role = computed(() => this._currentUser()?.role || 'guest');
-  readonly isAgent = computed(() => this._currentUser()?.role === 'agent' && false);
+  readonly isAgent = computed(() => this._currentUser()?.role === 'agent');
   
   hasPageAccess(pageId: string): boolean {
     const user = this._currentUser();
     if (!user) return false;
-    if (user.role === 'superadmin' || user.role === 'agent') return true;
+    if (user.role === 'superadmin') return true;
     
     const perms = user.permissions;
     if (!perms || !perms.pages) return false;
@@ -48,20 +48,24 @@ export class AuthService {
   hasControlPanelAccess(): boolean {
     const user = this._currentUser();
     if (!user) return false;
-    if (user.role === 'superadmin' || user.role === 'agent') return true;
+    if (user.role === 'superadmin') return true;
     
-    // Default to true if the property is missing to maintain legacy behavior
-    // but check explicitly for the new flag if it exists.
     const perms = user.permissions;
     if (!perms) return false;
     
-    return perms.control_panel_enabled !== false;
+    if (perms.control_panel_enabled === false) return false;
+    
+    // Ensure the user has access to at least one cp_* page
+    if (perms.pages && Array.isArray(perms.pages)) {
+      return perms.pages.some((page: string) => page.startsWith('cp_'));
+    }
+    return false;
   }
   
   hasModulePermission(moduleId: string, action: 'view' | 'add' | 'edit' | 'delete'): boolean {
     const user = this._currentUser();
     if (!user) return false;
-    if (user.role === 'superadmin' || user.role === 'agent') return true;
+    if (user.role === 'superadmin') return true;
     
     const perms = user.permissions;
     if (!perms) return false;

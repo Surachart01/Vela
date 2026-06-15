@@ -13,7 +13,7 @@ exports.listPayments = async (req, res) => {
     let params = [];
     
     // Ownership filtering
-    if (user.role !== 'admin' && user.role !== 'superadmin' && user.role !== 'agent') {
+    if (user.role !== 'admin' && user.role !== 'superadmin') {
       query += ` AND t.user_id = $${params.length + 1}`;
       params.push(user.id);
     }
