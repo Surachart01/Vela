@@ -68,7 +68,7 @@
               <th>{{ t()['excursions.col.validDays'] || 'Valid Days' }}</th>
               <th *ngIf="!authService.isAgent()">{{ t()['excursions.col.supplierName'] || 'Supplier Name' }}</th>
               <th>{{ t()['excursions.col.description'] || 'Description' }}</th>
-              @if (authService.canAdd('cp_excursions') || authService.canEdit('cp_excursions') || authService.canDelete('cp_excursions')) {
+              @if (authService.canAdd('cp_excursions') || authService.canEdit('cp_excursions') || authService.canDelete('cp_excursions') || authService.canView('cp_excursions')) {
                 <th class="text-center">MANAGE</th>
               }
             </tr>
@@ -83,7 +83,7 @@
                 <td class="td-desc">
                   <div class="desc-container">{{ item.description }}</div>
                 </td>
-                @if (authService.canAdd('cp_excursions') || authService.canEdit('cp_excursions') || authService.canDelete('cp_excursions')) {
+                @if (authService.canAdd('cp_excursions') || authService.canEdit('cp_excursions') || authService.canDelete('cp_excursions') || authService.canView('cp_excursions')) {
                   <td class="text-center" style="width: 150px;">
                     <div class="action-btns">
                       <button *ngIf="authService.canAdd('cp_excursions')" class="btn-action green" [routerLink]="['/control-panel/add-excursion']" [queryParams]="{ copyFrom: item.id }" title="Copy">
