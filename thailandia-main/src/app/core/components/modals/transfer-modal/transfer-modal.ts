@@ -38,9 +38,12 @@ export class TransferModalComponent implements OnInit {
     if (city && city !== 'Select city') {
       list = list.filter((t: any) => t.city === city);
     }
-    return [...list].sort((a: any, b: any) => 
-      (Number(a.display_order) || 0) - (Number(b.display_order) || 0)
-    );
+    return [...list].sort((a: any, b: any) => {
+      const orderA = a.display_order !== null && a.display_order !== undefined ? Number(a.display_order) : 999999;
+      const orderB = b.display_order !== null && b.display_order !== undefined ? Number(b.display_order) : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+      return (a.description || '').localeCompare(b.description || '');
+    });
   });
   
   close = output<void>();

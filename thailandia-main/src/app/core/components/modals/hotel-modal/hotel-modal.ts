@@ -94,9 +94,12 @@ export class HotelModalComponent implements OnInit {
       !city || city === 'Select city' || city === '' || String(h.city).toLowerCase() === String(city).toLowerCase()
     );
 
-    hotelsInCity = [...hotelsInCity].sort((a: any, b: any) => 
-      (Number(a.display_order) || 0) - (Number(b.display_order) || 0)
-    );
+    hotelsInCity = [...hotelsInCity].sort((a: any, b: any) => {
+      const orderA = a.display_order !== null && a.display_order !== undefined ? Number(a.display_order) : 999999;
+      const orderB = b.display_order !== null && b.display_order !== undefined ? Number(b.display_order) : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+      return (a.name || '').localeCompare(b.name || '');
+    });
 
     if (!query) return hotelsInCity.slice(0, 10); // Show top 10 if no query
     
