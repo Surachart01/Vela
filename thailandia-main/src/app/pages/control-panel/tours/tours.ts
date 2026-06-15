@@ -21,14 +21,25 @@ export class ToursComponent implements OnInit {
   public authService = inject(AuthService);
   public t = this.translationService.translations;
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`cp_tours_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`cp_tours_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   // State
   public toursList = signal<any[]>([]);
   public isLoading = signal<boolean>(false);
   
   // Search & Pagination State
-  public searchQuery = signal<string>('');
-  public currentPage = signal<number>(1);
-  public itemsPerPage = signal<number>(25);
+  public searchQuery = signal<string>(this.getSavedFilter('search', ''));
+  public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
+  public itemsPerPage = signal<number>(this.getSavedFilterNum('limit', 25));
   public totalItems = signal<number>(0);
 
   // Computed
@@ -56,10 +67,19 @@ export class ToursComponent implements OnInit {
 
   loadTours() {
     this.isLoading.set(true);
+    const search = this.searchQuery();
+    const limit = this.itemsPerPage();
+    const page = this.currentPage();
+
+    // Save filters to sessionStorage
+    sessionStorage.setItem('cp_tours_search', search);
+    sessionStorage.setItem('cp_tours_limit', String(limit));
+    sessionStorage.setItem('cp_tours_page', String(page));
+
     const filters = {
-      search: this.searchQuery(),
-      limit: this.itemsPerPage(),
-      page: this.currentPage()
+      search,
+      limit,
+      page
     };
 
     this.tourApiService.listTours(filters).subscribe({

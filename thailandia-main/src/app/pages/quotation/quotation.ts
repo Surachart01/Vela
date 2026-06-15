@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -29,6 +29,17 @@ export class QuotationComponent implements OnInit {
 
   quotations = signal<any[]>([]);
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`quotation_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`quotation_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   filterForm = this.fb.nonNullable.group({
     search: [''],
     dateFrom: [''],
@@ -37,8 +48,17 @@ export class QuotationComponent implements OnInit {
   });
 
   // Pagination
-  currentPage = signal(1);
-  pageSize = signal(10);
+  currentPage = signal(this.getSavedFilterNum('page', 1));
+  pageSize = signal(this.getSavedFilterNum('pageSize', 10));
+
+  constructor() {
+    effect(() => {
+      sessionStorage.setItem('quotation_page', String(this.currentPage()));
+    });
+    effect(() => {
+      sessionStorage.setItem('quotation_pageSize', String(this.pageSize()));
+    });
+  }
 
   filteredQuotations = computed(() => {
     // Filter strictly for Quotations (is_booking === false)
@@ -121,6 +141,20 @@ export class QuotationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.filterForm.patchValue({
+      search: this.getSavedFilter('search', ''),
+      dateFrom: this.getSavedFilter('dateFrom', ''),
+      dateTo: this.getSavedFilter('dateTo', ''),
+      status: this.getSavedFilter('status', '')
+    }, { emitEvent: false });
+
+    this.filterForm.valueChanges.subscribe(val => {
+      sessionStorage.setItem('quotation_search', val.search || '');
+      sessionStorage.setItem('quotation_dateFrom', val.dateFrom || '');
+      sessionStorage.setItem('quotation_dateTo', val.dateTo || '');
+      sessionStorage.setItem('quotation_status', val.status || '');
+    });
+
     this.loadQuotations();
   }
 
@@ -136,6 +170,11 @@ export class QuotationComponent implements OnInit {
   }
 
   resetFilters() {
+    sessionStorage.removeItem('quotation_search');
+    sessionStorage.removeItem('quotation_dateFrom');
+    sessionStorage.removeItem('quotation_dateTo');
+    sessionStorage.removeItem('quotation_status');
+    sessionStorage.removeItem('quotation_page');
     this.filterForm.reset({ status: '' });
     this.currentPage.set(1);
   }

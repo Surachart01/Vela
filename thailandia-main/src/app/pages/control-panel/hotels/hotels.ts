@@ -21,18 +21,29 @@ export class HotelsComponent implements OnInit {
   public authService = inject(AuthService);
   public t = this.translationService.translations;
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`cp_hotels_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`cp_hotels_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   // State
   public hotelsList = signal<any[]>([]);
   public isLoading = signal<boolean>(false);
 
   // Filter State
-  public filterCity = signal<string>('');
-  public filterCountry = signal<string>('');
+  public filterCity = signal<string>(this.getSavedFilter('city', ''));
+  public filterCountry = signal<string>(this.getSavedFilter('country', ''));
 
   // Search & Pagination State
-  public searchQuery = signal<string>('');
-  public currentPage = signal<number>(1);
-  public itemsPerPage = signal<number>(25);
+  public searchQuery = signal<string>(this.getSavedFilter('search', ''));
+  public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
+  public itemsPerPage = signal<number>(this.getSavedFilterNum('limit', 25));
   public totalItems = signal<number>(0);
 
   // Computed
@@ -60,6 +71,10 @@ export class HotelsComponent implements OnInit {
   }
 
   clearFilters() {
+    sessionStorage.removeItem('cp_hotels_city');
+    sessionStorage.removeItem('cp_hotels_country');
+    sessionStorage.removeItem('cp_hotels_search');
+    sessionStorage.removeItem('cp_hotels_page');
     this.filterCity.set('');
     this.filterCountry.set('');
     this.searchQuery.set('');
@@ -69,12 +84,25 @@ export class HotelsComponent implements OnInit {
 
   loadHotels() {
     this.isLoading.set(true);
+    const search = this.searchQuery();
+    const city = this.filterCity();
+    const country = this.filterCountry();
+    const limit = this.itemsPerPage();
+    const page = this.currentPage();
+
+    // Save filters to sessionStorage
+    sessionStorage.setItem('cp_hotels_search', search);
+    sessionStorage.setItem('cp_hotels_city', city);
+    sessionStorage.setItem('cp_hotels_country', country);
+    sessionStorage.setItem('cp_hotels_limit', String(limit));
+    sessionStorage.setItem('cp_hotels_page', String(page));
+
     const filters: { city?: string; country?: string; search?: string; limit: number; page: number } = {
-      search: this.searchQuery() || undefined,
-      city: this.filterCity() || undefined,
-      country: this.filterCountry() || undefined,
-      limit: this.itemsPerPage(),
-      page: this.currentPage()
+      search: search || undefined,
+      city: city || undefined,
+      country: country || undefined,
+      limit,
+      page
     };
 
     this.hotelApiService.listHotels(filters).subscribe({

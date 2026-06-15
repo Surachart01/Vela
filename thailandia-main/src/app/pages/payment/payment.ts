@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -25,6 +25,12 @@ export class PaymentComponent implements OnInit {
   private route = inject(ActivatedRoute);
   public t = this.translationService.translations;
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`payment_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
   searchQuery = signal('');
   dateFrom = signal('');
   dateTo = signal('');
@@ -37,6 +43,18 @@ export class PaymentComponent implements OnInit {
   isModalOpen = signal(false);
   selectedPayment = signal<any>(null);
 
+  constructor() {
+    effect(() => {
+      sessionStorage.setItem('payment_search', this.searchQuery());
+    });
+    effect(() => {
+      sessionStorage.setItem('payment_dateFrom', this.dateFrom());
+    });
+    effect(() => {
+      sessionStorage.setItem('payment_dateTo', this.dateTo());
+    });
+  }
+
   ngOnInit() {
     // Read query params first, THEN load — so the search filter is ready before data arrives
     const params = this.route.snapshot.queryParams;
@@ -45,6 +63,11 @@ export class PaymentComponent implements OnInit {
       this.searchQuery.set(tripId);
       this.highlightTripId.set(tripId);
       this.hasActiveFilters.set(true);
+    } else {
+      this.searchQuery.set(this.getSavedFilter('search', ''));
+      this.dateFrom.set(this.getSavedFilter('dateFrom', ''));
+      this.dateTo.set(this.getSavedFilter('dateTo', ''));
+      this.checkFilters();
     }
     this.loadPayments();
   }
@@ -116,6 +139,9 @@ export class PaymentComponent implements OnInit {
     this.dateTo.set('');
     this.highlightTripId.set(null);
     this.hasActiveFilters.set(false);
+    sessionStorage.removeItem('payment_search');
+    sessionStorage.removeItem('payment_dateFrom');
+    sessionStorage.removeItem('payment_dateTo');
   }
 
   onSearch() {

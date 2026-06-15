@@ -137,15 +137,28 @@ export class HomeComponent {
     }
   }
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`home_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`home_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   // Search State
-  public activeCategory = signal<'hotels' | 'tours' | 'excursions' | 'transfers'>('hotels');
+  public activeCategory = signal<'hotels' | 'tours' | 'excursions' | 'transfers'>(
+    this.getSavedFilter('category', 'hotels') as any
+  );
   public isLoading = signal<boolean>(false);
   public results = signal<any[]>([]);
   
   // Pagination State
-  public currentPage = signal<number>(1);
+  public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
   public totalItems = signal<number>(0);
-  public limit = signal<number>(25);
+  public limit = signal<number>(this.getSavedFilterNum('limit', 25));
 
   public totalPages = computed(() => Math.ceil(this.totalItems() / this.limit()));
   
@@ -155,12 +168,12 @@ export class HomeComponent {
 
   // Filter State
   public filters = {
-    country: signal<string>(''),
-    city: signal<string>(''),
-    checkIn: signal<string>(''),
-    checkOut: signal<string>(''),
-    keyword: signal<string>(''),
-    transferType: signal<string>('')
+    country: signal<string>(this.getSavedFilter('country', '')),
+    city: signal<string>(this.getSavedFilter('city', '')),
+    checkIn: signal<string>(this.getSavedFilter('checkIn', '')),
+    checkOut: signal<string>(this.getSavedFilter('checkOut', '')),
+    keyword: signal<string>(this.getSavedFilter('keyword', '')),
+    transferType: signal<string>(this.getSavedFilter('transferType', ''))
   };
 
   // Dropdown Data
@@ -168,7 +181,7 @@ export class HomeComponent {
   public cities = signal<string[]>([]);
 
   // View Mode State
-  public viewMode = signal<'map' | 'search'>('map');
+  public viewMode = signal<'map' | 'search'>(this.getSavedFilter('viewMode', 'map') as any);
   public mapContainer = viewChild<ElementRef>('mapContainer');
   private mapInstance: echarts.ECharts | null = null;
   private geoJsonLoaded = false;
@@ -186,9 +199,14 @@ export class HomeComponent {
     });
 
     // Refresh cities and reset page when category changes
+    let isInitialLoad = true;
     effect(() => {
       this.activeCategory();
-      this.currentPage.set(1);
+      if (!isInitialLoad) {
+        this.currentPage.set(1);
+      } else {
+        isInitialLoad = false;
+      }
       this.refreshCities();
     });
 
@@ -204,6 +222,38 @@ export class HomeComponent {
           this.mapInstance = null;
         }
       }
+    });
+
+    // Save states to sessionStorage
+    effect(() => {
+      sessionStorage.setItem('home_category', this.activeCategory());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_page', String(this.currentPage()));
+    });
+    effect(() => {
+      sessionStorage.setItem('home_limit', String(this.limit()));
+    });
+    effect(() => {
+      sessionStorage.setItem('home_country', this.filters.country());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_city', this.filters.city());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_checkIn', this.filters.checkIn());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_checkOut', this.filters.checkOut());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_keyword', this.filters.keyword());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_transferType', this.filters.transferType());
+    });
+    effect(() => {
+      sessionStorage.setItem('home_viewMode', this.viewMode());
     });
   }
 

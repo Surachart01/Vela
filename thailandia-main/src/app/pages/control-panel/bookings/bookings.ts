@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -36,9 +36,20 @@ export class BookingsComponent implements OnInit {
 
   isAdmin = computed(() => ['admin', 'superadmin'].includes(this.authService.currentUser()?.role || ''));
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`bookings_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`bookings_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   bookings = signal<any[]>([]);
-  currentPage = signal<number>(1);
-  pageSize = signal<number>(25);
+  currentPage = signal<number>(this.getSavedFilterNum('page', 1));
+  pageSize = signal<number>(this.getSavedFilterNum('pageSize', 25));
 
   filterForm = this.fb.nonNullable.group({
     search: [''],
@@ -47,7 +58,30 @@ export class BookingsComponent implements OnInit {
     status: ['All Status']
   });
 
+  constructor() {
+    effect(() => {
+      sessionStorage.setItem('bookings_page', String(this.currentPage()));
+    });
+    effect(() => {
+      sessionStorage.setItem('bookings_pageSize', String(this.pageSize()));
+    });
+  }
+
   ngOnInit() {
+    this.filterForm.patchValue({
+      search: this.getSavedFilter('search', ''),
+      dateFrom: this.getSavedFilter('dateFrom', ''),
+      dateTo: this.getSavedFilter('dateTo', ''),
+      status: this.getSavedFilter('status', 'All Status')
+    }, { emitEvent: false });
+
+    this.filterForm.valueChanges.subscribe(val => {
+      sessionStorage.setItem('bookings_search', val.search || '');
+      sessionStorage.setItem('bookings_dateFrom', val.dateFrom || '');
+      sessionStorage.setItem('bookings_dateTo', val.dateTo || '');
+      sessionStorage.setItem('bookings_status', val.status || 'All Status');
+    });
+
     this.loadBookings();
   }
 
@@ -67,6 +101,11 @@ export class BookingsComponent implements OnInit {
   }
 
   resetFilters() {
+    sessionStorage.removeItem('bookings_search');
+    sessionStorage.removeItem('bookings_dateFrom');
+    sessionStorage.removeItem('bookings_dateTo');
+    sessionStorage.removeItem('bookings_status');
+    sessionStorage.removeItem('bookings_page');
     this.filterForm.reset({
       search: '',
       dateFrom: '',
