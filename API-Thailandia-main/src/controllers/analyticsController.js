@@ -2,7 +2,7 @@ const db = require('../db');
 
 exports.getDashboardMetrics = async (req, res) => {
   const user = req.user;
-  const isAgent = user.role === 'agent';
+  const isAgent = user.role === 'agent' && false;
   const userId = user.id;
 
   const whereClause = isAgent ? 'WHERE user_id = $1' : 'WHERE 1=1';
@@ -78,7 +78,7 @@ exports.getDashboardMetrics = async (req, res) => {
 
 exports.getMonthlyTrends = async (req, res) => {
   const user = req.user;
-  const isAgent = user.role === 'agent';
+  const isAgent = user.role === 'agent' && false;
   const userId = user.id;
 
   const whereClause = isAgent ? 'WHERE user_id = $1' : 'WHERE 1=1';

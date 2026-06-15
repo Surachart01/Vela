@@ -102,7 +102,7 @@
               <td class="text-center">{{ (quote.number_of_adults || 0) + (quote.number_of_kids || 0) }}</td>
               <td>{{ quote.client_phone }}</td>
               <td><span class="ref-badge">{{ quote.booking_reference }}</span></td>
-              <td>
+              <td (click)="openStatusModal(quote)" style="cursor: pointer;">
                 <span class="status-badge" [class]="quote.declined ? 'declined' : (quote.is_booking ? 'converted' : 'inprogress')">
                   • {{ quote.declined ? 'Declined' : (quote.is_booking ? 'Converted' : 'InProgress') }}
                 </span>
