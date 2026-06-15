@@ -23,8 +23,8 @@ exports.listTrips = async (req, res) => {
   let whereClauses = [];
 
   // 1. Role-based filtering
-  if (user.role !== 'admin' && user.role !== 'superadmin' && user.role !== 'agent') {
-    // UPDATED: Anyone who is not an admin/superadmin/agent sees ONLY their own created trips (user-level ownership)
+  if (user.role !== 'admin' && user.role !== 'superadmin') {
+    // Anyone who is not an admin/superadmin sees ONLY their own created trips (user-level ownership)
     whereClauses.push(`t.user_id = $${params.length + 1}`);
     params.push(user.id);
   }
@@ -64,8 +64,8 @@ exports.getTrip = async (req, res) => {
     
     const trip = tripResult.rows[0];
 
-    // Ownership Enforcement: Non-admins/agents can only get their own trips
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && req.user.role !== 'agent' && trip.user_id !== req.user.id) {
+    // Ownership Enforcement: Non-admins can only get their own trips
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && trip.user_id !== req.user.id) {
       return res.status(403).json({ message: 'Access denied: You do not own this trip' });
     }
     const hotelItems = await db.query('SELECT * FROM hotel_trip_items WHERE trip_item_id = $1', [trip.id]);
@@ -290,8 +290,8 @@ exports.updateTrip = async (req, res) => {
     }
     const trip = result.rows[0];
 
-    // Ownership Enforcement: Non-admins/agents can only update their own trips
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && req.user.role !== 'agent' && trip.user_id !== req.user.id) {
+    // Ownership Enforcement: Non-admins can only update their own trips
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && trip.user_id !== req.user.id) {
       await db.query('ROLLBACK');
       return res.status(403).json({ message: 'Access denied: You do not own this trip' });
     }
@@ -464,7 +464,7 @@ exports.deleteTrip = async (req, res) => {
     }
     
     const trip = tripRes.rows[0];
-    if (user.role !== 'admin' && user.role !== 'superadmin' && user.role !== 'agent' && trip.user_id !== user.id) {
+    if (user.role !== 'admin' && user.role !== 'superadmin' && trip.user_id !== user.id) {
       await db.query('ROLLBACK');
       return res.status(403).json({ message: 'Access denied: You do not own this trip' });
     }
