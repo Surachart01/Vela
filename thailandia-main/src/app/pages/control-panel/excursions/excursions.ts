@@ -23,16 +23,27 @@ export class ExcursionsComponent implements OnInit {
   public masterData = inject(MasterDataService);
   public t = this.translationService.translations;
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`cp_excursions_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`cp_excursions_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   // State
   public excursionsList = signal<any[]>([]);
   public isLoading = signal<boolean>(false);
   
   // Search & Pagination State
-  public searchQuery = signal<string>('');
-  public filterCountry = signal<string>('');
-  public filterCity = signal<string>('');
-  public currentPage = signal<number>(1);
-  public itemsPerPage = signal<number>(25);
+  public searchQuery = signal<string>(this.getSavedFilter('search', ''));
+  public filterCountry = signal<string>(this.getSavedFilter('country', ''));
+  public filterCity = signal<string>(this.getSavedFilter('city', ''));
+  public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
+  public itemsPerPage = signal<number>(this.getSavedFilterNum('limit', 25));
   public totalItems = signal<number>(0);
 
   // Computed
@@ -61,12 +72,25 @@ export class ExcursionsComponent implements OnInit {
 
   loadExcursions() {
     this.isLoading.set(true);
+    const search = this.searchQuery();
+    const country = this.filterCountry();
+    const city = this.filterCity();
+    const limit = this.itemsPerPage();
+    const page = this.currentPage();
+
+    // Save filters to sessionStorage
+    sessionStorage.setItem('cp_excursions_search', search);
+    sessionStorage.setItem('cp_excursions_country', country);
+    sessionStorage.setItem('cp_excursions_city', city);
+    sessionStorage.setItem('cp_excursions_limit', String(limit));
+    sessionStorage.setItem('cp_excursions_page', String(page));
+
     const filters = {
-      search: this.searchQuery(),
-      country: this.filterCountry(),
-      city: this.filterCity(),
-      limit: this.itemsPerPage(),
-      page: this.currentPage()
+      search,
+      country,
+      city,
+      limit,
+      page
     };
 
     this.excursionApiService.listExcursions(filters).subscribe({

@@ -25,21 +25,32 @@ export class TransfersComponent implements OnInit {
   public masterData = inject(MasterDataService);
   public t = this.translationService.translations;
 
+  // Helpers for filter persistence
+  private getSavedFilter(key: string, defaultValue: string): string {
+    const saved = sessionStorage.getItem(`cp_transfers_${key}`);
+    return saved !== null ? saved : defaultValue;
+  }
+
+  private getSavedFilterNum(key: string, defaultValue: number): number {
+    const saved = sessionStorage.getItem(`cp_transfers_${key}`);
+    return saved !== null ? Number(saved) : defaultValue;
+  }
+
   // State
   public transfersList = signal<any[]>([]);
   public isLoading = signal<boolean>(false);
 
   // Filter State (matching home page pattern)
-  public countryFilter = signal<string>('');
-  public cityFilter = signal<string>('');
-  public searchQuery = signal<string>('');
-  public typeFilter = signal<string>('');
+  public countryFilter = signal<string>(this.getSavedFilter('country', ''));
+  public cityFilter = signal<string>(this.getSavedFilter('city', ''));
+  public searchQuery = signal<string>(this.getSavedFilter('search', ''));
+  public typeFilter = signal<string>(this.getSavedFilter('type', ''));
   // Use masterData.cities so newly added cities from Countries page appear here
   public cities = this.masterData.cities;
 
   // Pagination State
-  public currentPage = signal<number>(1);
-  public itemsPerPage = signal<number>(25);
+  public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
+  public itemsPerPage = signal<number>(this.getSavedFilterNum('limit', 25));
   public totalItems = signal<number>(0);
 
   // Computed
@@ -70,13 +81,28 @@ export class TransfersComponent implements OnInit {
 
   loadTransfers() {
     this.isLoading.set(true);
+    const country = this.countryFilter();
+    const city = this.cityFilter();
+    const search = this.searchQuery();
+    const type = this.typeFilter();
+    const limit = this.itemsPerPage();
+    const page = this.currentPage();
+
+    // Save filters to sessionStorage
+    sessionStorage.setItem('cp_transfers_country', country);
+    sessionStorage.setItem('cp_transfers_city', city);
+    sessionStorage.setItem('cp_transfers_search', search);
+    sessionStorage.setItem('cp_transfers_type', type);
+    sessionStorage.setItem('cp_transfers_limit', String(limit));
+    sessionStorage.setItem('cp_transfers_page', String(page));
+
     const filters = {
-      country: this.countryFilter(),
-      city: this.cityFilter(),
-      search: this.searchQuery(),
-      type: this.typeFilter(),
-      limit: this.itemsPerPage(),
-      page: this.currentPage()
+      country,
+      city,
+      search,
+      type,
+      limit,
+      page
     };
 
     this.transferApiService.listTransfers(filters).subscribe({
