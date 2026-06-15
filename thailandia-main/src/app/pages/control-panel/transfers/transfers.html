@@ -95,7 +95,7 @@
             <th>{{ t()['transfer.colArrival'] || 'ARRIVAL' }}</th>
             <th>{{ t()['transfer.colDescription'] || 'DESCRIPTION' }}</th>
             <th>VIEW</th>
-            @if (authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
+            @if (authService.canAdd('cp_transfers') || authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
               <th>MANAGE</th>
             }
           </tr>
@@ -121,9 +121,15 @@
                   </button>
                 </div>
               </td>
-              @if (authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
+              @if (authService.canAdd('cp_transfers') || authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) {
                 <td>
                   <div class="action-btns">
+                    <button *ngIf="authService.canAdd('cp_transfers')" class="btn-action btn-copy"
+                            [routerLink]="['/control-panel/add-transfer']"
+                            [queryParams]="{ copyFrom: tr.id }"
+                            title="Copy">
+                      <i class="fa-solid fa-copy"></i>
+                    </button>
                     <button *ngIf="authService.canEdit('cp_transfers')" class="btn-action btn-edit"
                             [routerLink]="['/control-panel/add-transfer', tr.id]"
                             title="Edit">
@@ -139,7 +145,7 @@
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="(authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) ? 8 : 7" class="empty-state">
+              <td [attr.colspan]="(authService.canAdd('cp_transfers') || authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) ? 8 : 7" class="empty-state">
                 <ng-container *ngIf="!isLoading()">{{ t()['transfer.noData'] || 'No transfers found.' }}</ng-container>
                 <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
               </td>

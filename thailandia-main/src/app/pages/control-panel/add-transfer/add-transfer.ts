@@ -129,6 +129,7 @@ export class AddTransferComponent implements OnInit {
     this.masterData.refresh().subscribe();
     this.loadSuppliers();
     const id = this.route.snapshot.paramMap.get('id');
+    const copyFrom = this.route.snapshot.queryParamMap.get('copyFrom');
     const mode = this.route.snapshot.queryParamMap.get('mode');
 
     const pageId = 'cp_transfers';
@@ -149,11 +150,35 @@ export class AddTransferComponent implements OnInit {
     if (id) {
       this.editTransferId.set(Number(id));
       this.loadTransferForEdit(Number(id));
+    } else if (copyFrom) {
+      this.loadTransferForCopy(Number(copyFrom));
     }
   }
 
   loadSuppliers() {
     this.supplierApiService.listSuppliers().subscribe(data => this.suppliersList.set(data));
+  }
+
+  loadTransferForCopy(id: number) {
+    this.transferApiService.getTransfer(id).subscribe((transfer: any) => {
+      console.log('[AddTransfer] Loaded Data for Copy:', transfer);
+
+      this.transferForm.patchValue({
+        transfer_type: transfer.transfer_type || '',
+        country: 'Thailand',
+        city: transfer.city || '',
+        supplier_id: transfer.supplier_id ? String(transfer.supplier_id) : '',
+        description: transfer.description || '',
+        departure: transfer.departure || '',
+        arrival: transfer.arrival || '',
+        display_order: transfer.display_order ?? 0,
+        sic_price_adult: null,
+        sic_price_child: null,
+      });
+
+      this.transferPrices.set([]);
+      this.cd.markForCheck();
+    });
   }
 
   loadTransferForEdit(id: number) {

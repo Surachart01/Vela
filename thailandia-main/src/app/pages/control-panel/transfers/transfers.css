@@ -321,6 +321,7 @@
   color: var(--text-muted);
 }
 
+.btn-copy:hover { background: var(--teal); color: white; }
 .btn-edit:hover { background: #3498db; color: white; }
 .btn-delete:hover { background: #e74c3c; color: white; }
 
