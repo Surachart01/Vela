@@ -264,11 +264,25 @@
   background: #0069d9;
 }
 
+.btn-action.green {
+  background: var(--green);
+}
+.btn-action.green:hover {
+  background: #318264;
+}
+
 .btn-action.red {
   background: var(--red);
 }
 .btn-action.red:hover {
   background: #c82333;
+}
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Pagination Styles */

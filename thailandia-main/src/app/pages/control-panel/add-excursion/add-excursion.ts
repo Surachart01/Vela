@@ -118,6 +118,7 @@ export class AddExcursionComponent implements OnInit {
     this.masterData.refresh().subscribe();
 
     const id = this.route.snapshot.paramMap.get('id');
+    const copyFrom = this.route.snapshot.queryParamMap.get('copyFrom');
     const mode = this.route.snapshot.queryParamMap.get('mode');
 
     const pageId = 'cp_excursions';
@@ -205,7 +206,36 @@ export class AddExcursionComponent implements OnInit {
           this.cd.markForCheck();
         }
       });
+    } else if (copyFrom) {
+      this.loadExcursionForCopy(copyFrom);
     }
+  }
+
+  loadExcursionForCopy(id: string) {
+    this.excursionApiService.getExcursion(id).subscribe(excursion => {
+      this.excursionForm.patchValue({
+        name: excursion.name,
+        city: excursion.city,
+        code: excursion.code,
+        description: excursion.description,
+        sicAdult: null,
+        sicChild: null,
+        supplier: excursion.supplier_name,
+        displayOrder: excursion.display_order ?? 0
+      });
+
+      if (excursion.valid_days) {
+        const daysArray = excursion.valid_days.split(',');
+        const daysGroup: any = {};
+        this.daysOfWeek.forEach(d => {
+          daysGroup[d] = daysArray.includes(d);
+        });
+        this.excursionForm.get('validDays')?.patchValue(daysGroup);
+      }
+
+      this.pricesList.set([]);
+      this.cd.markForCheck();
+    });
   }
 
   goBack() {
