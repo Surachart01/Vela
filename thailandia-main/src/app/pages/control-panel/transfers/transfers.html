@@ -88,6 +88,7 @@
       <table class="data-table">
         <thead>
           <tr>
+            <th>INDEX</th>
             <th>{{ t()['transfer.colCity'] || 'CITY' }}</th>
             <th>{{ t()['transfer.colType'] || 'TYPE' }}</th>
             <th>{{ t()['transfer.colDeparture'] || 'DEPARTURE' }}</th>
@@ -102,6 +103,7 @@
         <tbody [class.loading]="isLoading()">
           @for (tr of transfersList(); track tr.id) {
             <tr>
+              <td>{{ tr.display_order }}</td>
               <td>{{ tr.city }}</td>
               <td class="font-bold type-badge">{{ tr.transfer_type }}</td>
               <td>{{ tr.departure }}</td>
@@ -137,7 +139,7 @@
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="(authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) ? 7 : 6" class="empty-state">
+              <td [attr.colspan]="(authService.canEdit('cp_transfers') || authService.canDelete('cp_transfers')) ? 8 : 7" class="empty-state">
                 <ng-container *ngIf="!isLoading()">{{ t()['transfer.noData'] || 'No transfers found.' }}</ng-container>
                 <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
               </td>
