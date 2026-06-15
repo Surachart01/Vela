@@ -163,7 +163,7 @@ export class TransferModalComponent implements OnInit {
         total = this.markupCalc.applyMarkup(
           total,
           markup.transfer_markup_unit,
-          markup.transfer_markup_value
+          markup.transfer_markup ?? markup.transfer_markup_value ?? 0
         );
       }
 
@@ -225,7 +225,7 @@ export class TransferModalComponent implements OnInit {
         finalPrice = this.markupCalc.applyMarkup(
           finalPrice,
           markup.transfer_markup_unit,
-          markup.transfer_markup_value
+          markup.transfer_markup ?? markup.transfer_markup_value ?? 0
         );
       }
       

@@ -138,7 +138,7 @@ export class TourModalComponent implements OnInit {
         total = this.markupCalc.applyMarkup(
           total,
           markup.tour_markup_unit,
-          markup.tour_markup_value
+          markup.tour_markup ?? markup.tour_markup_value ?? 0
         );
       }
       
@@ -213,7 +213,7 @@ export class TourModalComponent implements OnInit {
         finalPrice = this.markupCalc.applyMarkup(
           finalPrice,
           markup.tour_markup_unit,
-          markup.tour_markup_value
+          markup.tour_markup ?? markup.tour_markup_value ?? 0
         );
       }
 

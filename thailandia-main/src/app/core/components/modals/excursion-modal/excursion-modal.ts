@@ -125,7 +125,7 @@ export class ExcursionModalComponent implements OnInit {
         total = this.markupCalc.applyMarkup(
           total,
           markup.excursion_markup_unit,
-          markup.excursion_markup_value
+          markup.excursion_markup ?? markup.excursion_markup_value ?? 0
         );
       }
 
@@ -187,7 +187,7 @@ export class ExcursionModalComponent implements OnInit {
         finalPrice = this.markupCalc.applyMarkup(
           finalPrice,
           markup.excursion_markup_unit,
-          markup.excursion_markup_value
+          markup.excursion_markup ?? markup.excursion_markup_value ?? 0
         );
       }
 
