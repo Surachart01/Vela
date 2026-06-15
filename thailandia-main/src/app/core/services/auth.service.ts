@@ -72,7 +72,12 @@ export class AuthService {
     if (perms.all) return true;
     
     const modulePerms = perms.module_permissions?.[moduleId];
-    if (!modulePerms) return false;
+    if (!modulePerms) {
+      if (action === 'view' && perms.pages && Array.isArray(perms.pages)) {
+        return perms.pages.includes(moduleId);
+      }
+      return false;
+    }
     
     return !!modulePerms[action];
   }
