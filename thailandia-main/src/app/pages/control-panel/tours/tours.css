@@ -250,8 +250,16 @@
   transition: opacity 0.2s;
 }
 .btn-action.blue { background: var(--blue); }
+.btn-action.green { background: #3D9F7D; }
 .btn-action.red { background: var(--red); }
 .btn-action:hover { opacity: 0.85; }
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
 
 .empty-state {
   text-align: center;

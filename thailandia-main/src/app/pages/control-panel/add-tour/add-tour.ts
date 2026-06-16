@@ -106,6 +106,7 @@ export class AddTourComponent {
   ngOnInit() {
     this.masterData.refresh().subscribe();
     const id = this.route.snapshot.paramMap.get('id');
+    const copyFrom = this.route.snapshot.queryParamMap.get('copyFrom');
     const mode = this.route.snapshot.queryParamMap.get('mode');
 
     const pageId = 'cp_tours';
@@ -127,6 +128,8 @@ export class AddTourComponent {
       if (id) {
         this.editTourId.set(Number(id));
         this.loadTourForEdit(Number(id));
+      } else if (copyFrom) {
+        this.loadTourForCopy(Number(copyFrom));
       }
     });
   }
@@ -254,6 +257,95 @@ export class AddTourComponent {
       } else {
         this.cd.markForCheck();
       }
+    });
+  }
+
+  loadTourForCopy(id: number) {
+    this.tourApiService.getTour(id).subscribe((tour: any) => {
+      // Parse valid_days if it came back as a JSON string
+      let validDays = { mon: true, tue: true, wed: true, thu: false, fri: false, sat: false, sun: false };
+      if (tour.valid_days) {
+        try {
+          validDays = typeof tour.valid_days === 'string' ? JSON.parse(tour.valid_days) : tour.valid_days;
+        } catch { /* keep defaults */ }
+      }
+
+      // Patch main form fields (with " (Copy)" suffix)
+      this.tourForm.patchValue({
+        name: (tour.name || '') + ' (Copy)',
+        country: tour.country || 'Thailand',
+        startCity: tour.city || '',
+        category: tour.category || '',
+        departureType: tour.departures || '',
+        description: tour.description || '',
+        route: tour.route || '',
+        displayOrder: tour.display_order ?? 0,
+        validDays
+      });
+
+      // Helper function to resolve service_name to an ID
+      const resolveItemId = (sName: any, list: any[]) => {
+        if (!sName) return '';
+        const sNameStr = String(sName).trim();
+        if (sNameStr && !isNaN(Number(sNameStr))) {
+          return sNameStr;
+        }
+        const found = list.find(item => item.name && item.name.trim().toLowerCase() === sNameStr.toLowerCase());
+        return found ? String(found.id) : '';
+      };
+
+      // Patch itinerary
+      if (tour.itinerary && Array.isArray(tour.itinerary)) {
+        const days: ItineraryDay[] = tour.itinerary.map((day: any) => ({
+          dayNumber: day.dayNumber || day.day || 1,
+          description: day.description || day.itinerary || '',
+          hotels: (day.hotels || []).map((s: any) => {
+            const itemId = resolveItemId(s.service_name || s.item_id || s.service_id, this.hotelsList());
+            return {
+              id: Date.now() + Math.random(),
+              city: s.city || '',
+              from_time: s.from_time || '',
+              to_time: s.to_time || '',
+              item_id: itemId,
+              room_type: s.room_type || ''
+            };
+          }),
+          excursions: (day.excursions || []).map((s: any) => {
+            const itemId = resolveItemId(s.service_name || s.item_id || s.service_id, this.excursionsList());
+            return {
+              id: Date.now() + Math.random(),
+              city: s.city || '',
+              from_time: s.from_time || '',
+              to_time: s.to_time || '',
+              item_id: itemId
+            };
+          }),
+          transfers: (day.transfers || []).map((s: any) => {
+            const itemId = resolveItemId(s.service_name || s.item_id || s.service_id, this.transfersList());
+            return {
+              id: Date.now() + Math.random(),
+              city: s.city || '',
+              from_time: s.from_time || '',
+              to_time: s.to_time || '',
+              item_id: itemId
+            };
+          })
+        }));
+        this.itinerary.set(days);
+
+        // Preload room types for any selected hotels
+        days.forEach(day => {
+          day.hotels.forEach(hotel => {
+            if (hotel.item_id) {
+              this.onHotelChange(hotel);
+            }
+          });
+        });
+      }
+
+      // Clear prices for copy
+      this.prices.set([]);
+      this.cd.markForCheck();
     });
   }
 

@@ -71,8 +71,7 @@
               <th>{{ t()['tour.colValidDays'] || 'Valid Days' }}</th>
               <th>{{ t()['tour.colCategory'] || 'Category' }}</th>
               <th>{{ t()['tour.colDescription'] || 'Description' }}</th>
-              <th class="text-center">{{ t()['hotel.col.edit'] || 'Edit' }}</th>
-              <th class="text-center">{{ t()['hotel.col.delete'] || 'Delete' }}</th>
+              <th class="text-center">{{ t()['common.actions'] || 'Actions' }}</th>
             </tr>
           </thead>
           <tbody [class.loading]="isLoading()">
@@ -90,20 +89,23 @@
                 <td class="td-desc">
                   <div class="desc-container">{{ item.description }}</div>
                 </td>
-                <td class="text-center" style="width: 80px;">
-                  <button class="btn-action blue" [routerLink]="['/control-panel/add-tour', item.id]" [queryParams]="authService.canEdit('cp_tours') ? {} : { mode: 'view' }" [title]="authService.canEdit('cp_tours') ? 'Edit' : 'View'">
-                    <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_tours')" [class.fa-eye]="!authService.canEdit('cp_tours')"></i>
-                  </button>
-                </td>
-                <td style="width: 80px;">
-                  <button *ngIf="authService.canDelete('cp_tours')" class="btn-action red" (click)="deleteTour(item.id)" title="Delete">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
+                <td class="text-center" style="width: 150px;">
+                  <div class="action-btns">
+                    <button *ngIf="authService.canAdd('cp_tours')" class="btn-action green" [routerLink]="['/control-panel/add-tour']" [queryParams]="{ copyFrom: item.id }" title="Copy">
+                      <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="btn-action blue" [routerLink]="['/control-panel/add-tour', item.id]" [queryParams]="authService.canEdit('cp_tours') ? {} : { mode: 'view' }" [title]="authService.canEdit('cp_tours') ? 'Edit' : 'View'">
+                      <i class="fa-solid" [class.fa-pen-to-square]="authService.canEdit('cp_tours')" [class.fa-eye]="!authService.canEdit('cp_tours')"></i>
+                    </button>
+                    <button *ngIf="authService.canDelete('cp_tours')" class="btn-action red" (click)="deleteTour(item.id)" title="Delete">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="empty-state">
+                <td colspan="7" class="empty-state">
                   <ng-container *ngIf="!isLoading()">{{ t()['hotel.noData'] || 'No tours found.' }}</ng-container>
                   <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
                 </td>
