@@ -6,17 +6,42 @@
 
     <!-- Filter Bar -->
     <div class="filter-section">
-      <div class="search-box">
-        <input type="text" 
-               [placeholder]="t()['tour.searchPlaceholder'] || 'Search for tours...'" 
-               [(ngModel)]="searchQuery"
-               (keyup.enter)="onSearch()">
-        <button class="btn-search" (click)="onSearch()">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
+      <div class="filter-group">
+        <label>{{ t()['home.country'] || 'Country' }}</label>
+        <select [ngModel]="filterCountry()" (ngModelChange)="filterCountry.set($event); onSearch()">
+          <option value="">All Countries</option>
+          @for (c of masterData.countries(); track c.id) {
+            <option [value]="c.name">{{ c.name }}</option>
+          }
+        </select>
       </div>
-      <div class="show-entries">
-        <label class="show-label">Show:</label>
+
+      <div class="filter-group">
+        <label>{{ t()['home.city'] || 'City' }}</label>
+        <select [ngModel]="filterCity()" (ngModelChange)="filterCity.set($event); onSearch()">
+          <option value="">All Cities</option>
+          @for (city of masterData.cities(); track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group search-group">
+        <label>{{ t()['home.keyword'] || 'Keyword' }}</label>
+        <div class="search-box">
+          <input type="text" 
+                 [placeholder]="t()['tour.searchPlaceholder'] || 'Search for tours...'" 
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 (keyup.enter)="onSearch()">
+          <button class="btn-search" (click)="onSearch()">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group show-group">
+        <label class="show-label">Show</label>
         <select [ngModel]="itemsPerPage()" (ngModelChange)="itemsPerPage.set($event); currentPage.set(1)">
           <option [ngValue]="10">10</option>
           <option [ngValue]="25">25</option>

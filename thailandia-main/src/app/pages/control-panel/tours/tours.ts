@@ -5,6 +5,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { TourApiService } from '../../../core/services/api/tour-api.service';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { MasterDataService } from '../../../core/services/master-data.service';
 
 @Component({
   selector: 'app-tours',
@@ -19,6 +20,7 @@ export class ToursComponent implements OnInit {
   private tourApiService = inject(TourApiService);
   private cd = inject(ChangeDetectorRef);
   public authService = inject(AuthService);
+  public masterData = inject(MasterDataService);
   public t = this.translationService.translations;
 
   // Helpers for filter persistence
@@ -38,6 +40,8 @@ export class ToursComponent implements OnInit {
   
   // Search & Pagination State
   public searchQuery = signal<string>(this.getSavedFilter('search', ''));
+  public filterCountry = signal<string>(this.getSavedFilter('country', ''));
+  public filterCity = signal<string>(this.getSavedFilter('city', ''));
   public currentPage = signal<number>(this.getSavedFilterNum('page', 1));
   public itemsPerPage = signal<number>(this.getSavedFilterNum('limit', 25));
   public totalItems = signal<number>(0);
@@ -57,6 +61,7 @@ export class ToursComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.masterData.refresh().subscribe();
     this.loadTours();
   }
 
@@ -68,16 +73,22 @@ export class ToursComponent implements OnInit {
   loadTours() {
     this.isLoading.set(true);
     const search = this.searchQuery();
+    const country = this.filterCountry();
+    const city = this.filterCity();
     const limit = this.itemsPerPage();
     const page = this.currentPage();
 
     // Save filters to sessionStorage
     sessionStorage.setItem('cp_tours_search', search);
+    sessionStorage.setItem('cp_tours_country', country);
+    sessionStorage.setItem('cp_tours_city', city);
     sessionStorage.setItem('cp_tours_limit', String(limit));
     sessionStorage.setItem('cp_tours_page', String(page));
 
     const filters = {
       search,
+      country,
+      city,
       limit,
       page
     };

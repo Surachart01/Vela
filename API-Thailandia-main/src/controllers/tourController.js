@@ -21,6 +21,10 @@ exports.listTours = async (req, res) => {
     query += ` AND country = $${paramIndex++}`;
     params.push(country);
   }
+  if (city) {
+    query += ` AND city = $${paramIndex++}`;
+    params.push(city);
+  }
   if (search) {
     query += ` AND (name ILIKE $${paramIndex} OR description ILIKE $${paramIndex} OR route ILIKE $${paramIndex})`;
     params.push(`%${search}%`);

@@ -38,48 +38,69 @@
 
 /* Filter Section */
 .filter-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+@media (min-width: 992px) {
+  .filter-section {
+    grid-template-columns: 1.5fr 1.5fr 3fr auto; /* Country, City, Keyword, Show */
+  }
+}
+
+.filter-group {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
 }
-.search-box {
-  position: relative;
-  flex: 0 0 360px;
+
+.filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
+.filter-group select,
 .search-box input {
-  width: 100%;
   border: 1.5px solid var(--line);
-  border-radius: 11px;
-  padding: 11px 14px;
+  border-radius: 8px;
+  padding: 10px 12px;
   font-size: 13.5px;
   color: var(--ink);
   background: var(--white);
   outline: none;
+  font-family: inherit;
   transition: all .18s;
+  height: 42px; /* Fixed height for consistency */
+  box-sizing: border-box;
 }
+
+.filter-group select:focus,
 .search-box input:focus {
   border-color: var(--or);
   box-shadow: 0 0 0 3px rgba(242,100,25,0.10);
 }
 
-.show-entries {
+.search-box {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+  width: 100%;
 }
-.show-entries select {
-  border: 1.5px solid var(--line);
-  border-radius: 9px;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
+
+.search-box input {
+  width: 100%;
+  padding-right: 40px;
 }
 
 /* Table Card */
