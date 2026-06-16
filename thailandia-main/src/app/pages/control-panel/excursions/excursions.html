@@ -63,6 +63,7 @@
         <table class="tbl">
           <thead>
             <tr>
+              <th>INDEX</th>
               <th>{{ t()['excursions.col.city'] || 'City' }}</th>
               <th>{{ t()['excursions.col.name'] || 'Name' }}</th>
               <th>{{ t()['excursions.col.validDays'] || 'Valid Days' }}</th>
@@ -76,6 +77,7 @@
           <tbody [class.loading]="isLoading()">
             @for (item of excursionsList(); track item.id) {
               <tr>
+                <td>{{ item.display_order }}</td>
                 <td>{{ item.city }}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.valid_days }}</td>
@@ -101,7 +103,7 @@
               </tr>
             } @empty {
               <tr>
-                <td [attr.colspan]="authService.isAgent() ? 5 : 6" class="empty-state">
+                <td [attr.colspan]="authService.isAgent() ? 6 : 7" class="empty-state">
                   <ng-container *ngIf="!isLoading()">{{ t()['hotel.noData'] || 'No excursions found.' }}</ng-container>
                   <ng-container *ngIf="isLoading()">{{ t()['common.loading'] || 'Loading...' }}</ng-container>
                 </td>

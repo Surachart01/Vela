@@ -31,7 +31,7 @@ exports.listExcursions = async (req, res) => {
     paramIndex++;
   }
 
-  query += ` ORDER BY id DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+  query += ` ORDER BY COALESCE(display_order, 0) ASC, id DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
   params.push(pLimit, offset);
 
   try {
