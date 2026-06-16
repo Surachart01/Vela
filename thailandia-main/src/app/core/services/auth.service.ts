@@ -39,6 +39,11 @@ export class AuthService {
     if (!user) return false;
     if (user.role === 'superadmin') return true;
     
+    // Agents do not have access to payment or itinerary pages
+    if (user.role === 'agent' && (pageId === 'payment' || pageId === 'itinerary')) {
+      return false;
+    }
+    
     const perms = user.permissions;
     if (!perms || !perms.pages) return false;
     
@@ -49,6 +54,11 @@ export class AuthService {
     const user = this._currentUser();
     if (!user) return false;
     if (user.role === 'superadmin') return true;
+    
+    // Agents do not have access to Control Panel
+    if (user.role === 'agent') {
+      return false;
+    }
     
     const perms = user.permissions;
     if (!perms) return false;
@@ -114,7 +124,7 @@ export class AuthService {
     ];
 
     for (const route of routePriority) {
-      if (perms.pages.includes(route.id)) {
+      if (this.hasPageAccess(route.id)) {
         return route.path;
       }
     }
