@@ -14,7 +14,7 @@
 
  Date: 12/06/2026 11:33:09
 */
-
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ----------------------------
 -- Sequence structure for agents_id_seq

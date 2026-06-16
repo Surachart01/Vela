@@ -44,6 +44,11 @@ export class AuthService {
       return false;
     }
     
+    // Agents do have access to quotation page
+    if (user.role === 'agent' && pageId === 'quotation') {
+      return true;
+    }
+    
     const perms = user.permissions;
     if (!perms || !perms.pages) return false;
     
@@ -77,6 +82,11 @@ export class AuthService {
     if (!user) return false;
     if (user.role === 'superadmin') return true;
     
+    // Agents have full access to quotation module
+    if (user.role === 'agent' && moduleId === 'quotation') {
+      return true;
+    }
+
     const perms = user.permissions;
     if (!perms) return false;
     if (perms.all) return true;

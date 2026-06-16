@@ -895,9 +895,8 @@ export class AddQuotationComponent implements OnInit {
     const id = this.editId();
     if (!id) return;
 
-    // For agents: form is disabled (view-only), skip form validation & updateTrip
-    // Just call updateTripStatus -> convertToBooking -> navigate to payment
-    if (!this.isAdmin()) {
+    // If form is disabled (view-only), skip form validation & updateTrip
+    if (this.quotationForm.disabled) {
       this.isConfirmConvertModalOpen.set(false);
       this.isSaving.set(true);
       this.tripApiService.convertToBooking(id).subscribe({
@@ -907,13 +906,21 @@ export class AddQuotationComponent implements OnInit {
               this.isBooking.set(true);
               this.isSaving.set(false);
               this.toastService.success('Converted to Booking successfully!');
-              this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+              if (this.authService.isAgent()) {
+                this.router.navigate(['/quotation']);
+              } else {
+                this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+              }
             },
             error: (err) => {
               this.isSaving.set(false);
               console.error('Failed to update status', err);
               this.toastService.error('Converted but failed to set status to OnProcess.');
-              this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+              if (this.authService.isAgent()) {
+                this.router.navigate(['/quotation']);
+              } else {
+                this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+              }
             }
           });
         },
@@ -926,7 +933,7 @@ export class AddQuotationComponent implements OnInit {
       return;
     }
 
-    // For admin: validate form, save all changes, then convert
+    // If form is enabled, validate form, save all changes, then convert
     if (this.quotationForm.invalid) {
       this.isConfirmConvertModalOpen.set(false);
       this.quotationForm.markAllAsTouched();
@@ -975,13 +982,21 @@ export class AddQuotationComponent implements OnInit {
                   this.isBooking.set(true);
                   this.isSaving.set(false);
                   this.toastService.success('Converted to Booking successfully!');
-                  this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+                  if (this.authService.isAgent()) {
+                    this.router.navigate(['/quotation']);
+                  } else {
+                    this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+                  }
                 },
                 error: (err) => {
                   this.isSaving.set(false);
                   console.error('Failed to set status', err);
                   this.toastService.error('Converted but failed to set status to OnProcess.');
-                  this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+                  if (this.authService.isAgent()) {
+                    this.router.navigate(['/quotation']);
+                  } else {
+                    this.router.navigate(['/payment'], { queryParams: { tripId: id } });
+                  }
                 }
               });
             },
